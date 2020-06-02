@@ -1,119 +1,130 @@
+<!-- Used for Testing Purposes Only -->
+
 <!DOCTYPE html>
 <html>
-  <head>
-    <base target="_top">
-    <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
-    <!-- The CSS package above applies Google styling to buttons and other elements. -->
 
-    <style>
+<head>
+  <base target="_top">
+  <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+  <!-- The CSS package above applies Google styling to buttons and other elements. -->
+
+  <style>
     .branding-below {
       bottom: 56px;
       top: 0;
     }
+
     .branding-text {
       left: 7px;
       position: relative;
       top: 3px;
     }
+
     .col-contain {
       overflow: hidden;
     }
+
     .col-one {
       float: left;
       width: 50%;
     }
+
     .logo {
       vertical-align: middle;
     }
+
     .radio-spacer {
       height: 20px;
     }
+
     .width-100 {
       width: 100%;
     }
-    </style>
-  </head>
-  <body>
-    <div class="sidebar branding-below">
-      <form>
-        <div class="block">
-            <label for="radio-origin-en">File Path:</label><br>
-            <input type="text" name="file" class = "width-100" value="c:\User\Desktop\marks.xlsx">
-        </div> 
-        <div class="block" id="button-bar">
-          <button class="blue" id="openButton">Open file</button>
-        </div>
-        <div class="block" id="button-bar">
-          <button class="blue" id="runTestsButton">Run Tests</button>
-        </div>
-      </form>
-    </div>
+  </style>
+</head>
 
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <script>
-    
+<body>
+  <div class="sidebar branding-below">
+    <form>
+      <div class="block">
+        <label for="radio-origin-en">File Path:</label><br>
+        <input type="text" name="file" class="width-100" value="c:\User\Desktop\marks.xlsx">
+      </div>
+      <div class="block" id="button-bar">
+        <button class="blue" id="openButton">Open file</button>
+      </div>
+      <div class="block" id="button-bar">
+        <button class="blue" id="runTestsButton">Run Tests</button>
+      </div>
+    </form>
+  </div>
+
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>
+
     /**
     * On document load, assign click handlers to each button.
     */
-    $(function() {
-       $('#openButton').click(openFile);
-       $('#runTestsButton').click(runTests);
+    $(function () {
+      $('#openButton').click(openFile);
+      $('#runTestsButton').click(runTests);
     });
-      
-      /**
-       * Triggers _api_workbook_open
-       *
-       */
-      function openFile() {
-        var path = $('input[name=file]').val();
-        this.disabled = true;
-        $('#error').remove();
-        google.script.run
-            .withSuccessHandler(
-              function(message, element) {
-                element.disabled = false;
-              })
-            .withFailureHandler(
-              function(msg, element) {
-                showError(msg, $('#button-bar'));
-                element.disabled = false;
-              })
-            .withUserObject(this)
-            .api_workbook_open(path);
-      }
 
-       
-      /**
-       * Triggers _api_workbook_open_tests();
-       *
-       */
-      function runTests() {
-        this.disabled = true;
-        $('#error').remove();
-        google.script.run
-            .withSuccessHandler(
-              function(message, element) {
-                element.disabled = false;
-              })
-            .withFailureHandler(
-              function(msg, element) {
-                showError(msg, $('#button-bar'));
-                element.disabled = false;
-              })
-            .withUserObject(this)
-            .workbook_run_all_tests();
-      }
+    /**
+     * Triggers _api_workbook_open
+     *
+     */
+    function openFile() {
+      var path = $('input[name=file]').val();
+      this.disabled = true;
+      $('#error').remove();
+      google.script.run
+        .withSuccessHandler(
+          function (message, element) {
+            element.disabled = false;
+          })
+        .withFailureHandler(
+          function (msg, element) {
+            showError(msg, $('#button-bar'));
+            element.disabled = false;
+          })
+        .withUserObject(this)
+        .api_workbook_open(path);
+    }
 
-      /**
-       * Inserts a div that contains an error message after a given element.
-       *
-       * @param {string} msg The error message to display.
-       * @param {DOMElement} element The element after which to display the error.
-       */
-      function showError(msg, element) {
-        var div = $('<div id="error" class="error">' + msg + '</div>');
-        $(element).after(div);
-      }
-    </script>
-  </body>
+
+    /**
+     * Triggers _api_workbook_open_tests();
+     *
+     */
+    function runTests() {
+      this.disabled = true;
+      $('#error').remove();
+      google.script.run
+        .withSuccessHandler(
+          function (message, element) {
+            element.disabled = false;
+          })
+        .withFailureHandler(
+          function (msg, element) {
+            showError(msg, $('#button-bar'));
+            element.disabled = false;
+          })
+        .withUserObject(this)
+        .workbook_run_all_tests();
+    }
+
+    /**
+     * Inserts a div that contains an error message after a given element.
+     *
+     * @param {string} msg The error message to display.
+     * @param {DOMElement} element The element after which to display the error.
+     */
+    function showError(msg, element) {
+      var div = $('<div id="error" class="error">' + msg + '</div>');
+      $(element).after(div);
+    }
+  </script>
+</body>
+
 </html>

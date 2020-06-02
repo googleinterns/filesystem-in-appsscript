@@ -9,10 +9,9 @@
  */
 function onOpen(e) {
   SpreadsheetApp.getUi().createAddonMenu()
-      .addItem('Start', 'showSidebar')
-      .addToUi();
+    .addItem('Start', 'showSidebar')
+    .addToUi();
 }
-
 
 /**
  * Runs when the add-on is installed.
@@ -36,6 +35,38 @@ function onInstall(e) {
  */
 function showSidebar() {
   var ui = HtmlService.createHtmlOutputFromFile('sidebar')
-      .setTitle('Workbook.open');
+    .setTitle('Workbook.open');
   SpreadsheetApp.getUi().showSidebar(ui);
 }
+
+/**
+ * Configure QUnit
+ */
+QUnit.config({
+  title: "File System",
+  requireExpects: true,
+  hidepassed: true,
+  cssUrl: "https://raw.github.com/jquery/qunit/master/qunit/qunit.css"
+});
+
+/**
+ * Registers QUnit helpers globally
+ * Imports the following functions:
+ * ok, equal, notEqual, deepEqual, notDeepEqual, strictEqual,
+ * notStrictEqual, throws, module, test, asyncTest, expect
+ */
+QUnit.helpers(this);
+
+/**
+ * HTML Test Report Generation Handler
+ * @param {object} e The event parameter for a simple get trigger. 
+ */
+function doGet(e) {
+  QUnit.urlParams(e.parameter);
+  QUnit.config({
+    title: "File System" // Sets the title of the test page.
+  });
+  QUnit.load(testFunctions);
+
+  return QUnit.getHtml();
+};
