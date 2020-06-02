@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <script>
+    
+      // Prevent forms from submitting.
+      function preventFormSubmit() {
+        var forms = document.querySelectorAll('form');
+        for (var i = 0; i < forms.length; i++) {
+          forms[i].addEventListener('submit', function(event) {
+            event.preventDefault();
+          });
+        }
+      }
+      window.addEventListener('load', preventFormSubmit);
+      
+      // Executed when the submit button is clicked
+      function handleFormSubmit(formObject) {
+        var file = formObject.myFile.files[0];
+        var fr = new FileReader();
+        fr.fileName = file.name;
+        fr.type = file.type;
+        
+        // Event handler executed when the file load event is fired
+        fr.onload = function(e) {
+            
+            var data = e.target.result.replace(/^.*,/, '');
+            //var mimetype = e.target.result.match(/^.*(?=;)/)[0];
+            var mimetype = e.target.type;
+            var filename = e.target.fileName;
+            
+            // Call the appscript function to create a file in the drive
+            // and on success of that function executes the updateUrl function
+            google.script.run
+              .withSuccessHandler(updateUrl)
+              .withFailureHandler(function(){
+                 console.log('Failed to upload the file.');
+              })
+              .processForm(data, mimetype, filename);
+        }
+        fr.readAsDataURL(file);
+      }
+      
+      // function is executed when the file 
+      // has been successfully uploaded
+      function updateUrl(url) {
+        var div = document.getElementById('output');
+        div.innerHTML = '<a href="' + url + '">Got it!</a>';
+      }
+      
+    </script>
+  </head>
+   <body>
+    <form id="myForm" onsubmit="handleFormSubmit(this)">
+      <input name="myFile" type="file" />
+      <br>
+      <br>
+      <input type="submit" value="Submit" />
+    </form>
+    <br>
+    <div id="output"></div>
+  </body>
+</html>
