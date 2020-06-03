@@ -9,9 +9,9 @@
  *     running in, inspect e.authMode.
  */
 function onOpen() {
-  DocumentApp.getUi() 
+  SpreadsheetApp.getUi() 
       .createMenu('Form')
-      .addItem('Open', 'Display')
+      .addItem('Open', 'DisplayFileMapping')
       .addToUi();
 }
 
@@ -19,12 +19,12 @@ function onOpen() {
 /**
  * Opens a form in the document containing the add-on's user interface.
  */
-function Display() {
+function DisplayFileMapping() {
   var html = HtmlService.createHtmlOutputFromFile('uploadform')
       .setWidth(600)
       .setHeight(425);
   DocumentApp.getUi() 
-      .showModalDialog(html, 'Upload a File');
+      .showModalDialog(html, 'Upload a file to Google Drive');
 }
 
 
@@ -51,8 +51,6 @@ function processForm(data, mimetype, filename) {
   });
   
   driveFile = DriveApp.getFolderById(driveFile.id);
-  
-  //Logger.log(mimetype);
   
   return driveFile.getUrl();
 }
