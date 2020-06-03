@@ -71,7 +71,6 @@
            '<b>You chose:</b><br>Name: <a href="' + url + '">' + title +
            '</a><br>ID: ' + id;
         google.script.run.logPickedFile(url);
-        //google.script.host.close();
         
       } else if (action == google.picker.Action.CANCEL) {
         document.getElementById('result').innerHTML = 'Picker canceled.';
