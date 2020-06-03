@@ -6,31 +6,81 @@ function file_io_run_all_tests() {
   QUnit.module('FileIO');
 
   file_open_close_tests();
-  file_print_tests();
+  file_io_tests();
 
   cleanup();
 }
 
-function file_print_tests() {
+function file_io_tests() {
   QUnit.test('File print testing', function () {
+    var fileNumber = FileIO.getNextAvailableFile();
     FileIO.openFile('PRINT_TEST', 1, OpenMode.OUTPUT);
-    FileIO.printToFile(1, ['This is a test']);
-    FileIO.printToFile(1, []);
-    FileIO.printToFile(1, ['Zone 1', new Tab(), 'Zone 2']);
-    FileIO.printToFile(1, ['Hello', ' ', 'World']);
-    FileIO.printToFile(1, [new Space(5), '5 leading spaces ']);
-    FileIO.printToFile(1, [new Tab(10), 'Hello']);
-    FileIO.printToFile(1, [false, ' is a Boolean value']);
-    FileIO.printToFile(1, [new VbaDate(new Date('2/12/1969')), ' is a date']);
-    FileIO.printToFile(1, [null, ' is a null value']);
-    FileIO.printToFile(1, [new Error(32767), ' is an error value']);
-    FileIO.closeFileList();
-    FileIO.openFile('PRINT_TEST', 1, OpenMode.INPUT);
+    FileIO.printToFile(fileNumber, ['This is a test']);
+    FileIO.printToFile(fileNumber, []);
+    FileIO.printToFile(fileNumber, ['Zone 1', new Tab(), 'Zone 2']);
+    FileIO.printToFile(fileNumber, ['Hello', ' ', 'World']);
+    FileIO.printToFile(fileNumber, [new Space(5), '5 leading spaces ']);
+    FileIO.printToFile(fileNumber, [new Tab(10), 'Hello']);
+    FileIO.printToFile(fileNumber, [false, ' is a Boolean value']);
+    FileIO.printToFile(fileNumber, [
+      new VbaDate(new Date('2/12/1969')),
+      ' is a date',
+    ]);
+    FileIO.printToFile(fileNumber, [null, ' is a null value']);
+    FileIO.printToFile(fileNumber, [new Error(32767), ' is an error value']);
 
-    var content = FileIO.openFiles[1].content;
+    var content = FileIO.openFiles[fileNumber].content;
     var actualContent =
       'This is a test\r\n\r\nZone 1        Zone 2\r\nHello World\r\n     5 leading spaces \r\n         Hello\r\nFalse is a Boolean value\r\n12-02-1969  is a date\r\nNull is a null value\r\nError 32767 is an error value\r\n';
     equal(content, actualContent, 'Test for exact print match');
+    FileIO.closeFileList();
+  });
+
+  QUnit.test('File line input testing', function () {
+    var actualContent = [
+      'This is a test',
+      '',
+      'Zone 1        Zone 2',
+      'Hello World',
+      '     5 leading spaces ',
+      '         Hello',
+      'False is a Boolean value',
+      '12-02-1969  is a date',
+      'Null is a null value',
+      'Error 32767 is an error value',
+    ];
+    expect(actualContent.length + 1);
+    var fileNumber = FileIO.getNextAvailableFile();
+    FileIO.openFile('PRINT_TEST', fileNumber, OpenMode.INPUT);
+    for (var i = 0; i < actualContent.length; i++) {
+      var variable = new VbaBox('');
+      FileIO.lineInputFile(fileNumber, variable);
+      equal(variable.referenceValue, actualContent[i]);
+    }
+
+    ok(FileIO.isEOF(fileNumber));
+    FileIO.closeFileList();
+  });
+
+  QUnit.test('File write testing', function () {
+    expect(1);
+    var fileNumber = FileIO.getNextAvailableFile();
+    FileIO.openFile('WRITE_TEST', fileNumber, OpenMode.OUTPUT);
+    FileIO.writeToFile(fileNumber, ['Hello World', 234]);
+    FileIO.writeToFile(fileNumber, []);
+    FileIO.writeToFile(fileNumber, [false, ' is a Boolean value']);
+    FileIO.writeToFile(fileNumber, [
+      new VbaDate(new Date('2/12/1969')),
+      ' is a date',
+    ]);
+    FileIO.writeToFile(fileNumber, [null, ' is a null value']);
+    FileIO.writeToFile(fileNumber, [new Error(32767), ' is an error value']);
+
+    var actualContent =
+      '"Hello World",234\r\n\r\n#FALSE#," is a Boolean value"\r\n#1969-02-12#," is a date"\r\n#NULL#," is a null value"\r\n#ERROR 32767#," is an error value"\r\n';
+    var content = FileIO.openFiles[fileNumber].content;
+    equal(content, actualContent, 'Test for exact write match');
+    FileIO.closeFileList();
   });
 }
 
@@ -112,4 +162,5 @@ function file_open_close_tests() {
 function cleanup() {
   deleteFile('TESTFILE');
   deleteFile('PRINT_TEST');
+  deleteFile('WRITE_TEST');
 }
