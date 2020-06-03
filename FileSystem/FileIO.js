@@ -238,15 +238,23 @@ function printToFile(fileNumber, outputList) {
 
   for (var i = 0; i < outputList.length; i++) {
     var exp = outputList[i];
-    if (typeof exp === 'string') printString(file, exp);
-    else if (typeof exp === 'number') printNumber(file, exp);
-    else if (typeof exp === 'boolean') printBool(file, exp);
-    else if (exp instanceof VbaDate) printDate(file, exp);
-    else if (exp instanceof Tab) printTab(file, exp);
-    else if (exp instanceof Space) printSpace(file, exp);
-    else if (exp instanceof Error) printError(file, exp);
-    else if (exp === null) stringInsert(file, 'Null');
-    else throw Error('Unknown Expression');
+    if (typeof exp === 'string') {
+      printString(file, exp);
+    } else if (typeof exp === 'number') {
+      printNumber(file, exp);
+    } else if (typeof exp === 'boolean') {
+      printBool(file, exp);
+    } else if (exp instanceof VbaDate) {
+      printDate(file, exp);
+    } else if (exp instanceof Tab) {
+      printTab(file, exp);
+    } else if (exp instanceof Space) {
+      printSpace(file, exp);
+    } else if (exp instanceof Error) {
+      printError(file, exp);
+    } else if (exp === null) {
+      stringInsert(file, 'Null');
+    } else throw Error('Unknown Expression');
   }
 
   // Print new line
