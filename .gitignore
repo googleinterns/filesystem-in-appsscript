@@ -1,2 +1,6 @@
 .DS_Store
 .clasp.json
+.prettierrc
+node_modules
+package.json
+yarn.lock

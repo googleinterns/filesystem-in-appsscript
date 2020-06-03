@@ -9,30 +9,29 @@ var USE_FILEMAPPER_MOCKER = true;
  */
 var VBAFileMapperMocker = {
   mappings: {
-    'c:\\User\\Desktop\\marks.xlsx': "1i3M1cYfubmXnosn5LJQmHCghBzhPBrDjBQszkWvZkxA",
-    'c:\\User\\Desktop\\attendance.xlsx': "1bJb_KzRHW9nqYLa0N1GqMNoWZIOwxIb-TxYlIrk1NSs"
+    'c:\\User\\Desktop\\marks.xlsx':
+      '1i3M1cYfubmXnosn5LJQmHCghBzhPBrDjBQszkWvZkxA',
+    'c:\\User\\Desktop\\attendance.xlsx':
+      '1bJb_KzRHW9nqYLa0N1GqMNoWZIOwxIb-TxYlIrk1NSs',
   },
-
-  getFileId: function (current_directory, path, type) {
-    if (path in this.mappings)
+  getFileId: function (currentDirectory, path, type) {
+    if (path in this.mappings) {
       return this.mappings[path];
-
-    throw Error(path + " not mapped!");
+    }
+    throw Error(path + ' not mapped!');
   },
-
-  registerFile: function (current_directory, path, file_id) {
-    this.mappings[path] = file_id;
+  registerFile: function (currentDirectory, path, fileId) {
+    this.mappings[path] = fileId;
   },
-
-  hasMapping: function (current_directory, path, type) {
+  hasMapping: function (currentDirectory, path, type) {
     return path in this.mappings;
-  }
-}
+  },
+};
 
 var FileMapper = USE_FILEMAPPER_MOCKER ? VBAFileMapperMocker : VBAFileMapper;
 
-function create_file(current_directory, path, mimeType) {
-  var fileId = DriveApp.createFile(path, "", mimeType).getId();
-  FileMapper.registerFile(FileSystem.current_directory, path, fileId);
+function createFile(currentDirectory, path, mimeType) {
+  var fileId = DriveApp.createFile(path, '', mimeType).getId();
+  FileMapper.registerFile(FileSystem.currentDirectory, path, fileId);
   return fileId;
 }
