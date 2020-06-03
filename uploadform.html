@@ -24,9 +24,7 @@
         
         // Event handler executed when the file load event is fired
         fr.onload = function(e) {
-            
             var data = e.target.result.replace(/^.*,/, '');
-            //var mimetype = e.target.result.match(/^.*(?=;)/)[0];
             var mimetype = e.target.type;
             var filename = e.target.fileName;
             
