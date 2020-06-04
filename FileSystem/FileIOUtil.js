@@ -199,3 +199,120 @@ function getLineStart(file) {
   }
   return filePointer + 1;
 }
+
+/**
+ * Helper function to parse one variable
+ * @param(object) file File structure
+ * @param {VbaBox} variable reference variable to store value
+ */
+function inputFileUtil(file, variable) {
+  var content = file.content;
+  var filePointer = file.pointer;
+
+  while (filePointer < content.length && content[filePointer] == ' ') {
+    filePointer++;
+  }
+
+  if (filePointer == content.length) {
+    throw Error('End of file reached');
+  }
+
+  var remainingString = content.substring(filePointer);
+
+  if (
+    content[filePointer] == ',' ||
+    /^\r\n/.test(remainingString) ||
+    /^\r/.test(remainingString) ||
+    /^\n/.test(remainingString)
+  ) {
+    variable.referenceValue = '';
+  } else if (/^#NULL#/.test(remainingString)) {
+    filePointer += '#NULL#'.length;
+    variable.referenceValue = null;
+  } else if (/^#TRUE#/.test(remainingString)) {
+    filePointer += '#TRUE#'.length;
+    variable.referenceValue = true;
+  } else if (/^#FALSE#/.test(remainingString)) {
+    filePointer += '#FALSE#'.length;
+    variable.referenceValue = false;
+  } else if (/^#FALSE#/.test(remainingString)) {
+    filePointer += '#FALSE#'.length;
+    variable.referenceValue = false;
+  } else {
+    var stringRegExp = /^"([^"]*)"/;
+    var errorRegExp = /^#ERROR ([^#]*)#/;
+    var dateRegExp = /^#(\d{4})-(\d{2})-(\d{2})#/;
+    var dateTimeRegExp = /^#(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})#/;
+    var timeRegExp = /^#(\d{2}):(\d{2}):(\d{2})#/;
+    var numberRegExp = /^[\d\.]*/;
+
+    if (stringRegExp.test(remainingString)) {
+      var match = remainingString.match(stringRegExp);
+      filePointer += match[0].length;
+      variable.referenceValue = match[1];
+    } else if (errorRegExp.test(remainingString)) {
+      var match = remainingString.match(errorRegExp);
+      filePointer += match[0].length;
+      variable.referenceValue = new Error(match[1]);
+    } else if (dateRegExp.test(remainingString)) {
+      var match = remainingString.match(dateRegExp);
+      filePointer += match[0].length;
+      var year = parseInt(match[1]);
+      var month = parseInt(match[2]);
+      var day = parseInt(match[3]);
+      variable.referenceValue = new VbaDate(new Date(year, month - 1, day));
+    } else if (dateTimeRegExp.test(remainingString)) {
+      var match = remainingString.match(dateTimeRegExp);
+      filePointer += match[0].length;
+      var year = parseInt(match[1]);
+      var month = parseInt(match[2]);
+      var day = parseInt(match[3]);
+      var hour = parseInt(match[4]);
+      var minute = parseInt(match[5]);
+      var second = parseInt(match[6]);
+      var date = new Date(year, month - 1, day, hour, minute, second);
+      variable.referenceValue = new VbaDate(date);
+    } else if (timeRegExp.test(remainingString)) {
+      var match = remainingString.match(timeRegExp);
+      filePointer += match[0].length;
+      var hour = parseInt(match[1]);
+      var minute = parseInt(match[2]);
+      var second = parseInt(match[3]);
+      var date = new Date();
+      date.setHours(hour, minute, second);
+      variable.referenceValue = new VbaDate(date);
+    } else if (numberRegExp.test(remainingString)) {
+      var match = remainingString.match(numberRegExp);
+      filePointer += match[0].length;
+      variable.referenceValue = parseFloat(match[0]);
+    } else {
+      throw Error('Unknown Expression');
+    }
+  }
+
+  // Jump over whitespace and break at any delimiting characters
+  while (filePointer < content.length) {
+    if (content[filePointer] == ' ') {
+      filePointer++;
+    } else if (content[filePointer] == ',') {
+      filePointer++;
+      break;
+    } else {
+      var remainingString = content.substring(filePointer);
+      if (/^\r\n/.test(remainingString)) {
+        filePointer += 2;
+        break;
+      } else if (/^\r/.test(remainingString)) {
+        filePointer++;
+        break;
+      } else if (/^\n/.test(remainingString)) {
+        filePointer++;
+        break;
+      } else {
+        break;
+      }
+    }
+  }
+
+  file.pointer = filePointer;
+}

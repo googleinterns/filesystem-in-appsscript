@@ -98,4 +98,17 @@ Close #1    ' Close file. -->
   console.log(actualContent == FileIO.openFiles[1].content);
 
   /** FileIO Write Test End */
+
+  /** FileIO Input Test Start */
+  FileIO.openFiles[1].pointer = 0;
+  var count = 0;
+
+  while (!FileIO.isEOF(1)) {
+    var variable = new VbaBox('');
+    FileIO.inputFile(1, [variable]);
+    console.log(variable.referenceValue);
+    count++;
+  }
+  console.log(count);
+  /** FileIO Input Test End */
 </script>

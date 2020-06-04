@@ -47,12 +47,14 @@ function workbook_run_all_tests() {
     }
   );
 
-  QUnit.test(
-    'single call to workbook.open() when file is not present',
-    function () {
-      expect(0);
-      var fileName1 = 'FileNotExist.xlsx';
-      FileSystem.openWorkbook(fileName1);
-    }
-  );
+  if (!USE_FILEMAPPER_MOCKER) {
+    QUnit.test(
+      'single call to workbook.open() when file is not present',
+      function () {
+        expect(0);
+        var fileName1 = 'FileNotExist.xlsx';
+        FileSystem.openWorkbook(fileName1);
+      }
+    );
+  }
 }
