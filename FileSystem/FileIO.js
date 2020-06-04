@@ -41,6 +41,7 @@ var FileIO = {
   printToFile: printToFile,
   lineInputFile: lineInputFile,
   writeToFile: writeToFile,
+  inputFile: inputFile,
   getFilePointer: getFilePointer,
   setFilePointer: setFilePointer,
 
@@ -373,4 +374,22 @@ function setFilePointer(fileNumber, position) {
     content += ' ';
   }
   this.openFiles[fileNumber].content = content;
+}
+
+/**
+ * Emulates VBA input statement API
+ * @todo Implement/use custom DateTime/Time/Date structures
+ * @body Javascript only has a DateTime Type, No Time or Date type.
+ * @param {number} fileNumber File number
+ * @param {Array} inputList variable List
+ */
+function inputFile(fileNumber, inputList) {
+  if (!(fileNumber in this.openFiles)) {
+    throw Error('File Number: ' + fileNumber + ' is not open');
+  }
+
+  var file = this.openFiles[fileNumber];
+  for (var i = 0; i < inputList.length; i++) {
+    inputFileUtil(file, inputList[i]);
+  }
 }

@@ -82,6 +82,40 @@ function file_io_tests() {
     equal(content, actualContent, 'Test for exact write match');
     FileIO.closeFileList();
   });
+
+  QUnit.test('File input testing', function () {
+    var actualContent = [
+      'Hello World',
+      234,
+      '',
+      false,
+      ' is a Boolean value',
+      new VbaDate(new Date(1969, 2 - 1, 12)),
+      ' is a date',
+      null,
+      ' is a null value',
+      new Error('32767'),
+      ' is an error value',
+    ];
+
+    expect(actualContent.length + 1);
+    var fileNumber = FileIO.getNextAvailableFile();
+    FileIO.openFile('WRITE_TEST', fileNumber, OpenMode.INPUT);
+    for (var i = 0; i < actualContent.length; i++) {
+      var variable = new VbaBox('');
+      FileIO.inputFile(fileNumber, [variable]);
+      if (actualContent[i] instanceof VbaDate) {
+        equal(variable.referenceValue.toString(), actualContent[i].toString());
+      } else if (actualContent[i] instanceof Error) {
+        equal(variable.referenceValue.message, actualContent[i].message);
+      } else {
+        equal(variable.referenceValue, actualContent[i]);
+      }
+    }
+
+    ok(FileIO.isEOF(fileNumber));
+    FileIO.closeFileList();
+  });
 }
 
 function file_open_close_tests() {

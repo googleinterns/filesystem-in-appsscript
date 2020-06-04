@@ -46,8 +46,9 @@ function workbook_run_all_tests() {
       FileSystem.openWorkbook(fileName1);
     }
   );
-
-  QUnit.test(
+  
+  if(!USE_FILEMAPPER_MOCKER) {
+    QUnit.test(
     'single call to workbook.open() when file is not present',
     function () {
       expect(0);
@@ -55,4 +56,5 @@ function workbook_run_all_tests() {
       FileSystem.openWorkbook(fileName1);
     }
   );
+  }
 }

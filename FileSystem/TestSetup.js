@@ -47,7 +47,8 @@ function generateTestReport() {
   var blob = Utilities.newBlob(content, 'text/html', 'text.html');
   var pdf = blob.getAs('application/pdf');
 
-  DriveApp.createFile(pdf).setName(fileName);
+  var file = DriveApp.createFile(pdf).setName(fileName);
+  openURL(file.getUrl(), fileName);
 }
 
 function testFunctions() {
