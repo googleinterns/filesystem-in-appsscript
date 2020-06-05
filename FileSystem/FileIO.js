@@ -284,6 +284,9 @@ function lineInputFile(fileNumber, variable) {
   }
 
   var file = this.openFiles[fileNumber];
+  if(file.accessMode == AccessMode.WRITE) {
+    throw Error('File is not open for reading');
+  }
   var content = file.content;
 
   // No data left, throw error
@@ -325,6 +328,9 @@ function writeToFile(fileNumber, outputList) {
   outputList = outputList || [];
 
   var file = this.openFiles[fileNumber];
+  if(file.accessMode == AccessMode.READ) {
+    throw Error('File is not open for writing');
+  }
 
   for (var i = 0; i < outputList.length; i++) {
     var exp = outputList[i];
