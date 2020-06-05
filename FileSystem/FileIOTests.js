@@ -4,7 +4,6 @@
 
 function file_io_run_all_tests() {
   QUnit.module('FileIO');
-
   file_open_close_tests();
   file_io_tests();
 

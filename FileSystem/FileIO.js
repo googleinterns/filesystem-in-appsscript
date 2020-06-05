@@ -81,12 +81,18 @@ function openFile(path, fileNumber, openMode, accessMode, lockMode) {
   }
 
   var fileId;
-
   // If file exists, get file id else create and get file id
   if (FileMapper.hasMapping(FileSystem.currentDirectory, path)) {
     fileId = FileMapper.getFileId(FileSystem.currentDirectory, path);
-  } else {
+  } else if (
+    openMode == OpenMode.APPEND ||
+    openMode == OpenMode.OUTPUT ||
+    openMode == OpenMode.BINARY ||
+    openMode == OpenMode.RANDOM
+  ) {
     fileId = createFile(FileSystem.currentDirectory, path, MimeType.PLAIN_TEXT);
+  } else {
+    throw Error('File not present');
   }
 
   // In memory file object
@@ -143,10 +149,9 @@ function closeFile(fileNumber) {
   }
 
   var file = this.openFiles[fileNumber];
-
   if (file.openMode == OpenMode.BINARY) {
-    DriveApp.getFileById(file.fileId).getBlob().setBytes(file.content); // Does this work??
-  } else {
+    DriveApp.getFileById(file.fileId).getBlob().setBytes(file.content);
+  } else if (file.openMode != OpenMode.INPUT) {
     DriveApp.getFileById(file.fileId).setContent(file.content);
   }
 
@@ -240,6 +245,9 @@ function printToFile(fileNumber, outputList) {
   outputList = outputList || [];
 
   var file = this.openFiles[fileNumber];
+  if(file.accessMode == AccessMode.READ) {
+    throw Error('File is not open for writing');
+  }
 
   for (var i = 0; i < outputList.length; i++) {
     var exp = outputList[i];
@@ -277,6 +285,9 @@ function lineInputFile(fileNumber, variable) {
   }
 
   var file = this.openFiles[fileNumber];
+  if(file.accessMode == AccessMode.WRITE) {
+    throw Error('File is not open for reading');
+  }
   var content = file.content;
 
   // No data left, throw error
@@ -318,6 +329,9 @@ function writeToFile(fileNumber, outputList) {
   outputList = outputList || [];
 
   var file = this.openFiles[fileNumber];
+  if(file.accessMode == AccessMode.READ) {
+    throw Error('File is not open for writing');
+  }
 
   for (var i = 0; i < outputList.length; i++) {
     var exp = outputList[i];
@@ -389,6 +403,10 @@ function inputFile(fileNumber, inputList) {
   }
 
   var file = this.openFiles[fileNumber];
+  if(file.accessMode == AccessMode.WRITE) {
+    throw Error('File is not open for reading');
+  }
+  
   for (var i = 0; i < inputList.length; i++) {
     inputFileUtil(file, inputList[i]);
   }
