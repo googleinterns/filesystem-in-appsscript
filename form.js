@@ -10,7 +10,7 @@
  */
 function onOpen() {
   SpreadsheetApp.getUi() 
-      .createMenu('Form')
+      .createMenu('File Mapping')
       .addItem('Open', 'DisplayFileMapping')
       .addToUi();
 }
@@ -20,7 +20,7 @@ function onOpen() {
  * Opens a form in the document containing the add-on's user interface.
  */
 function DisplayFileMapping() {
-  var html = HtmlService.createHtmlOutputFromFile('uploadform')
+  var html = HtmlService.createHtmlOutputFromFile('fileuploadform')
       .setWidth(600)
       .setHeight(425);
   DocumentApp.getUi() 
@@ -46,10 +46,21 @@ function processForm(data, mimetype, filename) {
     title: filename,
     mimeType: mimetype
   };
-  driveFile = Drive.Files.insert(driveFile, blob, {
-    convert: true
-  });
   
+  var index = filename.lastIndexOf(".");
+  var extension = "";
+  if(index != -1){
+    extension = filename.substr(index + 1);
+  }
+  
+  if(extension === "xls" || extension === "xlsx"){
+    driveFile = Drive.Files.insert(driveFile, blob, {
+      convert: true
+    });
+  }
+  else{
+    driveFile = Drive.Files.insert(driveFile, blob);
+  }
   driveFile = DriveApp.getFolderById(driveFile.id);
   
   return driveFile.getUrl();

@@ -20,12 +20,11 @@
         var file = formObject.myFile.files[0];
         var fr = new FileReader();
         fr.fileName = file.name;
-        fr.type = file.type;
         
         // Event handler executed when the file load event is fired
         fr.onload = function(e) {
             var data = e.target.result.replace(/^.*,/, '');
-            var mimetype = e.target.type;
+            var mimetype = e.target.result.match(/^.*(?=;)/)[0];
             var filename = e.target.fileName;
             
             // Call the appscript function to create a file in the drive
