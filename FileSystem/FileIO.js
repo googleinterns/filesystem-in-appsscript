@@ -38,10 +38,7 @@ var FileIO = {
   getNextAvailableFile: getNextAvailableFile,
   lof: lof,
   isEOF: isEOF,
-<<<<<<< HEAD
   printToFile: printToFile,
-=======
->>>>>>> feature/file_io_open_close
 
   openFiles: {},
 
@@ -79,17 +76,10 @@ function openFile(path, fileNumber, openMode, accessMode, lockMode) {
   }
 
   var fileId;
-<<<<<<< HEAD
-
-=======
->>>>>>> feature/file_io_open_close
   // If file exists, get file id else create and get file id
   if (FileMapper.hasMapping(FileSystem.currentDirectory, path)) {
     fileId = FileMapper.getFileId(FileSystem.currentDirectory, path);
   } else {
-<<<<<<< HEAD
-    fileId = createFile(FileSystem.currentDirectory, path, MimeType.PLAIN_TEXT);
-=======
     if (
       openMode == OpenMode.APPEND ||
       openMode == OpenMode.OUTPUT ||
@@ -104,7 +94,6 @@ function openFile(path, fileNumber, openMode, accessMode, lockMode) {
     } else {
       throw Error('File not present');
     }
->>>>>>> feature/file_io_open_close
   }
 
   // In memory file object
@@ -161,16 +150,9 @@ function closeFile(fileNumber) {
   }
 
   var file = this.openFiles[fileNumber];
-<<<<<<< HEAD
-
-  if (file.openMode == OpenMode.BINARY) {
-    DriveApp.getFileById(file.fileId).getBlob().setBytes(file.content); // Does this work??
-  } else {
-=======
   if (file.openMode == OpenMode.BINARY) {
     DriveApp.getFileById(file.fileId).getBlob().setBytes(file.content);
   } else if (file.openMode != OpenMode.INPUT) {
->>>>>>> feature/file_io_open_close
     DriveApp.getFileById(file.fileId).setContent(file.content);
   }
 
