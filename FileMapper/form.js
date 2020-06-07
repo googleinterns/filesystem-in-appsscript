@@ -1,12 +1,7 @@
-
 /**
  * Creates a menu entry in the Google Docs UI when the document is opened.
  * This method is only used by the regular add-on, and is never called by
  * the mobile add-on version.
- *
- * @param {object} e The event parameter for a simple onOpen trigger. To
- *     determine which authorization mode (ScriptApp.AuthMode) the trigger is
- *     running in, inspect e.authMode.
  */
 function onOpen() {
   SpreadsheetApp.getUi() 
@@ -23,7 +18,7 @@ function DisplayFileMapping() {
   var html = HtmlService.createHtmlOutputFromFile('fileuploadform')
       .setWidth(600)
       .setHeight(425);
-  DocumentApp.getUi() 
+  SpreadsheetApp.getUi() 
       .showModalDialog(html, 'Upload a file to Google Drive');
 }
 
