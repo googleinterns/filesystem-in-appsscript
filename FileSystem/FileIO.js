@@ -62,31 +62,26 @@ function openFile(path, fileNumber, openMode, accessMode, lockMode) {
 
   // Check if file number is available
   if (fileNumber in this.openFiles) {
-    throw Error('File Number: ' + fileNumber + ' is already being used');
+    throw new Error('File Number: ' + fileNumber + ' is already being used');
   }
 
   // Check if file number is valid
   if (fileNumber < 1 || fileNumber > 511) {
-    throw Error(
+    throw new Error(
       'File Number: ' +
         fileNumber +
         ' is invalid. File numbers need to be an number value between 1 and 511'
     );
   }
 
-  var fileId;
   // If file exists, get file id else create and get file id
+  var fileId;
   if (FileMapper.hasMapping(FileSystem.currentDirectory, path)) {
     fileId = FileMapper.getFileId(FileSystem.currentDirectory, path);
-  } else if (
-    openMode == OpenMode.APPEND ||
-    openMode == OpenMode.OUTPUT ||
-    openMode == OpenMode.BINARY ||
-    openMode == OpenMode.RANDOM
-  ) {
+  } else if (openMode != OpenMode.INPUT) {
     fileId = createFile(FileSystem.currentDirectory, path, MimeType.PLAIN_TEXT);
   } else {
-    throw Error('File not present');
+    throw new Error('File not present');
   }
 
   // In memory file object
@@ -98,33 +93,28 @@ function openFile(path, fileNumber, openMode, accessMode, lockMode) {
     lockMode: lockMode,
   };
 
-  // Set file content (In memory buffer)
+  // Set file content and file pointer (In memory buffer) depending on type
   switch (openMode) {
-    case OpenMode.INPUT:
-    case OpenMode.APPEND:
     case OpenMode.RANDOM:
+    case OpenMode.INPUT:
+      file.pointer = 0; // Beginning of file
       file.content = DriveApp.getFileById(file.fileId)
         .getBlob()
         .getDataAsString();
       break;
-    case OpenMode.OUTPUT:
-      file.content = '';
-      break;
-    case OpenMode.BINARY:
-      file.content = DriveApp.getFileById(file.fileId).getBlob().getBytes();
-      break;
-  }
-
-  // Set file pointer
-  switch (openMode) {
-    case OpenMode.INPUT:
-    case OpenMode.RANDOM:
-    case OpenMode.OUTPUT:
-    case OpenMode.BINARY:
-      file.pointer = 0;
-      break;
     case OpenMode.APPEND:
-      file.pointer = file.content.length;
+      file.content = DriveApp.getFileById(file.fileId)
+        .getBlob()
+        .getDataAsString();
+      file.pointer = file.content.length; // End of file
+      break;
+    case OpenMode.OUTPUT:
+      file.pointer = 0; // Beginning of file
+      file.content = ''; // Empty file
+      break;
+    case OpenMode.BINARY:
+      file.pointer = 0; // Beginning of file
+      file.content = DriveApp.getFileById(file.fileId).getBlob().getBytes();
       break;
   }
 
@@ -139,10 +129,14 @@ function openFile(path, fileNumber, openMode, accessMode, lockMode) {
  */
 function closeFile(fileNumber) {
   if (!(fileNumber in this.openFiles)) {
-    throw Error('File Number: ' + fileNumber + ' is not open');
+    throw new Error('File Number: ' + fileNumber + ' is not open');
   }
 
   var file = this.openFiles[fileNumber];
+  /**
+   * @todo Test Binary operation for open/close
+   * @body DriveAPI doesn't provide much support for binary operations
+   */
   if (file.openMode == OpenMode.BINARY) {
     DriveApp.getFileById(file.fileId).getBlob().setBytes(file.content);
   } else if (file.openMode != OpenMode.INPUT) {
@@ -197,7 +191,7 @@ function getNextAvailableFile(range) {
     }
   }
 
-  throw Error('No free filenumber available');
+  throw new Error('No free filenumber available');
 }
 
 /**
@@ -207,7 +201,7 @@ function getNextAvailableFile(range) {
  */
 function lof(fileNumber) {
   if (!(fileNumber in this.openFiles)) {
-    throw Error('File Number: ' + fileNumber + ' is not open');
+    throw new Error('File Number: ' + fileNumber + ' is not open');
   }
   return this.openFiles[fileNumber].content.length;
 }
@@ -219,7 +213,7 @@ function lof(fileNumber) {
  */
 function isEOF(fileNumber) {
   if (!(fileNumber in this.openFiles)) {
-    throw Error('File Number: ' + fileNumber + ' is not open');
+    throw new Error('File Number: ' + fileNumber + ' is not open');
   }
   var file = this.openFiles[fileNumber];
   return file.content.length == file.pointer;
