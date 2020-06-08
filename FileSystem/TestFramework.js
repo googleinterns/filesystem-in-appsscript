@@ -98,7 +98,7 @@ TestFramework.assert = function (assertion, message) {
     message = 'Assertion failed';
   }
 
-  throw Error(message);
+  throw new Error(message);
 };
 
 /**

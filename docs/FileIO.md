@@ -81,7 +81,7 @@ Official Documentation - https://docs.microsoft.com/en-us/office/vba/language/re
 | filenumber   | Required. A valid file number in the range 1 to 511, inclusive. Use the FreeFile function to obtain the next available file number.                                                                | Yes         |                                                                                                   |
 | reclength    | Optional. Number less than or equal to 32,767 (bytes). For files opened for random access, this value is the record length. For sequential files, this value is the number of characters buffered. | No          | Required by Get and Put API                                                                       |
 
-> API implemented completely. More work may be required to handle binary files.
+> API implemented almost completely. File locking is not implemented. More work may be required to handle binary files.
 
 ### Close API
 

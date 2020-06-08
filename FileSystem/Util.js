@@ -24,7 +24,7 @@ function openURL(url, message) {
     lock.releaseLock();
   } catch (e) {
     Logger.log('Could not obtain lock after 10 seconds.');
-    throw Error('Could not obtain lock after 10 seconds.');
+    throw new Error('Could not obtain lock after 10 seconds.');
   }
 }
 
