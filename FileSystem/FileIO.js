@@ -256,7 +256,9 @@ function printToFile(fileNumber, outputList) {
       printError(file, exp);
     } else if (exp === null) {
       stringInsert(file, 'Null');
-    } else throw new Error('Unknown Expression');
+    } else {
+      throw new Error('Unknown Expression');
+    }
   }
 
   // Print new line
