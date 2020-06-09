@@ -37,13 +37,15 @@ function printDate(file, date) {
   var day = date.getDate();
   var month = date.getMonth() + 1;
   var year = date.getFullYear();
-  // Prefix digit 0 to ensure double digit day/month
+  // Prefix digit 0 to ensure double digit day/month 
   if (month < 10) {
     month = '0' + month;
   }
   if (day < 10) {
     day = '0' + day;
   }
+
+  // Construct date string as per VBA format
   var str = day + '-' + month + '-' + year + ' ';
   stringInsert(file, str);
 }
