@@ -389,7 +389,8 @@ function setFilePointer(fileNumber, position) {
 }
 
 /**
- * Emulates VBA input statement API
+ * Emulates VBA input statement API. inputList contains a list of input variables.
+ * Each variable can be read independently by the inputFileUtil function
  * @todo Implement/use custom DateTime/Time/Date structures
  * @body Javascript only has a DateTime Type, No Time or Date type.
  * @param {number} fileNumber File number
@@ -397,12 +398,12 @@ function setFilePointer(fileNumber, position) {
  */
 function inputFile(fileNumber, inputList) {
   if (!(fileNumber in this.openFiles)) {
-    throw Error('File Number: ' + fileNumber + ' is not open');
+    throw new Error('File Number: ' + fileNumber + ' is not open');
   }
 
   var file = this.openFiles[fileNumber];
   if (file.accessMode == AccessMode.WRITE) {
-    throw Error('File is not open for reading');
+    throw new Error('File is not open for reading');
   }
 
   for (var i = 0; i < inputList.length; i++) {

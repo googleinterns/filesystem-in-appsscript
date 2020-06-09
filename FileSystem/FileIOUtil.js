@@ -214,118 +214,165 @@ function getLineStart(file) {
 }
 
 /**
- * Helper function to parse one variable
+ * Helper function to parse one variable. This function is designed to be robust against whitespaces.
+ * It will read a boolean, null, number, string, date or error into the variable
  * @param(object) file File structure
  * @param {VbaBox} variable reference variable to store value
  */
 function inputFileUtil(file, variable) {
   var content = file.content;
   var filePointer = file.pointer;
-
+  // Jump over whitespace
   while (filePointer < content.length && content[filePointer] == ' ') {
     filePointer++;
   }
-
+  // No input left
   if (filePointer == content.length) {
-    throw Error('End of file reached');
+    throw new Error('End of file reached');
   }
-
-  var remainingString = content.substring(filePointer);
-
-  if (
-    content[filePointer] == ',' ||
-    /^\r\n/.test(remainingString) ||
-    /^\r/.test(remainingString) ||
-    /^\n/.test(remainingString)
-  ) {
-    variable.referenceValue = '';
-  } else if (/^#NULL#/.test(remainingString)) {
-    filePointer += '#NULL#'.length;
-    variable.referenceValue = null;
-  } else if (/^#TRUE#/.test(remainingString)) {
-    filePointer += '#TRUE#'.length;
-    variable.referenceValue = true;
-  } else if (/^#FALSE#/.test(remainingString)) {
-    filePointer += '#FALSE#'.length;
-    variable.referenceValue = false;
-  } else if (/^#FALSE#/.test(remainingString)) {
-    filePointer += '#FALSE#'.length;
-    variable.referenceValue = false;
-  } else {
-    var stringRegExp = /^"([^"]*)"/;
-    var errorRegExp = /^#ERROR ([^#]*)#/;
-    var dateRegExp = /^#(\d{4})-(\d{2})-(\d{2})#/;
-    var dateTimeRegExp = /^#(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})#/;
-    var timeRegExp = /^#(\d{2}):(\d{2}):(\d{2})#/;
-    var numberRegExp = /^[\d\.]*/;
-
-    if (stringRegExp.test(remainingString)) {
-      var match = remainingString.match(stringRegExp);
-      filePointer += match[0].length;
-      variable.referenceValue = match[1];
-    } else if (errorRegExp.test(remainingString)) {
-      var match = remainingString.match(errorRegExp);
-      filePointer += match[0].length;
-      variable.referenceValue = new Error(match[1]);
-    } else if (dateRegExp.test(remainingString)) {
-      var match = remainingString.match(dateRegExp);
-      filePointer += match[0].length;
-      var year = parseInt(match[1]);
-      var month = parseInt(match[2]);
-      var day = parseInt(match[3]);
-      variable.referenceValue = new VbaDate(new Date(year, month - 1, day));
-    } else if (dateTimeRegExp.test(remainingString)) {
-      var match = remainingString.match(dateTimeRegExp);
-      filePointer += match[0].length;
-      var year = parseInt(match[1]);
-      var month = parseInt(match[2]);
-      var day = parseInt(match[3]);
-      var hour = parseInt(match[4]);
-      var minute = parseInt(match[5]);
-      var second = parseInt(match[6]);
-      var date = new Date(year, month - 1, day, hour, minute, second);
-      variable.referenceValue = new VbaDate(date);
-    } else if (timeRegExp.test(remainingString)) {
-      var match = remainingString.match(timeRegExp);
-      filePointer += match[0].length;
-      var hour = parseInt(match[1]);
-      var minute = parseInt(match[2]);
-      var second = parseInt(match[3]);
-      var date = new Date();
-      date.setHours(hour, minute, second);
-      variable.referenceValue = new VbaDate(date);
-    } else if (numberRegExp.test(remainingString)) {
-      var match = remainingString.match(numberRegExp);
-      filePointer += match[0].length;
-      variable.referenceValue = parseFloat(match[0]);
-    } else {
-      throw Error('Unknown Expression');
-    }
+  file.pointer = filePointer;
+  // Try obtaining an input
+  if (!(tryInputConstant(file, variable) || tryInputVariable(file, variable))) {
+    throw new Error('Unknown Expression');
   }
-
+  filePointer = file.pointer;
   // Jump over whitespace and break at any delimiting characters
   while (filePointer < content.length) {
-    if (content[filePointer] == ' ') {
+    var char = content[filePointer];
+    if (char == ' ') {
+      filePointer++; // Jump over whitespace
+    } else if (content.substr(filePointer, 2) == '\r\n') {
+      filePointer += 2;
+      break; // Break at delimiter
+    } else if (char == ',' || char == '\r' || char == '\n') {
       filePointer++;
-    } else if (content[filePointer] == ',') {
-      filePointer++;
-      break;
+      break; // Break at delimiter
     } else {
-      var remainingString = content.substring(filePointer);
-      if (/^\r\n/.test(remainingString)) {
-        filePointer += 2;
-        break;
-      } else if (/^\r/.test(remainingString)) {
-        filePointer++;
-        break;
-      } else if (/^\n/.test(remainingString)) {
-        filePointer++;
-        break;
-      } else {
-        break;
-      }
+      throw new Error('Unknown Error Occurred');
     }
   }
-
   file.pointer = filePointer;
+}
+
+/**
+ * Helper function to parse constant values.
+ * Constants include true, false, null and empty.
+ * @param(object) file File structure
+ * @param {VbaBox} variable reference variable to store value
+ * @return {boolean} true if constant is found
+ */
+function tryInputConstant(file, variable) {
+  var filePointer = file.pointer;
+  var content = file.content;
+
+  var nullExp = '#NULL#';
+  var trueExp = '#TRUE#';
+  var falseExp = '#FALSE#';
+  // Tests the different constant expressions
+  if (
+    content[filePointer] == ',' ||
+    content.substr(filePointer, 2) == '\r\n' ||
+    content[filePointer] == '\r' ||
+    content[filePointer] == '\n'
+  ) {
+    // Empty Match
+    variable.referenceValue = '';
+    return true;
+  } else if (content.substr(filePointer, nullExp.length) == nullExp) {
+    // Null Match
+    file.pointer += nullExp.length;
+    variable.referenceValue = null;
+    return true;
+  } else if (content.substr(filePointer, trueExp.length) == trueExp) {
+    // True Match
+    file.pointer += trueExp.length;
+    variable.referenceValue = true;
+    return true;
+  } else if (content.substr(filePointer, falseExp.length) == falseExp) {
+    // False Match
+    file.pointer += falseExp.length;
+    variable.referenceValue = false;
+    return true;
+  }
+  return false; // No match found
+}
+
+/**
+ * Helper function to parse variable value. The different types include string,
+ * numbers, error and 3 forms of date format.
+ * @param(object) file File structure
+ * @param {VbaBox} variable reference variable to store value
+ * @return {boolean} true if variable is found
+ */
+function tryInputVariable(file, variable) {
+  var remainingString = file.content.substring(file.pointer);
+  // Regex expressions for parsing variable values
+  // Match "someString", extracts someString
+  var stringRegExp = /^"([^"]*)"/;
+  // Match #ERROR errCode#, extracts errCode
+  var errorRegExp = /^#ERROR ([^#]*)#/;
+  // Match #yyyy-mm-dd#, extracts yyyy, mm, dd
+  var dateRegExp = /^#(\d{4})-(\d{2})-(\d{2})#/;
+  // Match #yyyy-mm-dd hh:mm:ss#, extracts yyyy, mm, dd, hh, mm, ss
+  var dateTimeRegExp = /^#(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})#/;
+  // Match #hh:mm:ss#, extracts hh, mm, ss
+  var timeRegExp = /^#(\d{2}):(\d{2}):(\d{2})#/;
+  // Match decimal numbers - supports .123, 1.23,12.3, 123., 123
+  var numberRegExp = /^[0-9]*(\.[0-9]*)?/;
+
+  if (stringRegExp.test(remainingString)) {
+    // String match
+    var match = remainingString.match(stringRegExp);
+    file.pointer += match[0].length;
+    variable.referenceValue = match[1];
+    return true;
+  } else if (errorRegExp.test(remainingString)) {
+    // Error Match
+    var match = remainingString.match(errorRegExp);
+    file.pointer += match[0].length;
+    var errCode = match[1];
+    variable.referenceValue = new Error(errCode);
+    return true;
+  } else if (dateRegExp.test(remainingString)) {
+    // Date Match - Format 1
+    var match = remainingString.match(dateRegExp);
+    file.pointer += match[0].length;
+    var year = parseInt(match[1]);
+    var month = parseInt(match[2]);
+    var day = parseInt(match[3]);
+    variable.referenceValue = new VbaDate(new Date(year, month - 1, day));
+    return true;
+  } else if (dateTimeRegExp.test(remainingString)) {
+    // Date Match - Format 2
+    var match = remainingString.match(dateTimeRegExp);
+    file.pointer += match[0].length;
+    var year = parseInt(match[1]);
+    var month = parseInt(match[2]);
+    var day = parseInt(match[3]);
+    var hour = parseInt(match[4]);
+    var minute = parseInt(match[5]);
+    var second = parseInt(match[6]);
+    var date = new Date(year, month - 1, day, hour, minute, second);
+    variable.referenceValue = new VbaDate(date);
+    return true;
+  } else if (timeRegExp.test(remainingString)) {
+    // Date Match - Format 3
+    var match = remainingString.match(timeRegExp);
+    file.pointer += match[0].length;
+    var hour = parseInt(match[1]);
+    var minute = parseInt(match[2]);
+    var second = parseInt(match[3]);
+    var date = new Date();
+    date.setHours(hour, minute, second);
+    variable.referenceValue = new VbaDate(date);
+    return true;
+  } else if (numberRegExp.test(remainingString)) {
+    // Number match
+    var match = remainingString.match(numberRegExp);
+    var number = match[0];
+    file.pointer += match[0].length;
+    variable.referenceValue = parseFloat(number);
+    return true;
+  }
+  return false;
 }
