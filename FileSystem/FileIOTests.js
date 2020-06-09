@@ -101,6 +101,16 @@ function file_open_close_tests() {
       fileContent,
       'Test for text save'
     );
+    FileIO.closeFileList();
+  });
+
+  QUnit.test('File length testing', function () {
+    var fileName = 'TESTFILE';
+    var fileNumber;
+    var fileContent = 'This is a string';
+
+    fileNumber = FileIO.getNextAvailableFile();
+    FileIO.openFile(fileName, FileIO.getNextAvailableFile(), OpenMode.INPUT);
     equal(FileIO.lof(fileNumber), fileContent.length, 'File Length Test');
 
     FileIO.closeFileList();

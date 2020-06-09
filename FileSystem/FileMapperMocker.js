@@ -18,7 +18,7 @@ var VBAFileMapperMocker = {
     if (path in this.mappings) {
       return this.mappings[path];
     }
-    throw Error(path + ' not mapped!');
+    throw new Error(path + ' not mapped!');
   },
   registerFile: function (currentDirectory, path, fileId) {
     this.mappings[path] = fileId;
