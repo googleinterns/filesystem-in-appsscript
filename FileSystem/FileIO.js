@@ -227,7 +227,7 @@ function isEOF(fileNumber) {
  */
 function printToFile(fileNumber, outputList) {
   if (!(fileNumber in this.openFiles)) {
-    throw Error('File Number: ' + fileNumber + ' is not open');
+    throw new Error('File Number: ' + fileNumber + ' is not open');
   }
 
   // Set default argument
@@ -235,7 +235,7 @@ function printToFile(fileNumber, outputList) {
 
   var file = this.openFiles[fileNumber];
   if (file.accessMode == AccessMode.READ) {
-    throw Error('File is not open for writing');
+    throw new Error('File is not open for writing');
   }
 
   for (var i = 0; i < outputList.length; i++) {
@@ -256,7 +256,7 @@ function printToFile(fileNumber, outputList) {
       printError(file, exp);
     } else if (exp === null) {
       stringInsert(file, 'Null');
-    } else throw Error('Unknown Expression');
+    } else throw new Error('Unknown Expression');
   }
 
   // Print new line
