@@ -39,22 +39,6 @@ function file_io_tests() {
     equal(content, actualContent, 'Test for exact print match');
   });
 
-  QUnit.test('File append testing', function () {
-    var fileNumber;
-    fileNumber = FileIO.getNextAvailableFile();
-    FileIO.openFile('PRINT_TEST', fileNumber, OpenMode.APPEND);
-    FileIO.printToFile(fileNumber, ['This is a test']);
-    FileIO.closeFileList();
-
-    fileNumber = FileIO.getNextAvailableFile();
-    FileIO.openFile('PRINT_TEST', fileNumber, OpenMode.INPUT);
-    var actualContent =
-      'This is a test\r\n\r\nZone 1        Zone 2\r\nHello World\r\n     5 leading spaces \r\n         Hello\r\nFalse is a Boolean value\r\n12-02-1969  is a date\r\nNull is a null value\r\nError 32767 is an error value\r\nThis is a test\r\n';
-    var content = FileIO.openFiles[fileNumber].content;
-    equal(content, actualContent, 'Test for exact print match');
-    FileIO.closeFileList();
-  });
-
   QUnit.test('File line input testing', function () {
     var actualContent = [
       'This is a test',
@@ -78,6 +62,22 @@ function file_io_tests() {
     }
 
     ok(FileIO.isEOF(fileNumber));
+    FileIO.closeFileList();
+  });
+
+  QUnit.test('File append testing', function () {
+    var fileNumber;
+    fileNumber = FileIO.getNextAvailableFile();
+    FileIO.openFile('PRINT_TEST', fileNumber, OpenMode.APPEND);
+    FileIO.printToFile(fileNumber, ['This is a test']);
+    FileIO.closeFileList();
+
+    fileNumber = FileIO.getNextAvailableFile();
+    FileIO.openFile('PRINT_TEST', fileNumber, OpenMode.INPUT);
+    var actualContent =
+      'This is a test\r\n\r\nZone 1        Zone 2\r\nHello World\r\n     5 leading spaces \r\n         Hello\r\nFalse is a Boolean value\r\n12-02-1969  is a date\r\nNull is a null value\r\nError 32767 is an error value\r\nThis is a test\r\n';
+    var content = FileIO.openFiles[fileNumber].content;
+    equal(content, actualContent, 'Test for exact print match');
     FileIO.closeFileList();
   });
 

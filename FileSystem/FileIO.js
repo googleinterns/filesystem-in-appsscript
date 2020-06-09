@@ -348,7 +348,9 @@ function writeToFile(fileNumber, outputList) {
       writeError(file, exp);
     } else if (exp === null) {
       stringInsert(file, '#NULL#');
-    } else throw new Error('Unknown Expression');
+    } else {
+      throw new Error('Unknown Expression');
+    }
   }
 
   // Print new line
