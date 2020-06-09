@@ -10,20 +10,22 @@
 function printTab(file, tab) {
   var filePointer = file.pointer;
 
+  // Get index of start of current line
   var lineStartIndex = getLineStart(file);
+  // Calculate current line length
   var lineLength = filePointer - lineStartIndex;
   var insertSpaceCount;
   if (tab.column == 'NEXT_ZONE') {
+    // If tab is next zone, then we need to insert the
+    // next character on the nearest column with multiple of 14.
+    // Calculate spaces to get to nearest column index which is multiple of 14
     insertSpaceCount = (14 - (lineLength % 14)) % 14;
   } else {
+    // Calculate spaces to get to the exact column index
     insertSpaceCount = tab.column - lineLength - 1;
   }
 
-  var spaces = '';
-  for (var i = 0; i < insertSpaceCount; i++) {
-    spaces += ' ';
-  }
-  stringInsert(file, spaces);
+  printSpace(file, new Space(insertSpaceCount));
 }
 
 /**
@@ -35,12 +37,16 @@ function printDate(file, date) {
   var day = date.getDate();
   var month = date.getMonth() + 1;
   var year = date.getFullYear();
+
+  // Prefix digit 0 to ensure double digit day/month
   if (month < 10) {
     month = '0' + month;
   }
   if (day < 10) {
     day = '0' + day;
   }
+
+  // Construct date string as per VBA format
   var str = day + '-' + month + '-' + year + ' ';
   stringInsert(file, str);
 }
@@ -54,12 +60,16 @@ function writeDate(file, date) {
   var day = date.getDate();
   var month = date.getMonth() + 1;
   var year = date.getFullYear();
+
+  // Prefix digit 0 to ensure double digit day/month
   if (month < 10) {
     month = '0' + month;
   }
   if (day < 10) {
     day = '0' + day;
   }
+
+  // Construct date string as per VBA format
   var str = '#' + year + '-' + month + '-' + day + '#';
   stringInsert(file, str);
 }
@@ -101,8 +111,8 @@ function writeString(file, str) {
  * @param(number) num number to be printed
  */
 function printNumber(file, num) {
-  num = ' ' + num + ' ';
-  stringInsert(file, num);
+  var numStr = ' ' + num + ' ';
+  stringInsert(file, numStr);
 }
 
 /**
@@ -120,8 +130,8 @@ function writeNumber(file, num) {
  * @param(boolean) bool boolean to be printed
  */
 function printBool(file, bool) {
-  bool = bool ? 'True' : 'False';
-  stringInsert(file, bool);
+  var boolStr = bool ? 'True' : 'False';
+  stringInsert(file, boolStr);
 }
 
 /**
@@ -130,8 +140,8 @@ function printBool(file, bool) {
  * @param(boolean) bool boolean to be written
  */
 function writeBool(file, bool) {
-  bool = bool ? '#TRUE#' : '#FALSE#';
-  stringInsert(file, bool);
+  var boolStr = bool ? '#TRUE#' : '#FALSE#';
+  stringInsert(file, boolStr);
 }
 
 /**
@@ -175,9 +185,11 @@ function stringInsert(file, str) {
   var index = file.pointer;
 
   var i = 0;
+  // Overwrite existing file content if possible
   while (i < str.length && index < source.length) {
     source[index++] = str[i++];
   }
+  // Append new content by extending the file
   while (i < str.length) {
     source += str[i++];
   }
@@ -194,7 +206,8 @@ function stringInsert(file, str) {
 function getLineStart(file) {
   var content = file.content;
   var filePointer = file.pointer;
-  while (filePointer >= 0 && content[filePointer] !== '\n') {
+  // Traverse backwards till we find line ending
+  while (filePointer >= 0 && content[filePointer] != '\n') {
     filePointer--;
   }
   return filePointer + 1;
