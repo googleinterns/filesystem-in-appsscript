@@ -23,10 +23,8 @@ function file_open_close_tests() {
 
     equal(fileNumber, 1, 'Test for file number');
     FileIO.openFile(fileName, fileNumber, OpenMode.OUTPUT);
-    ok(
-      FileMapper.hasMapping(FileSystem.currentDirectory, fileName),
-      'Test for FileMapping'
-    );
+    var hasMapping = FileMapper.hasMapping(FileSystem.currentDirectory, fileName);
+    ok(hasMapping, 'Test for FileMapping');
     equal(FileIO.getNextAvailableFile(), 2, 'Test for file number');
 
     FileIO.closeFileList([1]);
@@ -72,11 +70,8 @@ function file_open_close_tests() {
 
     fileNumber = FileIO.getNextAvailableFile();
     FileIO.openFile(fileName, FileIO.getNextAvailableFile(), OpenMode.INPUT);
-    equal(
-      FileIO.openFiles[fileNumber].content,
-      fileContent,
-      'Test for text save'
-    );
+    var content = FileIO.openFiles[fileNumber].content;
+    equal(content, fileContent, 'Test for text save');
     FileIO.closeFileList();
   });
 
