@@ -38,6 +38,7 @@ var FileIO = {
   getNextAvailableFile: getNextAvailableFile,
   lof: lof,
   isEOF: isEOF,
+  printToFile: printToFile,
   openFiles: {},
   closeFile: closeFile,
 };
@@ -208,4 +209,49 @@ function isEOF(fileNumber) {
   }
   var file = this.openFiles[fileNumber];
   return file.content.length == file.pointer;
+}
+
+/**
+ * Emulates VBA print statement API
+ * @param {number} fileNumber File number
+ * @param {Array} outputList Expression List
+ */
+function printToFile(fileNumber, outputList) {
+  if (!(fileNumber in this.openFiles)) {
+    throw new Error('File Number: ' + fileNumber + ' is not open');
+  }
+
+  // Set default argument
+  outputList = outputList || [];
+
+  var file = this.openFiles[fileNumber];
+  if (file.accessMode == AccessMode.READ) {
+    throw new Error('File is not open for writing');
+  }
+
+  for (var i = 0; i < outputList.length; i++) {
+    var exp = outputList[i];
+    if (typeof exp === 'string') {
+      printString(file, exp);
+    } else if (typeof exp === 'number') {
+      printNumber(file, exp);
+    } else if (typeof exp === 'boolean') {
+      printBool(file, exp);
+    } else if (exp instanceof VbaDate) {
+      printDate(file, exp);
+    } else if (exp instanceof Tab) {
+      printTab(file, exp);
+    } else if (exp instanceof Space) {
+      printSpace(file, exp);
+    } else if (exp instanceof Error) {
+      printError(file, exp);
+    } else if (exp === null) {
+      stringInsert(file, 'Null');
+    } else {
+      throw new Error('Unknown Expression');
+    }
+  }
+
+  // Print new line
+  printNewline(file);
 }
