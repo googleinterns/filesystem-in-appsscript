@@ -33,24 +33,33 @@ function doGet(e) {
  * Generates test report as PDF
  */
 function generateTestReport() {
-  var fileName = 'FileSystem - Report.pdf';
+  var fileName = 'FileSystem - Report';
   deleteFile(fileName);
-
+  // Setup tests
   QUnit.urlParams({});
   QUnit.config({
     title: 'File System', // Sets the title of the test page.
   });
   QUnit.load(testFunctions);
-
-  var content = QUnit.getHtml().getContent();
-
-  var blob = Utilities.newBlob(content, 'text/html', 'text.html');
+  // Run tests and generate html output
+  var htmlOutput = QUnit.getHtml();
+  htmlOutput.setWidth(1200);
+  htmlOutput.setHeight(800);
+  // Display test results
+  SpreadsheetApp.getUi().showModalDialog(htmlOutput, fileName);
+  // Save test results in Google Drive
+  var blob = htmlOutput.getBlob();
   var pdf = blob.getAs('application/pdf');
-
   DriveApp.createFile(pdf).setName(fileName);
 }
 
 function testFunctions() {
-  workbook_run_all_tests();
-  file_io_run_all_tests();
+  // workbook_run_all_tests();
+  // file_io_run_all_tests();
+  directory_manager_run_all_tests();
+}
+var testList = {
+  "Workbook": workbook_run_all_tests,
+  "FileIO": file_io_run_all_tests,
+  "DirectoryManager": directory_manager_run_all_tests
 }

@@ -130,3 +130,46 @@ function santizePath(path) {
   }
   return path;
 }
+
+/**
+ * @todo Implement relative path validation (regex)
+ * @body Currently only absolute paths are being validated
+ * Function to get absolute path given relative path (for local file system)
+ * If the relative path is absolute, then the relative path itself is returned
+ * @param {string} currentDirectory Absolute path of current local directory
+ * @param {string} relativePath Relative or Absolute path
+ * @return {string} Absolute Path
+ */
+function getAbsoluteLocalPath(currentDirectory, relativePath) {
+  // Test if relativePath is actually an absolute path
+  if (isValidAbsolutePath(relativePath)) {
+    return santizePath(relativePath);
+  }
+  var fileSystemType = getFileSystemType(currentDirectory);
+  var fileSeparator = fileSystemType == FileSystemType.UNIX ? '/' : '\\';
+  // First element of windows path split is drive letter ("C:") and
+  // First element of unix path split is empty string ("")
+  var pathSplit = currentDirectory.split(fileSeparator);
+  var relativePathSplit = relativePath.split(fileSeparator);
+
+  for (var i = 0; i < relativePathSplit.length; i++) {
+    if (relativePathSplit[i] == '.') {
+      continue; // Current directory, do nothing
+    } else if (relativePathSplit[i] == '..') {
+      // Move up one directory if possible
+      if (pathSplit.length > 1) {
+        pathSplit.pop();
+      }
+    } else {
+      // Move down to child directory
+      pathSplit.push(relativePathSplit[i]);
+    }
+  }
+  // Reconstruct absolute file path
+  var absolutePath = pathSplit.join(fileSeparator);
+  // If path is root path, i.e. "C:\" or "/" then we need to add a trailing seperator
+  if (pathSplit.length == 1) {
+    absolutePath += fileSeparator;
+  }
+  return santizePath(absolutePath);
+}

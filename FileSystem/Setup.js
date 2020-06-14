@@ -23,5 +23,6 @@
 function onOpen(e) {
     SpreadsheetApp.getUi().createMenu('FileSystem')
         .addItem('Set Local File Path', 'promptActiveWorkbookPath')
+        .addItem('Run Tests', 'generateTestReport')
         .addToUi();
   }
