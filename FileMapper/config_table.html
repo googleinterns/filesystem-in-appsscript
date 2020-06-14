@@ -58,28 +58,19 @@
 							<label for="localpathinput">
                                Local Path
                             </label>
-							<input type="text"
-                                 class="form-control"
-                                 id="localpathinput"
-                                 oninput="checkIfFolder(this.value)"/>
+							<input type="text" class="form-control" id="localpathinput" oninput="checkIfFolder(this.value)"/>
                         </div>
 
 						<div class="col-md-4" id="drivepathdiv">
 							<label for="drivepathinput">
                                 Drive Path
                             </label>
-							<input type="text"
-                                 class="form-control"
-                                 id="drivepathinput"
-                                 readonly />
+							<input type="text" class="form-control" id="drivepathinput" readonly />
 							<div id="hiddenId"> </div>
 						</div>
 
 						<div class="col-md-1" id="browseButtondiv">
-							<button type="button"
-                                  id="browseButton"
-                                  class="btn btn-primary"
-                                  onclick="callPicker();">
+							<button type="button" id="browseButton" class="btn btn-primary" onclick="callPicker();">
                                 Browse
                             </button>
 						</div>
@@ -92,10 +83,7 @@
                         </div>
 
 						<div class="col-md-1" id="updateButtondiv">
-							<button type="button"
-                                  id="updateButton"
-                                  class="btn btn-primary"
-                                  onclick="pathUpdate();">
+							<button type="button" id="updateButton" class="btn btn-primary" onclick="pathUpdate();">
                                 Add
                             </button>
 						</div>
