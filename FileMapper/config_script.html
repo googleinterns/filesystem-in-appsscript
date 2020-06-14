@@ -97,11 +97,11 @@
         })
         .withFailureHandler()
         .getFullDrivePath(id, ((mime === MimeType.FOLDER) ? true : false));
-      } 
-      else if (action == google.picker.Action.CANCEL) {
-        showAlert("No File selected.", true);
-      }
+    } 
+    else if (action == google.picker.Action.CANCEL) {
+      showAlert("No File selected.", true);
     }
+  }
 
 	/**
 	* Creates an HTML table containing all the config data
