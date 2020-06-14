@@ -10,18 +10,26 @@ function onOpen() {
     .addToUi();
 }
 
-
 /**
  * Opens a form in the document containing the add-on's user interface.
  */
 function DisplayConfigTable() {
-  var html = HtmlService.createHtmlOutputFromFile('config_table')
+  var html = HtmlService.createTemplateFromFile('config_table')
+    .evaluate()
     .setWidth(1000)
     .setHeight(425);
   SpreadsheetApp.getUi()
     .showModalDialog(html, 'Config Table');
 }
 
+/**
+ * Imports the specified file content into the current file
+ * Used to seperate the CSS and Script content into seperate files
+ */
+function include(filename) {
+  return HtmlService.createHtmlOutputFromFile(filename)
+      .getContent();
+}
 
 /**
  * Gets the user's OAuth 2.0 access token so that it can be passed to Picker.

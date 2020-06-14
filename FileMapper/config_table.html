@@ -4,385 +4,34 @@
 <head>
 	<base target="_top">
 	<title>Config Table</title>
+
+  <!-- styles -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons.css">
+  <?!= include('config_css'); ?>
+  <!-- styles -->
 
+  <!-- scripts -->
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-	<script>
-		var DIALOG_DIMENSIONS = {width: 600, height: 425};
-    var pickerApiLoaded = false;
-    var picker;
-    // Next id for adding a new mapping
-    var nextId = 1;
-    // ID of mapping currently editing
-    var activeId = 0;
-
-    /**
-    * Executed as soon as this page loads
-    * Gets the config data from the server
-    * to display in the table.
-    */
-    $(document).ready(function(){
-       google.script.run
-          .withSuccessHandler(function(configData){
-              displayTable(configData);
-          })
-          .withFailureHandler()
-          .getConfigData();
-    })
-
-    /**
-     * Loads the Google Picker API.
-     */
-    function callPicker() {
-      gapi.load('picker', {'callback': function() {
-        pickerApiLoaded = true;
-      }});
-       getOAuthToken();
-     }
-     
-    /**
-     * Gets the user's OAuth 2.0 access token from the server-side script so that
-     * it can be passed to Picker. This technique keeps Picker from needing to
-     * show its own authorization dialog, but is only possible if the OAuth scope
-     * that Picker needs is available in Apps Script. 
-     */
-    function getOAuthToken() {
-      google.script.run.withSuccessHandler(createPicker)
-          .withFailureHandler().getOAuthToken();
-    }
-
-    /**
-     * Creates a Picker that can access the user's spreadsheets. 
-     *
-     * @param {String} token An OAuth 2.0 access token that lets 
-     *                 Picker access the file type 
-     */
-    function createPicker(token) {
-      if (pickerApiLoaded && token) {
-        var DisplayView = new google.picker.DocsView()
-                           .setIncludeFolders(true)
-                           .setSelectFolderEnabled(true);;
-
-        picker = new google.picker.PickerBuilder()
-            .enableFeature(google.picker.Feature.SUPPORT_DRIVES)
-            .addView(DisplayView)
-            .enableFeature(google.picker.Feature.NAV_HIDDEN)
-            .setOAuthToken(token)
-            .setCallback(pickerCallback)
-            .setSize(DIALOG_DIMENSIONS.width - 2,
-                DIALOG_DIMENSIONS.height - 2)
-            .setOrigin(google.script.host.origin)
-            .build();
-        picker.setVisible(true);    
-      } else {
-        showAlert('Unable to load the file picker.', true);
-      }
-    }
-
-    /**
-     * A callback function that extracts the chosen document's metadata from the
-     * response object. 
-     *
-     * @param {object} data The response object.
-     */
-    function pickerCallback(data) {
-      var action = data[google.picker.Response.ACTION];
-      if (action == google.picker.Action.PICKED) {
-        var doc = data[google.picker.Response.DOCUMENTS][0];
-        var id = doc[google.picker.Document.ID];
-        
-        $("#hiddenId").text("");
-        $("#hiddenId").text(id);
-        
-        google.script.run
-          .withSuccessHandler(function(fullpath){
-              $("#drivepathinput").val(fullpath);
-          })
-          .withFailureHandler()
-          .getFullFilePath(id);
-        
-      } else if (action == google.picker.Action.CANCEL) {
-        showAlert("No File selected.", true);
-      }
-    }
-
-    /**
-     * Creates an HTML table containing all the config data
-     *
-     * @param {object} configData The config data object having 
-     * keys containing local path with values containing 
-     * coresponding drive path 
-     */
-    function displayTable(configData){
-      if ($("#configTable tbody").length == 0) {
-         $("#configTable").append("<tbody></tbody>");
-      }
-   
-      for(var localPath in configData){
-          $("#configTable tbody").append(pathBuildTableRow(localPath, configData[localPath], nextId));
-          nextId += 1;
-      }
-    } 
-
-    /**
-     * Display the selected row in the form for edit
-     *
-     * @param {Object} ctl The reference to the HTML 
-     * element which called this function
-     */
-    function pathDisplay(ctl) {
-      var row = $(ctl).parents("tr");
-      var cols = row.children("td");
-
-      activeId = $($(cols[0]).children("button")[0]).data("id");
-      $("#localpathinput").val($(cols[1]).text());
-      $("#drivepathinput").val($(cols[2]).text());
-      
-      $("#localpathinput").attr("readonly", true);
-      $("#updateButton").text("Update");
-    }
-
-    /**
-     * Triggered when the form submit event takes place
-     */
-    function pathUpdate() {
-      if($("#localpathinput").val() === "" || $("#drivepathinput").val() === ""){
-         showAlert("One or both of the Input Fields are Empty.", true);
-         return;
-      }
-    
-      if ($("#updateButton").text() == "Update") {
-        pathUpdateInTable(activeId);
-      }
-      else {
-        // Check for absolute local path
-        if(!checkIfAbsolutePath($("#localpathinput").val())) {
-           showAlert("Provide Absolute Local Path.", true);
-           return;
-        }
-        
-        google.script.run
-          .withSuccessHandler(function(exists){
-              if(!exists){
-                  pathAddToTable();
-              }
-              else{
-                  showAlert("Local Path already exists.", true);
-              }
-          })
-          .withFailureHandler()
-          .checkMappingExists($("#localpathinput").val());
-      }
-    }
-    
-    /**
-     * Check if the given path is a windows
-     * or Unix's absolute path or not
-     * 
-     * @param {String} path The path to be checked
-     * @return {boolean} True if it is an absolute path, 
-     *                   False otherwise
-     */ 
-    function checkIfAbsolutePath(path) {
-       if(path.length == 0){
-          return false;
-       }
-       var backwardSlash = path.match(/\//g); 
-       if( backwardSlash === null ){
-          backwardSlash = 0;
-       }
-       else{
-          backwardSlash = backwardSlash.length;
-       }
-       var forwardSlash = path.match(/\\/g);
-       if( forwardSlash === null ){
-          forwardSlash = 0;
-       }
-       else{
-          forwardSlash = forwardSlash.length;
-       }
-       if(backwardSlash > 0){
-           if(path[0] == '/'){
-              return true;
-           }
-           else {
-              return false;
-           }
-       }
-       else{
-           if(path[0].toLowerCase() == "c" && path[1] == ':'){
-              return true;
-           }
-           else {
-              return false;
-           }
-       }
-    }
-
-    /**
-     * Add new row containing path mapping to 
-     * the Html table and also to the config
-     * data on the server
-     */
-    function pathAddToTable() {
-      if ($("#configTable tbody").length == 0) {
-        $("#configTable").append("<tbody></tbody>");
-      }
-      
-      google.script.run
-        .withSuccessHandler(function(success){
-          if(success){
-            showAlert("Mapping Added Successfully.", false);
-            $("#hiddenId").val("");
-            $("#configTable tbody").append(
-              pathBuildTableRow(
-                $("#localpathinput").val(),
-                $("#drivepathinput").val(),
-                nextId
-              ));
-            nextId += 1;
-            formClear();
-            $("#localpathinput").focus();
-          }
-          else{
-            showAlert("The MimeType of Local Path and Drive Path doesn't match.", true);
-          }
-        })
-        .withFailureHandler(function(){
-          showAlert("Mapping Add Failed");
-        })
-        .addMapping($("#localpathinput").val(),$("#hiddenId").text());
-    }
-
-    /**
-     * Update a row containing path mapping in 
-     * the Html table and also in the config
-     * data on the server
-     */
-    function pathUpdateInTable(id) {
-      var row = $("#configTable button[data-id='" + id + "']")
-                .parents("tr");
-    
-      google.script.run
-          .withSuccessHandler(function(success){
-             if(success){
-                showAlert("Mapping Updated Successfully.", false);
-                $(row[0]).after(
-                  pathBuildTableRow(
-                    $("#localpathinput").val(), 
-                    $("#drivepathinput").val(),
-                    id
-                  ));
-                $(row[0]).remove();
-             }
-             else{
-               showAlert("The MimeType of Local Path and Drive Path doesn't match.", true);
-             }
-             
-             $("#hiddenId").val("");
-             formClear(); 
-             $("#updateButton").text("Add");
-             $("#localpathinput").attr("readonly", false); 
-             $("#localpathinput").focus();
-          })
-          .withFailureHandler(function(){
-            console.log("Update Failed");
-          })
-          .updateMapping($("#localpathinput").val(), $("#hiddenId").text());
-    }
-
-    /**
-     * Build a new <table> row  
-     */
-    function pathBuildTableRow(localPath, drivePath, id) {
-      var ret =
-      "<tr>" +
-        "<td>" +
-          "<button type='button' " +
-                  "onclick='pathDisplay(this);' " +
-                  "class='btn btn-default' " +
-                  "data-id='" + id + "'>" +
-                  "<span class='glyphicon glyphicon-edit' />" +
-          "</button>" +
-        "</td>" +
-        "<td>" + localPath + "</td>" +
-        "<td>" + drivePath + "</td>" +
-        "<td>" +
-          "<button type='button' " +
-                  "onclick='pathDelete(this);' " +
-                  "class='btn btn-default' " +
-                  "data-id='" + id + "'>" +
-                  "<span class='glyphicon glyphicon-remove' />" +
-          "</button>" +
-        "</td>" +
-      "</tr>"
-
-      return ret;
-    }
-
-    /**
-     * Delete a row containing path mapping from 
-     * the Html table and also from the config
-     * data on the server
-     */
-    function pathDelete(ctl) {
-      var row = $(ctl).parents("tr");
-      var cols = row.children("td");
-
-      google.script.run
-          .withSuccessHandler()
-          .withFailureHandler()
-          .deleteMapping($(cols[1]).text());
-    
-      $(ctl).parents("tr").remove();
-      showAlert("Mapping Deleted Successfully.", false);
-    }
-
-    /**
-     *  Clear form fields
-     */ 
-    function formClear() {
-      $("#localpathinput").val("");
-      $("#drivepathinput").val("");
-    }
-    
-    /**
-    * Inserts a div that contains an alert message after a given element.
-    *
-    * @param {String} msg The error message to display.
-    * @param {boolean} error The element which tells if it is an error alert or success alert.
-    */
-    function showAlert(msg, error) {
-    var type;
-    if(error){
-    type = "alert-danger";
-    }
-    else{
-    type = "alert-success";
-    }
-    var alert = $('<div class="alert ' + type + ' alert-dismissible text-center"' 
-                  + ' role="alert" style="padding:5px; margin-bottom:15px">'
-                  + msg + '<a href="#" class="close" data-dismiss="alert"' 
-                  + ' aria-label="Close" style="position: static; padding-right:'
-                  + '7px">&times;</a> </div>');
-    $("#tablecontainer").after(alert);
-    }
-	</script>
+  <script src="https://apis.google.com/js/api.js?onload=onApiLoad"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <?!= include('config_script'); ?>
+  <?!= include('config_scriptUtil'); ?>
+  <!-- scripts -->
 
 </head>
 
 <body>
 	<div class="container">
+
 		<div class="row" id="tablecontainer">
 			<div class="col-sm-12">
-				<table id="configTable" class="table table-bordered table-condensed table-striped table-sm"
-					style="width: 950px, table-layout:fixed; word-break:break-all">
+				<table id="configTable" class="table table-bordered table-condensed table-striped table-sm">
 					<colgroup>
 						<col class="col-md-1">
-						<col class="col-md-5">
-						<col class="col-md-5">
+						<col class="col-md-4">
+						<col class="col-md-4">
+						<col class="col-md-2">
 						<col class="col-md-1">
 					</colgroup>
 					<thead>
@@ -390,6 +39,7 @@
 							<th>Edit</th>
 							<th>Local Path</th>
 							<th>Drive Path</th>
+							<th>Type</th>
 							<th>Delete</th>
 						</tr>
 					</thead>
@@ -400,53 +50,62 @@
 		<div class="row">
 			<div class="col-sm-12">
 				<div class="panel panel-primary">
+
 					<div class="panel-heading">
 						Path Mapper
 					</div>
+
 					<div class="panel-body">
-						<div class="col-md-5">
+						<div class="col-md-4">
 							<label for="localpathinput">
                 Local Path
               </label>
 							<input type="text"
                      class="form-control"
-                     id="localpathinput" />
+                     id="localpathinput"
+                     oninput="checkIfFolder(this.value)"/>
             </div>
 
-							<div class="col-md-4" style="padding-right: 0px">
-								<label for="drivepathinput">
+						<div class="col-md-4" id="drivepathdiv">
+							<label for="drivepathinput">
                 Drive Path
               </label>
-								<input type="text"
+							<input type="text"
                      class="form-control"
                      id="drivepathinput"
-                     readonly
-                     />
-								<div id="hiddenId" style="display: none;"> </div>
-							</div>
-
-							<div class="col-md-1" style="padding-top: 22px; padding-left: 0;">
-								<button type="button" id="browseButton"
-                         class="btn btn-primary"
-                         onclick="callPicker();"
-                         style="line-height: 0; height: 26px; border-radius: 0;">
-                         Browse
-              </button>
-							</div>
-
-							<div class="col-md-2" style="padding-top: 20px; padding-left: 30px">
-								<button type="button" id="updateButton"
-                        class="btn btn-primary"
-                        onclick="pathUpdate();"
-                        style="line-height: 0; height: 30px;">
-                  Add
-                </button>
-							</div>
+                     readonly />
+							<div id="hiddenId"> </div>
 						</div>
+
+						<div class="col-md-1" id="browseButtondiv">
+							<button type="button"
+                      id="browseButton"
+                      class="btn btn-primary"
+                      onclick="callPicker();">
+                Browse
+              </button>
+						</div>
+
+						<div class="col-md-2" id="isfolderdiv">
+							<input  type="checkbox" value="" id="isfolder" >
+							<label  for="isfolder">
+                FOLDER
+              </label>
+						</div>
+
+						<div class="col-md-1" id="updateButtondiv">
+							<button type="button"
+                      id="updateButton"
+                      class="btn btn-primary"
+                      onclick="pathUpdate();">
+                Add
+              </button>
+						</div>
+
 					</div>
 				</div>
 			</div>
-			<script src="https://apis.google.com/js/api.js?onload=onApiLoad"></script>
+		</div>
 </body>
 
 </html>

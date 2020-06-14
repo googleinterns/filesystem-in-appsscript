@@ -1,21 +1,16 @@
 /**
- * Computes the Drive path for a 
- * file/folder using their Id
+ * Computes the Drive path for a file/folder using their Id
  * 
- * @param {String} id The drive destination Id
- * whose path needs to be computed
+ * @param {String} id The drive destination Id whose path needs to be computed
+ * @param {boolean} isFolder To signify whether its a file or folder
  * @return {String} drivePath The corresponding 
  * drive path
  */
-function getFullFilePath(id) {
-  var current = DriveApp.getFileById(id);
-
-  if (!current) {
-    current = DriveApp.getFolderById(id);
-  }
+function getFullDrivePath(id, isFolder) {
+  var current = (!isFolder) ? DriveApp.getFileById(id) : DriveApp.getFolderById(id);
 
   var folders = [],
-      parent = current.getParents();
+    parent = current.getParents();
 
   while (parent.hasNext()) {
     parent = parent.next();
@@ -28,30 +23,24 @@ function getFullFilePath(id) {
 }
 
 /**
- * Checks if the mapping for a particular Local path
- * exists or not in the config
+ * Checks if the mapping for a particular Local path exists or not in the config
  * 
- * @param {String} localPath The local destination path
- * whose mapping is to be checked
+ * @param {String} localPath The local destination path whose mapping is to be checked
  * @return {boolean} True if mapping exists, 
  *                   False otherwise
  */
 function checkMappingExists(localPath) {
   var documentProperties = PropertiesService.getDocumentProperties();
   var value = documentProperties.getProperty(localPath);
-  
-  if (value !== null)
-    return true;
-  return false;
+
+  return (value !== null);
 }
 
 /**
- * Checks if the MimeType for the desination of a 
- * Local Path and a drive Id matches or not
+ * Checks if the MimeType for the desination of a Local Path and a drive Id matches or not
  * 
  * @param {String} localPath The local destination path
- * @param {String} driveId The corresponding drive 
- * destination Id
+ * @param {String} driveId The corresponding drive destination Id
  * @return {boolean} True if MimeType matches, 
  *                   False otherwise
  */
@@ -67,18 +56,12 @@ function checkIfMimeTypeMatches(localPath, driveId) {
   if (!driveMimeType) {
     driveMimeType = MimeType.FOLDER;
   }
-  
-  if (driveMimeType === localMimeType) {
-    return true;
-  }
-  else{
-    return false;
-  }
+
+  return (driveMimeType === localMimeType);
 }
 
 /**
-* Function to return the MimeType based on 
-* the file extension
+* Function to return the MimeType based on the file extension
 */
 function getMimeTypeFromExtension(extension) {
   if (extension === "xls" || extension === "xlsx" || extension === "csv")
