@@ -1,16 +1,16 @@
 <script>
-	/**
-	* Check if the given path is a windows or Unix's absolute path or not
-	*
-	* @param {String} path The path to be checked
-	* @return {boolean} True if it is an absolute path,
-	*                   False otherwise
-	*/
-	function checkIfAbsolutePath(path) {
+  /**
+  * Check if the given path is a windows or Unix's absolute path or not
+  *
+  * @param {String} path The path to be checked
+  * @return {boolean} True if it is an absolute path,
+  *                   False otherwise
+  */
+  function checkIfAbsolutePath(path) {
     if(path.length == 0){
     return false;
     }
-	
+  
     var forwardSlash = path.match(/\//g);
     forwardSlash = ( forwardSlash === null )?0:forwardSlash.length;
     
@@ -20,16 +20,16 @@
     else{
       return (path.length>=3 && path[0].toLowerCase() == "c" && path[1] == ':' && path[2]=='\\');
     }
-	}
+  }
 
-	/**
-	* Check if the given path is for a folder or a file
-	*
-	* @param {String} value The local path input value
-	* @return {boolean} True if it represents a folder path value,
-	*                   False otherwise
-	*/
-	function checkIfFolder(value){
+  /**
+  * Check if the given path is for a folder or a file
+  *
+  * @param {String} value The local path input value
+  * @return {boolean} True if it represents a folder path value,
+  *                   False otherwise
+  */
+  function checkIfFolder(value){
     var isFolder = true;
     
     var index = value.lastIndexOf(".");
@@ -46,17 +46,17 @@
         isFolder = true;
       }
     }
-	
-	  $("#isfolder").prop("checked", isFolder);
-	}
+  
+    $("#isfolder").prop("checked", isFolder);
+  }
 
-	/**
-	* Clear form fields
-	*/
-	function formClear() {
+  /**
+  * Clear form fields
+  */
+  function formClear() {
     $("#localpathinput").val("");
     $("#drivepathinput").val("");
     $("#isfolder").prop("checked", false);
-	}
+  }
   
 </script>

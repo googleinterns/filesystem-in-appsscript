@@ -1,58 +1,58 @@
 <script>
   // File Picker 
-	var DIALOG_DIMENSIONS = {width: 600, height: 425};
-	var pickerApiLoaded = false;
-	
-	// Next id for adding a new mapping
-	var nextId = 1;
-	// ID of mapping currently editing
-	var activeId = 0;
+  var DIALOG_DIMENSIONS = {width: 600, height: 425};
+  var pickerApiLoaded = false;
+  
+  // Next id for adding a new mapping
+  var nextId = 1;
+  // ID of mapping currently editing
+  var activeId = 0;
 
-	/**
-	* Executed as soon as this page loads
-	* Gets the config data from the server
-	* to display in the table.
-	*/
-	$(document).ready(function(){
+  /**
+  * Executed as soon as this page loads
+  * Gets the config data from the server
+  * to display in the table.
+  */
+  $(document).ready(function(){
     google.script.run
       .withSuccessHandler(function(configData){
         displayTable(configData);
       })
       .withFailureHandler()
       .getConfigData();
-	})
+  })
 
-	/**
-	* Loads the Google Picker API.
-	*/
-	function callPicker() {
+  /**
+  * Loads the Google Picker API.
+  */
+  function callPicker() {
     gapi.load('picker', {
       'callback': function() {
         pickerApiLoaded = true;
       }
     });
     getOAuthToken();
-	}
+  }
      
-	/**
-	* Gets the user's OAuth 2.0 access token from the server-side script so that
-	* it can be passed to Picker. This technique keeps Picker from needing to
-	* show its own authorization dialog, but is only possible if the OAuth scope
-	* that Picker needs is available in Apps Script.
-	*/
-	function getOAuthToken() {
+  /**
+  * Gets the user's OAuth 2.0 access token from the server-side script so that
+  * it can be passed to Picker. This technique keeps Picker from needing to
+  * show its own authorization dialog, but is only possible if the OAuth scope
+  * that Picker needs is available in Apps Script.
+  */
+  function getOAuthToken() {
     google.script.run
       .withSuccessHandler(createPicker)
       .withFailureHandler()
       .getOAuthToken();
-	}
+  }
 
-	/**
-	* Creates a Picker that can access the user's spreadsheets.
-	*
-	* @param {String} token An OAuth 2.0 access token that lets
-	* Picker access the file type
-	*/
+  /**
+  * Creates a Picker that can access the user's spreadsheets.
+  *
+  * @param {String} token An OAuth 2.0 access token that lets
+  * Picker access the file type
+  */
   function createPicker(token) {
     if (pickerApiLoaded && token) {
       var DisplayView = new google.picker.DocsView()
@@ -75,13 +75,13 @@
     }
   }
 
-	/**
-	* A callback function that extracts the chosen document's metadata from the
-	* response object.
-	*
-	* @param {object} data The response object.
-	*/
-	function pickerCallback(data) {
+  /**
+  * A callback function that extracts the chosen document's metadata from the
+  * response object.
+  *
+  * @param {object} data The response object.
+  */
+  function pickerCallback(data) {
     var action = data[google.picker.Response.ACTION];
     if (action == google.picker.Action.PICKED) {
       var doc = data[google.picker.Response.DOCUMENTS][0];
@@ -103,12 +103,12 @@
     }
   }
 
-	/**
-	* Creates an HTML table containing all the config data
-	*
-	* @param {object} configData The config data object having keys containing 
+  /**
+  * Creates an HTML table containing all the config data
+  *
+  * @param {object} configData The config data object having keys containing 
   *        local path with values containing coresponding drive path
-	*/
+  */
   function displayTable(configData){
     if ($("#configTable tbody").length == 0) {
       $("#configTable").append("<tbody></tbody>");
@@ -125,13 +125,13 @@
     }
   } 
 
-	/**
-	* Display the selected row in the form for edit
-	*
-	* @param {Object} ctl The reference to the HTML
-	* element which called this function
-	*/
-	function pathDisplay(ctl) {
+  /**
+  * Display the selected row in the form for edit
+  *
+  * @param {Object} ctl The reference to the HTML
+  * element which called this function
+  */
+  function pathDisplay(ctl) {
     var row = $(ctl).parents("tr");
     var cols = row.children("td");
     
@@ -142,12 +142,12 @@
      
     $("#localpathinput").attr("readonly", true);
     $("#updateButton").text("Update");
-	}
+  }
 
-	/**
-	* Triggered when the form submit event takes place
-	*/
-	function pathUpdate() {
+  /**
+  * Triggered when the form submit event takes place
+  */
+  function pathUpdate() {
     // Check empty inputs
     if($("#localpathinput").val() === "" || $("#drivepathinput").val() === ""){
       showAlert("One or both of the Input Fields are Empty.", true);
@@ -176,12 +176,12 @@
         .withFailureHandler()
         .checkMappingExists($("#localpathinput").val());
     }
-	}
+  }
 
-	/**
-	* Add new row containing path mapping to the Html table and also to the config
-	* data on the server
-	*/
+  /**
+  * Add new row containing path mapping to the Html table and also to the config
+  * data on the server
+  */
   function pathAddToTable() {
     if ($("#configTable tbody").length == 0) {
       $("#configTable").append("<tbody></tbody>");
@@ -213,10 +213,10 @@
       .addMapping($("#localpathinput").val(), $("#drivepathinput").val() , $("#hiddenId").val(), $("#isfolder").is(':checked'));
   }
 
-	/**
-	* Update a row containing path mapping in the Html table and also in the config
-	* data on the server
-	*/
+  /**
+  * Update a row containing path mapping in the Html table and also in the config
+  * data on the server
+  */
   function pathUpdateInTable(id) {
     var row = $("#configTable button[data-id='" + id + "']").parents("tr");
     
@@ -242,16 +242,16 @@
         $("#updateButton").text("Add");
         $("#localpathinput").attr("readonly", false);
         $("#localpathinput").focus();
-		  })
+      })
       .withFailureHandler(function(){
         showAlert("Update Failed", true);
       })
       .updateMapping($("#localpathinput").val(), $("#drivepathinput").val(), $("#hiddenId").val(), $("#isfolder").is(':checked'));
   }
 
-	/**
-	* Build a new <table> row
-	*/
+  /**
+  * Build a new <table> row
+  */
   function pathBuildTableRow(localPath, drivePath, isFolder, id) {
     var ret =
       "<tr>" +
@@ -279,11 +279,11 @@
     return ret;
   }
 
-	/**
-	* Delete a row containing path mapping from
-	* the Html table and also from the config
-	* data on the server
-	*/
+  /**
+  * Delete a row containing path mapping from
+  * the Html table and also from the config
+  * data on the server
+  */
   function pathDelete(ctl) {
     var row = $(ctl).parents("tr");
     var cols = row.children("td");
@@ -297,12 +297,12 @@
     showAlert("Mapping Deleted Successfully.", false);
   }
 
-	/**
-	* Inserts a div that contains an alert message after a given element.
-	*
-	* @param {String} msg The error message to display.
-	* @param {boolean} error The element which tells if it is an error alert or success alert.
-	*/
+  /**
+  * Inserts a div that contains an alert message after a given element.
+  *
+  * @param {String} msg The error message to display.
+  * @param {boolean} error The element which tells if it is an error alert or success alert.
+  */
   function showAlert(msg, error) {  
     var type = (error) ? "alert-danger": "alert-success";
     var alert = $('<div class="alert ' + type + ' alert-dismissible text-center" role="alert" id="alertdiv">'+
