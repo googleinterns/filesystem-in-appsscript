@@ -19,8 +19,10 @@
  */
 var PathUtil = {
   checkIfUnixPath: checkIfUnixPath,
+  getFirstSlash: getFirstSlash,
   getLastSlash: getLastSlash,
   joinPath: joinPath,
+  splitPath: splitPath,
   getExtension: getExtension
 }
 
@@ -34,6 +36,22 @@ var PathUtil = {
 function checkIfUnixPath(path) {
   var forwardSlash = path.match(/\//g);
   return !(forwardSlash === null); 
+}
+
+/**
+ * Get the index of the first slash in the path
+ * 
+ * @param {String} path The local path which is to be checked
+ * @param {boolean} isUnix To signify whether its a windows path or unix path
+ * @return {Integer} index The index of the first slash in the local path
+ */
+function getFirstSlash(path, isUnix){
+  var slash = '\\';
+  if(isUnix){
+    slash = '/';
+  }
+  var index = path.indexOf(slash);
+  return index;
 }
 
 /**
@@ -67,7 +85,7 @@ function joinPath(curDirPath, relPath, isUnix) {
   }
   var path;
   if(relPath.length === 0){
-    path = relPath;
+    path = curDirPath;
   }
   else {
     path = curDirPath + slash + relPath;

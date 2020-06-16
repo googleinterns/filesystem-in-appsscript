@@ -21,7 +21,7 @@
  * @return {String} driveMapping The Drive id of the mapped file
  */
 function getFileId(localPath) {
-  return getDriveId(localPath, true);
+  return getDriveIdUtil(localPath, true);
 }
 
 /**
@@ -31,7 +31,7 @@ function getFileId(localPath) {
  * @return {String} driveMapping The Drive id of the mapped folder
  */
 function getFolderId(localPath) {
-  return getDriveId(localPath, false);
+  return getDriveIdUtil(localPath, false);
 }
 
 /**

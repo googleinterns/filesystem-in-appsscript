@@ -26,6 +26,7 @@ var ApiUtil = {
   getDestinationId: getDestinationId,
   createDeletedDestination: createDeletedDestination,
   createInDrive: createInDrive,
+  createDestination: createDestination,
   getRegExFromPattern: getRegExFromPattern
 }
 
@@ -124,38 +125,21 @@ function checkIfMarkedDeleted(localPath){
  *                          is not found
  */
 function findInDrive(currentDirectory, path, isUnix, isFile) {
-  var folders = splitPath(path, isUnix);
-  var driveId = null;
+  var index = PathUtil.getFirstSlash(path, isUnix);
 
-  if (folders.length > 0) {
-    var destination = folders[folders.length - 1];
-    var prev = currentDirectory;
-    var curr;
-    var found = false;
-
-    for (var i = 0; (i < (folders.length - 1) && !found); i++) {
-      curr = folders[i];
-
-      if (curr && prev) {
-        var fldrs = prev.getFoldersByName(curr);
-        prev = (fldrs.hasNext()) ? fldrs.next(): null;
-      }
-
-      // Since previous folder is null that means the path is not found
-      // in drive hence it will return null
-      if (prev === null) {
-        found = true;
-      }
-    }
-
-    // If previous folder wasn't found null 
-    if (!found) {
-      found = true;
-      driveId = getDestinationId(destination, prev, isFile);
-    }
+  // If index is -1 means we are at the destination file/folder
+  if(index === -1){
+    return ApiUtil.getDestinationId(path, currentDirectory, isFile);
   }
+  else {
+    // The folder which is to be searched in current directory
+    var folderName = path.slice(0,index);
+    // New path is now without the folder which will be serached in this call
+    path = path.slice(index+1);
 
-  return driveId;
+    var folders = currentDirectory.getFoldersByName(folderName);
+    return (folders.hasNext()) ? ApiUtil.findInDrive(folders.next(), path, isUnix, isFile) : null;
+  }
 }
 
 /** 
@@ -197,43 +181,22 @@ function getDestinationId(destination, folder, isFile) {
  * @param {String} localPath The local destination path whose mapping was marked deleted
  * @return {String} driveId The drive id of the newly created file or folder
  */
-// Might need to modify this one 
 function createDeletedDestination(localPath) {
   var documentProperties = PropertiesService.getDocumentProperties();
   var value = documentProperties.getProperty(localPath);
   var mapping = JSON.parse(value);
 
   var path = mapping.drivepath;
-  // Split the drive path which is connected by forward slash (hence isUnix is set true)
-  var folders = splitPath(path, true);
-  var driveId = mapping.id;
-  if (folders.length > 0) {
-    var destinationName = folders[folders.length - 1];
-    var prev = DriveApp.getRootFolder();
-    var curr;
-    
-    for (var i = 1; i < (folders.length - 1); i++) {
-      curr = folders[i];
-      if (curr && prev) {
-        var fldrs = prev.getFoldersByName(curr);
-        prev = (fldrs.hasNext()) ? fldrs.next(): prev.createFolder(curr);
-      }
-    }
-
-    var destination;
-    if(!mapping.isfolder){
-      var extension = getExtension(localPath);
-      if (extension === ""){
-        extension = "txt";
-      }
-      var mimetype = getMimeTypeFromExtension(extension);
-      destination = prev.createFile(destinationName, "", mimetype);
-    }
-    else{
-      destination = prev.createFolder(destinationName);
-    }
-    driveId = destination.getId();
-  }
+  
+  // Drive path which is connected by forward slash (hence isUnix is set true)
+  var isUnix = true;
+  var isFile =  !mapping.isfolder;
+  var index = PathUtil.getFirstSlash(path, isUnix);
+  // Removing the "My Drive" part from the path since it is the root folder and will be used 
+  // as the current directory 
+  path = path.slice(index+1);
+  
+  var driveId = createInDrive(DriveApp.getRootFolder(), path, isUnix, isFile);
 
   mapping.id = driveId;
   documentProperties.setProperty(localPath, JSON.stringify(mapping));
@@ -252,38 +215,51 @@ function createDeletedDestination(localPath) {
  *                          is not found
  */
 function createInDrive(currentDirectory, relativePath, isUnix, isFile) {
-  var folders = splitPath(relativePath, isUnix);
-  var driveId = null;
-  if (folders.length > 0) {
-    var destinationName = folders[folders.length - 1];
-    var prev = currentDirectory;
-    var curr;
+  var index = PathUtil.getFirstSlash(relativePath, isUnix);
 
-    for (var i = 0; i < (folders.length - 1); i++) {
-      curr = folders[i];
-      if (curr && prev) {
-        var fldrs = prev.getFoldersByName(curr);
-        prev = (fldrs.hasNext()) ? fldrs.next() : prev.createFolder(curr);
-      }
-    }
-
-    var destination;
-    if (isFile) {
-      var extension = getExtension(destinationName);
-      // Making the local file without extension to be text file
-      if (extension === "") {
-        extension = "txt";
-      }
-      var mimetype = getMimeTypeFromExtension(extension);
-      destination = prev.createFile(destinationName, "", mimetype);
-    }
-    else {
-      destination = prev.createFolder(destinationName);
-    }
-    driveId = destination.getId();
+  // If index is -1 means we are at the destination file/folder
+  if(index === -1){
+    return ApiUtil.getDestinationId(relativePath, currentDirectory, isFile);
   }
-  return driveId;
+  else {
+    // The folder which is to be searched in current directory
+    var folderName = path.slice(0,index);
+    // New path is now without the folder which will be searched in this call
+    relativePath = relativePath.slice(index+1);
+
+    var folders = currentDirectory.getFoldersByName(folderName);
+    var folder = (folders.hasNext()) ? folders.next() : currentDirectory.createFolder(folderName);
+
+    return ApiUtil.createInDrive(folder, relativePath, isUnix, isFile);
+  }
 }
+
+/** 
+ * Creates the destination file/folder having same mimetype as the local file  
+ *
+ * @param {String} destinationName The name of file/folder which is to be created
+ * @param {FolderObject} folder The Folder in which the file is to be created
+ * @param {boolean} isFile To signify whether its a file or folder
+ * @return {String} driveId The drive id of the local file/folder created
+ */
+function createDestination(destinationName, folder, isFile) {
+  var destination;
+  if (isFile) {
+    var extension = PathUtil.getExtension(destinationName);
+    // Making the local file without extension to be text file
+    if (extension === "") {
+      extension = "txt";
+    }
+    var mimetype = getMimeTypeFromExtension(extension);
+    destination = folder.createFile(destinationName, "", mimetype);
+  }
+  else {
+    destination = folder.createFolder(destinationName);
+  }
+  driveId = destination.getId();
+
+  return driveId;
+} 
 
 /**
  * Convert the pattern to corresponding regex
