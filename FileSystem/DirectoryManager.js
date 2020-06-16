@@ -25,6 +25,8 @@ var DirectoryManager = {
   curDir: curDir,
   fileSystemType: '',
   getFileSystemType: getFileSystemType_,
+  getFileLength: getFileLength,
+  getFileDateTime: getFileDateTime,
 };
 
 /**
@@ -95,4 +97,51 @@ function getFileSystemType_() {
     this.fileSystemType = getFileSystemType(activeWorkbookPath);
   }
   return this.fileSystemType;
+}
+
+/**
+ * Emulates VBA FileLen API
+ * Returns length of file in bytes
+ * @param {string} path Path of file
+ * @return {number} Length of file in bytes
+ */
+function getFileLength(path) {
+  path = this.getAbsolutePath(path);
+  var driveId = FileMapper.getFileId('', path);
+  var file = DriveApp.getFileById(driveId);
+  return file.getSize();
+}
+
+/**
+ * Emulates VBA FileDateTime API
+ * Returns time file was last modified
+ * @todo Handle user locale for datatime
+ * @body Currently using US/English locale
+ * @param {string} path Path of file
+ * @return {string} Datetime string of file's last modification date
+ */
+function getFileDateTime(path) {
+  path = this.getAbsolutePath(path);
+  var driveId = FileMapper.getFileId('', path);
+  var file = DriveApp.getFileById(driveId);
+  var date = file.getLastUpdated();
+  // Extract Date attributes
+  var day = date.getDate().toString();
+  var month = (date.getMonth() + 1).toString();
+  var year = date.getFullYear().toString().substr(2);
+  var hour = date.getHours().toString();
+  var minutes = date.getMinutes().toString();
+  var seconds = date.getSeconds().toString();
+  var period = 'AM';
+  if (hour >= 12) {
+    period = 'PM';
+  }
+  if (hour > 12) {
+    hour -= 12;
+  }
+  // Construct Date Time String
+  var date = day + '/' + month + '/' + year;
+  var time = hour + ':' + minutes + ':' + seconds;
+  var dateTime = date + ' ' + time + ' ' + period;
+  return dateTime;
 }

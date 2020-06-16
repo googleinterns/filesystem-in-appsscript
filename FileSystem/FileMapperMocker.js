@@ -13,6 +13,8 @@ var VBAFileMapperMocker = {
       '1i3M1cYfubmXnosn5LJQmHCghBzhPBrDjBQszkWvZkxA',
     'c:\\User\\Desktop\\attendance.xlsx':
       '1bJb_KzRHW9nqYLa0N1GqMNoWZIOwxIb-TxYlIrk1NSs',
+    'c:\\User\\Desktop\\FileLengthTest.txt':
+      '19_gNX5lpHdcqHI8x0xxTy2pZJacrPvhR',
   },
   getFileId: function (currentDirectory, path, type) {
     if (path in this.mappings) {
