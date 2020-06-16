@@ -6,6 +6,7 @@ function directory_manager_run_all_tests() {
   validation_util_tests();
   current_directory_tests();
   absolute_localpath_tests();
+  misc_tests();
 }
 
 function validation_util_tests() {
@@ -198,4 +199,21 @@ function absolute_localpath_tests() {
           equal(response, relativePathTests[path], message);
         }
       });
+}
+
+function misc_tests() {
+  QUnit.test('FileLen - File Length Testing', function () {
+    expect(1);
+    var filePath = 'c:\\User\\Desktop\\FileLengthTest.txt';
+    var fileLength = DirectoryManager.getFileLength(filePath);
+    equal(fileLength, 192, 'File length is correct');
+  });
+
+  QUnit.test('FileDateTime - DateTime String Testing', function () {
+    expect(1);
+    var filePath = 'c:\\User\\Desktop\\marks.xlsx';
+    var dateTime = DirectoryManager.getFileDateTime(filePath);
+    var dateTimeRegExp = /^\d{1,2}\/\d{1,2}\/\d{1,2} \d{1,2}:\d{1,2}:\d{1,2} (AM|PM)$/;
+    ok(dateTimeRegExp.test(dateTime), 'Date Time format is correct');
+  });
 }
