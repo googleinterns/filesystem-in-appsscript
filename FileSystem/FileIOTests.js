@@ -327,6 +327,7 @@ function file_misc_tests() {
 }
 
 function file_io_cleanup() {
+  DirectoryManager.setCurrentDirectory('c:\\user\\desktop');
   deleteFileIfExists('TESTFILE');
   deleteFileIfExists('PRINT_TEST');
   deleteFileIfExists('WRITE_TEST');
