@@ -466,6 +466,7 @@ function getRelativePathSplit(localPath) {
   var prefix = localPath.substr(0, prefixLength);
   // Check if path has base directory as prefix
   if (prefix != this.baseDirectory) {
+    SpreadsheetApp.getUi().alert(prefix);
     throw new Error('Base Directory does not match');
   }
   // Find relative path from base directory

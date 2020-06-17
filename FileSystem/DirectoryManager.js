@@ -25,8 +25,12 @@ var DirectoryManager = {
   curDir: curDir,
   fileSystemType: '',
   getFileSystemType: getFileSystemType_,
+  changeDirectory: changeDirectory,
   getFileLength: getFileLength,
   getFileDateTime: getFileDateTime,
+  searchResults: [],
+  searchFiles: searchFiles,
+  deleteFiles: deleteFiles,
 };
 
 /**
@@ -52,7 +56,11 @@ function setCurrentDirectory(path) {
   if (!isValidAbsolutePath(path)) {
     throw new Error(path + ' is an invalid path');
   }
-  this.currentDirectory = santizePath(path);
+  path = santizePath(path);
+  if (!FileMapper.hasFolder(path)) {
+    throw new Error(path + ' directory does not exist');
+  }
+  this.currentDirectory = path;
 }
 
 /**
@@ -77,9 +85,9 @@ function curDir(drive) {
   var path = this.getCurrentDirectory();
   if (drive) {
     if (getFileSystemType(path) == FileSystemType.UNIX) {
-      return path; // If Unix System, ignore drive letter
+      return path;  // If Unix System, ignore drive letter
     } else if (drive.toLowerCase() == path[0].toLowerCase()) {
-      return path; // Current Directory same as drive letter
+      return path;  // Current Directory same as drive letter
     }
     var newPath = drive + ':\\';
     if (!isValidAbsolutePath(newPath)) {
@@ -107,7 +115,7 @@ function getFileSystemType_() {
  */
 function getFileLength(path) {
   path = this.getAbsolutePath(path);
-  var driveId = FileMapper.getFileId('', path);
+  var driveId = FileMapper.getFileId(path);
   var file = DriveApp.getFileById(driveId);
   return file.getSize();
 }
@@ -122,7 +130,7 @@ function getFileLength(path) {
  */
 function getFileDateTime(path) {
   path = this.getAbsolutePath(path);
-  var driveId = FileMapper.getFileId('', path);
+  var driveId = FileMapper.getFileId(path);
   var file = DriveApp.getFileById(driveId);
   var date = file.getLastUpdated();
   // Extract Date attributes
@@ -144,4 +152,74 @@ function getFileDateTime(path) {
   var time = hour + ':' + minutes + ':' + seconds;
   var dateTime = date + ' ' + time + ' ' + period;
   return dateTime;
+}
+
+/**
+ * Emulates VBA ChDir statement API
+ */
+function changeDirectory(path) {
+  path = this.getAbsolutePath(path);
+  this.setCurrentDirectory(path);
+}
+
+/**
+ * Emulates VBA ChDrive statement API
+ */
+function changeDrive(drive) {
+  var fileSystemType = this.getFileSystemType();
+  if (fileSystemType == FileSystemType.WINDOWS) {
+    var currentDirectory = this.getCurrentDirectory();
+    if (currentDirectory[0].toLowerCase() != drive.toLowerCase()) {
+      var newCurrentDirectory = drive + ':\\';
+      this.setCurrentDirectory(newCurrentDirectory);
+    }
+  }
+}
+
+/**
+ * Emulates VBA Dir statement API
+ */
+function searchFiles(filePathPattern) {
+  if (filePathPattern != undefined) {
+    if (filePathPattern == '') {
+      filePathPattern = '*';
+    }
+    // Get absolute path
+    if (!isAbsolutePath(filePathPattern)) {
+      filePathPattern = this.getAbsolutePath(filePathPattern);
+    }
+    var files = FileMapper.findFilesByPattern(filePathPattern);
+    files.sort();
+    files.reverse();
+    this.searchResults = files;
+  }
+  if (this.searchResults == null) {
+    throw new Error('No more matching files');
+  } else if (this.searchResults.length == 0) {
+    this.searchResults = null;
+    return '';
+  } else {
+    return this.searchResults.pop();
+  }
+}
+
+/**
+ * Emulates VBA kill statement API
+ */
+function deleteFiles(filePathPattern) {
+  var fileSystemType = this.getFileSystemType();
+  var fileSeparator = fileSystemType == FileSystemType.UNIX ? '/' : '\\';
+  // Get absolute path
+  if (!isAbsolutePath(filePathPattern)) {
+    filePathPattern = this.getAbsolutePath(filePathPattern);
+  }
+  // Find file matches
+  var files = FileMapper.findFilesByPattern(filePathPattern);
+  // Move up one level
+  var filePathPattern = getAbsoluteLocalPath(filePathPattern, '..');
+  // Delete files
+  for (var i = 0; i < files.length; i++) {
+    var filePath = filePathPattern + fileSeparator + files[i];
+    FileMapper.deleteFile(filePath);
+  }
 }

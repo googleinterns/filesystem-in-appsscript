@@ -92,6 +92,16 @@ function isValidAbsolutePath(path) {
 }
 
 /**
+ * Checks if path is an absolute path. Does not check for validity.
+ * Required when path is not santized and when path contains wildcards.
+ * @param {string} path File or Directory path
+ * @return {boolean} true if path is a absolute Windows/Unix path
+ */
+function isAbsolutePath(path) {
+  return /^\w:\\/.test(path) || /^\//.test(path);
+}
+
+/**
  * Helper function to obtain path type
  * @param {string} path File or directory path
  * @return {string} File System type enumeration
@@ -114,7 +124,7 @@ function getFileSystemType(path) {
  * @returns {string} Path with trailing file separator
  */
 function santizePath(path) {
-  var fileSystemType = getFileSystemType(path);
+  var fileSystemType = DirectoryManager.getFileSystemType();
   var windowsPrefix = 'C:\\';
   // Remove trailing slash (file separator) from file paths
   if (fileSystemType == FileSystemType.WINDOWS) {
@@ -145,7 +155,7 @@ function getAbsoluteLocalPath(currentDirectory, relativePath) {
   if (isValidAbsolutePath(relativePath)) {
     return santizePath(relativePath);
   }
-  var fileSystemType = getFileSystemType(currentDirectory);
+  var fileSystemType = DirectoryManager.getFileSystemType();
   var fileSeparator = fileSystemType == FileSystemType.UNIX ? '/' : '\\';
   // First element of windows path split is drive letter ("C:") and
   // First element of unix path split is empty string ("")
