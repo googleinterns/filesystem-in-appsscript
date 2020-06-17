@@ -1,0 +1,96 @@
+<!--
+Copyright 2020 Google LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+     https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<!-- This is only intended to be used for testing Directory Manager locally-->
+
+<script src="DirectoryManager.js"></script>
+<script src="Util.js"></script>
+
+<script>
+  var currentDirectory = 'C:\\Users\\Rama Prasad\\Desktop\\Google';
+
+  function getCurrentDirectory() {
+    return currentDirectory;
+  }
+
+  function getAbsolutePath(relativePath) {
+    if (isValidAbsolutePath(relativePath)) {
+      return santizePath(relativePath);
+    }
+
+    var currentDirectory = this.getCurrentDirectory();
+    var fileSystemType = getFileSystemType(currentDirectory);
+    var fileSeparator = fileSystemType == FileSystemType.UNIX ? '/' : '\\';
+    var pathSplit = currentDirectory.split(fileSeparator);
+    var relativePathSplit = relativePath.split(fileSeparator);
+    console.log(relativePathSplit, pathSplit);
+
+    for (var i = 0; i < relativePathSplit.length; i++) {
+      if (relativePathSplit[i] == '.') {
+        continue;
+      } else if (relativePathSplit[i] == '..') {
+        if (pathSplit.length > 1) {
+          pathSplit.pop();
+        }
+      } else {
+        pathSplit.push(relativePathSplit[i]);
+      }
+    }
+
+    var absolutePath = pathSplit.join(fileSeparator);
+    if (pathSplit.length == 1) {
+      absolutePath += fileSeparator;
+    }
+
+    return santizePath(absolutePath);
+  }
+
+  var windowsTests = [
+    'C:\\Users',
+    'Documents',
+    'Documents\\file1.txt',
+    '..',
+    '..\\..',
+    '..\\folder1\\',
+    '..\\folder1',
+    '..\\folder1\\folder2\\..\\folder3',
+    '..\\..\\..',
+    '..\\..\\..\\..',
+    '..\\..\\..\\..\\..',
+  ];
+  console.log(getCurrentDirectory());
+  for (var i = 0; i < windowsTests.length; i++) {
+    console.log(windowsTests[i] + ' -> ' + getAbsolutePath(windowsTests[i]));
+  }
+
+  currentDirectory = '/Users/Rama Prasad/Desktop/Google';
+
+  var unixTests = [
+    '/Users',
+    'Documents',
+    'Documents/file1.txt',
+    '..',
+    '../..',
+    '../folder1/',
+    '../folder1/folder2/../folder3',
+    '../../..',
+    '../../../..',
+    '../../../../..',
+  ];
+  console.log(getCurrentDirectory());
+  for (var i = 0; i < unixTests.length; i++) {
+    console.log(unixTests[i] + ' -> ' + getAbsolutePath(unixTests[i]));
+  }
+</script>

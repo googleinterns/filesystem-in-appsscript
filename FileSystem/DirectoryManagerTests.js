@@ -2,6 +2,7 @@
  * @fileoverview DirectoryManager Unit Tests
  */
 function directory_manager_run_all_tests() {
+  Workbook.setActiveWorkbookPath('c:\\user\\desktop');
   QUnit.module('DirectoryManager', {
     setup: function() {
       DirectoryManager.setCurrentDirectory('c:\\user\\desktop');

@@ -123,8 +123,8 @@ function getFileSystemType(path) {
  * @param {string} path File or directory path
  * @returns {string} Path with trailing file separator
  */
-function santizePath(path) {
-  var fileSystemType = DirectoryManager.getFileSystemType();
+function santizePath(path, fileSystemType) {
+  var fileSystemType = fileSystemType || DirectoryManager.getFileSystemType();
   var windowsPrefix = 'C:\\';
   // Remove trailing slash (file separator) from file paths
   if (fileSystemType == FileSystemType.WINDOWS) {

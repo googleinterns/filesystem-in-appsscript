@@ -33,21 +33,18 @@ var Workbook = {
  * @return {Spreadsheet} The spreadsheet object of the path
  */
 function openWorkbook(path) {
-  var fileId = FileMapper.getFileId(
-    this.currentDirectory,
-    path,
-    MimeType.GOOGLE_SHEETS
-  );
+  path = DirectoryManager.getAbsolutePath(path);
+  var fileId = FileMapper.getFileId(path);
   var file = SpreadsheetApp.openById(fileId);
   openURL(file.getUrl(), file.getName() + ' file open in new tab');
   return file;
 }
 
 /**
- * Prompts the user to provide the local file path for the current 
- * active spreadsheet. This can be triggered by the user from the UI 
- * to set/update the active workbook path . It can also be triggered 
- * when an API asks for the active workbook path and it is not found 
+ * Prompts the user to provide the local file path for the current
+ * active spreadsheet. This can be triggered by the user from the UI
+ * to set/update the active workbook path . It can also be triggered
+ * when an API asks for the active workbook path and it is not found
  * in which case an error is displayed.
  * @param {boolean} error Error flag indicating whether an error occurred
  */
@@ -56,9 +53,9 @@ function promptActiveWorkbookPath(error) {
   var driveId = SpreadsheetApp.getActive().getId();
   var path = getAbsoluteDrivePath(driveId, true);
   var pathSplit = path.split('/');
-  pathSplit.pop(); // Remove file name from path
+  pathSplit.pop();  // Remove file name from path
   var drivePath = pathSplit.join('/');
-  pathSplit.shift(); // Remove "Drive" or "My Drive" from path
+  pathSplit.shift();  // Remove "Drive" or "My Drive" from path
   // Generate possible local path
   var localPathExample = 'C:\\Documents\\' + pathSplit.join('\\');
 
@@ -99,15 +96,16 @@ function getActiveWorkbookPath() {
 
 /**
  * @todo Register directory mapping with File Mapper
- * @body This mapping is very useful as in most cases this will hande most scenarios
- * Set the active workbook path in PropertyService
+ * @body This mapping is very useful as in most cases this will hande most
+ * scenarios Set the active workbook path in PropertyService
  * @param {string} path The active workbook path
  */
 function setActiveWorkbookPath(path) {
-  if(!isValidAbsolutePath(path)) {
+  if (!isValidAbsolutePath(path)) {
     throw new Error(path + ' is not a valid');
   }
-  var path = santizePath(path);
+  var fileSystemType = getFileSystemType(path);
+  var path = santizePath(path, fileSystemType);
   this.activeWorkbookPath = path;
   var properties = PropertiesService.getDocumentProperties();
   properties.setProperty('ActiveWorkbookPath', path);

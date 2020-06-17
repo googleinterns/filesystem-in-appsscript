@@ -1,0 +1,13 @@
+#!/bin/bash
+format () {
+    echo $1
+	clang-format $1 > temp && mv temp $1
+}
+
+formatall() {
+    for filename in *.js; do
+       format $filename
+    done
+}
+
+formatall
