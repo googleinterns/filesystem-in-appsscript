@@ -2,11 +2,18 @@
  * @fileoverview DirectoryManager Unit Tests
  */
 function directory_manager_run_all_tests() {
-  QUnit.module('DirectoryManager');
+  QUnit.module('DirectoryManager', {
+    setup: function() {
+      DirectoryManager.setCurrentDirectory('c:\\user\\desktop');
+    }
+  });
   validation_util_tests();
   current_directory_tests();
   absolute_localpath_tests();
   misc_tests();
+  dir_tests();
+  kill_tests();
+  directory_manipulate_api_tests();
 }
 
 function validation_util_tests() {
@@ -101,7 +108,7 @@ function validation_util_tests() {
 function current_directory_tests() {
   QUnit.test(
       'Current Directory is initialized to active workbook path', function() {
-        Workbook.setActiveWorkbookPath('C:\\Users\\Desktop\\');
+        Workbook.setActiveWorkbookPath('C:\\User\\Desktop\\');
         DirectoryManager.currentDirectory = '';
         var directory = DirectoryManager.getCurrentDirectory();
         var workbookPath = Workbook.getActiveWorkbookPath();
@@ -109,7 +116,7 @@ function current_directory_tests() {
       });
 
   QUnit.test('CurDir API - Returns Current Directory', function() {
-    Workbook.setActiveWorkbookPath('C:\\Users\\Desktop\\');
+    Workbook.setActiveWorkbookPath('C:\\User\\Desktop\\');
     DirectoryManager.currentDirectory = '';
     var currentDirectory = DirectoryManager.getCurrentDirectory();
     var curDirResponse = DirectoryManager.curDir();
@@ -117,7 +124,7 @@ function current_directory_tests() {
   });
 
   QUnit.test('CurDir API - Drive Parameter Tests', function() {
-    Workbook.setActiveWorkbookPath('C:\\Users\\Desktop\\');
+    Workbook.setActiveWorkbookPath('C:\\User\\Desktop\\');
     DirectoryManager.currentDirectory = '';
     var currentDirectory = DirectoryManager.getCurrentDirectory();
     var curDirResponse = DirectoryManager.curDir('C');
@@ -126,6 +133,25 @@ function current_directory_tests() {
     equal(currentDirectory, curDirResponse, 'CurDir("c") works correctly');
     curDirResponse = DirectoryManager.curDir('D');
     equal('D:\\', curDirResponse, 'CurDir("D") works correctly');
+  });
+
+  QUnit.test('ChDir API - Change Directory Tests', function() {
+    expect(4);
+    var currentDirectory = DirectoryManager.curDir();
+    var rootPath = 'c:\\user\\desktop';
+    var folder1 = 'c:\\user\\desktop\\folder1';
+    var folder2 = 'c:\\user\\desktop\\folder2';
+    var folderOriginal = 'c:\\user\\desktop\\original';
+    equal(currentDirectory, rootPath, 'Current Directory is at root');
+    DirectoryManager.changeDirectory('folder1');
+    currentDirectory = DirectoryManager.curDir();
+    equal(currentDirectory, folder1, 'current directory is folder1');
+    DirectoryManager.changeDirectory('..\\folder2');
+    currentDirectory = DirectoryManager.curDir();
+    equal(currentDirectory, folder2, 'current directory is folder2');
+    DirectoryManager.changeDirectory(folderOriginal);
+    currentDirectory = DirectoryManager.curDir();
+    equal(currentDirectory, folderOriginal, 'current directory is original');
   });
 }
 
@@ -167,6 +193,7 @@ function absolute_localpath_tests() {
   QUnit.test(
       'Unix Conversion of Relative Path to Absolute Path Tests', function() {
         var currentDirectory = '/Users/Satvik/Desktop';
+        DirectoryManager.fileSystemType = FileSystemType.UNIX;
         var absolutePathTests = {
           '/Users': '/Users',
           '/Users/': '/Users',
@@ -198,22 +225,115 @@ function absolute_localpath_tests() {
           var message = path + ' -> ' + relativePathTests[path];
           equal(response, relativePathTests[path], message);
         }
+        DirectoryManager.fileSystemType = FileSystemType.WINDOWS;
       });
 }
 
 function misc_tests() {
-  QUnit.test('FileLen - File Length Testing', function () {
+  QUnit.test('FileLen - File Length Testing', function() {
     expect(1);
-    var filePath = 'c:\\User\\Desktop\\FileLengthTest.txt';
+    var filePath = 'c:\\User\\Desktop\\folder1\\FileLengthTest.txt';
     var fileLength = DirectoryManager.getFileLength(filePath);
     equal(fileLength, 192, 'File length is correct');
   });
 
-  QUnit.test('FileDateTime - DateTime String Testing', function () {
+  QUnit.test('FileDateTime - DateTime String Testing', function() {
     expect(1);
     var filePath = 'c:\\User\\Desktop\\marks.xlsx';
     var dateTime = DirectoryManager.getFileDateTime(filePath);
-    var dateTimeRegExp = /^\d{1,2}\/\d{1,2}\/\d{1,2} \d{1,2}:\d{1,2}:\d{1,2} (AM|PM)$/;
+    var dateTimeRegExp =
+        /^\d{1,2}\/\d{1,2}\/\d{1,2} \d{1,2}:\d{1,2}:\d{1,2} (AM|PM)$/;
     ok(dateTimeRegExp.test(dateTime), 'Date Time format is correct');
+  });
+}
+
+function dir_tests() {
+  QUnit.test('Dir() - Search Files by Pattern Testing - 1', function() {
+    expect(5);
+    var file;
+    var pattern = 'folder1\\files\\*.txt';
+    file = DirectoryManager.searchFiles(pattern);
+    equal(file, 'file1.txt');
+    file = DirectoryManager.searchFiles();
+    equal(file, 'file2.txt');
+    file = DirectoryManager.searchFiles();
+    equal(file, 'somefile.txt');
+    file = DirectoryManager.searchFiles();
+    equal(file, '');
+    throws(function() {
+      file = DirectoryManager.searchFiles();
+    }, 'No more matching files', 'Error thrown correctly');
+  });
+
+  QUnit.test('Dir() - Search Files by Pattern Testing - 2', function() {
+    expect(4);
+    var file;
+    var pattern = 'folder1\\files\\file?.txt';
+    file = DirectoryManager.searchFiles(pattern);
+    equal(file, 'file1.txt');
+    file = DirectoryManager.searchFiles();
+    equal(file, 'file2.txt');
+    file = DirectoryManager.searchFiles();
+    equal(file, '');
+    throws(function() {
+      file = DirectoryManager.searchFiles();
+    }, 'No more matching files', 'Error thrown correctly');
+  });
+
+  QUnit.test('Dir() - Search Files by Pattern Testing - 3', function() {
+    expect(3);
+    var file;
+    var pattern = 'folder1\\files\\somefile.txt';
+    file = DirectoryManager.searchFiles(pattern);
+    equal(file, 'somefile.txt');
+    file = DirectoryManager.searchFiles();
+    equal(file, '');
+    throws(function() {
+      file = DirectoryManager.searchFiles();
+    }, 'No more matching files', 'Error thrown correctly');
+  });
+}
+
+function kill_tests() {
+  QUnit.test('Kill() - Delete Files by Pattern Testing', function() {
+    expect(4);
+    var file;
+    var pattern = 'folder1\\killtests\\*.txt';
+    file = DirectoryManager.searchFiles(pattern);
+    equal(file, 'killthis1.txt');
+    file = DirectoryManager.searchFiles();
+    equal(file, 'killthis2.txt');
+    file = DirectoryManager.searchFiles();
+    equal(file, '');
+    DirectoryManager.deleteFiles(pattern);
+    file = DirectoryManager.searchFiles(pattern);
+    equal(file, '');
+  });
+}
+
+function directory_manipulate_api_tests() {
+  QUnit.test('RmDir() - Delete Empty Folder Testing', function() {
+    expect(2);
+    var folderPath = 'folder1/rmdirthis';
+    var absolutePath = DirectoryManager.getAbsolutePath(folderPath);
+    var folderExists = FileMapper.hasFolder(absolutePath);
+    ok(folderExists, 'Folder exists');
+    DirectoryManager.deleteDirectory(folderPath);
+    folderExists = FileMapper.hasFolder(absolutePath);
+    ok(!folderExists, 'Folder is deleted');
+  });
+
+  QUnit.test('RmDir() - Delete Folder with files Testing', function() {
+    expect(3);
+    var folderPath = 'folder1/files';
+    var absolutePath = DirectoryManager.getAbsolutePath(folderPath);
+    var folderExists = FileMapper.hasFolder(absolutePath);
+    ok(folderExists, 'Folder exists');
+    var errorMessage = absolutePath + ' is not an empty directory';
+    throws(function() {
+      DirectoryManager.deleteDirectory(folderPath);
+    }, errorMessage, 'Error thrown correctly');
+    folderExists = FileMapper.hasFolder(absolutePath);
+    ok(folderExists, 'Folder is not deleted');
   });
 }
