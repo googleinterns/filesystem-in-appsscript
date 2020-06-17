@@ -106,8 +106,18 @@ function isValidAbsolutePath(path) {
 }
 
 /**
- * Helper function to obtain localPath type
- * @param {string} localPath File or directory localPath
+ * Checks if path is an absolute path. Does not check for validity.
+ * Required when path is not sanitized and when path contains wildcards.
+ * @param {string} path File or Directory path
+ * @return {boolean} true if path is a absolute Windows/Unix path
+ */
+function isAbsolutePath(path) {
+  return /^\w:\\/.test(path) || /^\//.test(path);
+}
+
+/**
+ * Helper function to obtain path type
+ * @param {string} localPath File or directory path
  * @return {string} File System type enumeration
  */
 function getFileSystemType(localPath) {
@@ -164,7 +174,7 @@ function sanitizePath(localPath, fileSystemType) {
  */
 function getAbsoluteLocalPath(currentDirectory, relativePath) {
   // Test if relativePath is actually an absolute path
-  var fileSystemType = getFileSystemType(currentDirectory);
+  var fileSystemType = DirectoryManager.getFileSystemType();
   if (isValidAbsolutePath(relativePath)) {
     return sanitizePath(relativePath, fileSystemType);
   }
