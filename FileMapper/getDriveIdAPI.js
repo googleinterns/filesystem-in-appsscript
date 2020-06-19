@@ -20,9 +20,7 @@
  * @param {String} localPath Local File Path whose mapping is to be found
  * @return {String} driveMapping The Drive id of the mapped file
  */
-function getFileId(localPath) {
-  return getDriveIdUtil(localPath, true);
-}
+function getFileId(localPath) { return getDriveIdUtil(localPath, true); }
 
 /**
  * API to find the Drive Id for a local folder path
@@ -30,16 +28,14 @@ function getFileId(localPath) {
  * @param {String} localPath Local Folder Path whose mapping is to be found
  * @return {String} driveMapping The Drive id of the mapped folder
  */
-function getFolderId(localPath) {
-  return getDriveIdUtil(localPath, false);
-}
+function getFolderId(localPath) { return getDriveIdUtil(localPath, false); }
 
 /**
  * Utility function to find the Drive id for a local file/folder path
  *
  * @param {String} localPath Local Path whose mapping is to be found
  * @param {boolean} isFile To signify whether its a file or folder
- * @return {String} driveMapping The Drive id of the mapped file/folder  
+ * @return {String} driveMapping The Drive id of the mapped file/folder
  */
 function getDriveIdUtil(localPath, isFile) {
   // Checking if the path represents windows file system or unix file system
@@ -54,13 +50,17 @@ function getDriveIdUtil(localPath, isFile) {
     var currentDirectoryId = ApiUtil.getFromConfig(mappedPath);
     if (currentDirectoryId !== null) {
       // If the file whose id is to be returned has been deleted
-      if (ApiUtil.checkIfMarkedDeleted(mappedPath)){
-        throw new FileDoesNotExistException("File Mapped to the local path provided has been deleted previously.");
+      if (ApiUtil.checkIfMarkedDeleted(mappedPath)) {
+        var errorMessage = ((isFile) ? "File" : "Folder") +
+                           " mapped to the local path " + mappedPath +
+                           " has been deleted previously.";
+        throw new FileDoesNotExistException(errorMessage);
       }
 
       if (relativePath.length > 0) {
         var currentDirectory = DriveApp.getFolderById(currentDirectoryId);
-        var relativeMapping = ApiUtil.findInDrive(currentDirectory, relativePath, isUnix, isFile);
+        var relativeMapping =
+            ApiUtil.findInDrive(currentDirectory, relativePath, isUnix, isFile);
 
         // If the mapping is found
         if (relativeMapping !== null) {
@@ -68,34 +68,33 @@ function getDriveIdUtil(localPath, isFile) {
           found = true;
           driveMapping = relativeMapping;
         }
-      }
-      else {
+      } else {
         // If we have found the complete path in the config
         found = true;
         driveMapping = currentDirectoryId;
       }
-      // We have already checked the longest mapping 
+      // We have already checked the longest mapping
       break;
     }
 
-    // To convert "C:\Desktop\MyFolder" + "MyFile.txt" to "C:\Desktop" + "MyFolder\MyFile.txt"
+    // To convert "C:\Desktop\MyFolder" + "MyFile.txt" to "C:\Desktop" +
+    // "MyFolder\MyFile.txt"
     var position = PathUtil.getLastSlash(mappedPath, isUnix);
     if (position == -1) {
       relativePath = PathUtil.joinPath(mappedPath, relativePath, isUnix);
       mappedPath = "";
-    }
-    else {
-      relativePath = PathUtil.joinPath(mappedPath.slice(position + 1), relativePath, isUnix);
+    } else {
+      relativePath = PathUtil.joinPath(mappedPath.slice(position + 1),
+                                       relativePath, isUnix);
       mappedPath = mappedPath.slice(0, position);
     }
   }
 
   // If the mapping is null then we need to prompt the user
-  if(driveMapping === null){
-    throw new MappingNotFoundException("Mapping for the local path provided is not found. Provide a mapping for " + localPath);
-  }
-  else
+  if (driveMapping === null) {
+    throw new MappingNotFoundException(
+        "Mapping for the local path provided is not found. Provide a mapping for " +
+        localPath);
+  } else
     return driveMapping;
 }
-
-

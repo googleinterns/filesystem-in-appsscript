@@ -17,77 +17,68 @@
 /**
  * Path Utilities
  */
-var PathUtil = {
-  checkIfUnixPath: checkIfUnixPath,
-  getFirstSlash: getFirstSlash,
-  getLastSlash: getLastSlash,
-  joinPath: joinPath,
-  splitPath: splitPath,
-  getExtension: getExtension
-}
+var PathUtil =
+    {
+      checkIfUnixPath : checkIfUnixPath,
+      getFirstSlash : getFirstSlash,
+      getLastSlash : getLastSlash,
+      joinPath : joinPath,
+      splitPath : splitPath,
+      getExtension : getExtension
+    }
 
 /**
  * Check if a local path is unix path or not
- * 
+ *
  * @param {String} path The local path which is to be checked
- * @return {boolean} True if it is a Unix path, 
+ * @return {boolean} True if it is a Unix path,
  *                   False otherwise
  */
 function checkIfUnixPath(path) {
   var forwardSlash = path.match(/\//g);
-  return !(forwardSlash === null); 
+  return !(forwardSlash === null);
 }
 
 /**
  * Get the index of the first slash in the path
- * 
+ *
  * @param {String} path The local path which is to be checked
  * @param {boolean} isUnix To signify whether its a windows path or unix path
  * @return {Integer} index The index of the first slash in the local path
  */
-function getFirstSlash(path, isUnix){
-  var slash = '\\';
-  if(isUnix){
-    slash = '/';
-  }
+function getFirstSlash(path, isUnix) {
+  var slash = (isUnix) ? '/' : '\\';
   var index = path.indexOf(slash);
   return index;
 }
 
 /**
  * Get the index of the last slash in the path
- * 
+ *
  * @param {String} path The local path which is to be checked
  * @param {boolean} isUnix To signify whether its a windows path or unix path
  * @return {Integer} index The index of the last slash in the local path
  */
 function getLastSlash(path, isUnix) {
-  var slash = '\\';
-  if(isUnix){
-    slash = '/';
-  }
+  var slash = (isUnix) ? '/' : '\\';
   var index = path.lastIndexOf(slash);
   return index;
 }
 
 /**
  * Join relative path and current directory path using slash
- * 
+ *
  * @param {String} curDirPath The current directory path
  * @param {String} relPath The relative path
  * @param {boolean} isUnix To signify whether its a windows path or unix path
  * @return {String} path The joined path
- */ 
+ */
 function joinPath(curDirPath, relPath, isUnix) {
-  var slash = '\\';
-  if(isUnix){
-    slash = '/';
-  }
+  var slash = (isUnix) ? '/' : '\\';
   var path;
-  if(relPath.length === 0){
+  if (relPath.length === 0) {
     path = curDirPath;
-  }
-  else {
+  } else {
     path = curDirPath + slash + relPath;
   }
   return path;
@@ -95,23 +86,21 @@ function joinPath(curDirPath, relPath, isUnix) {
 
 /**
  * Split a path into indivisual components
- * 
- * @param {String} path The local path 
+ *
+ * @param {String} path The local path
  * @param {boolean} isUnix To signify whether its a windows path or unix path
- * @return {StringArray} The array containing names of all folders and file in the path
+ * @return {StringArray} The array containing names of all folders and file in
+ *     the path
  */
 function splitPath(path, isUnix) {
-  var slash = '\\';
-  if(isUnix){
-    slash = '/';
-  }
+  var slash = (isUnix) ? '/' : '\\';
   return path.split(slash);
 }
 
 /**
  * Get the extension from the file path
- * 
- * @param {String} path The local path 
+ *
+ * @param {String} path The local path
  * @return {String} extension The extension of the local path
  */
 function getExtension(path) {
@@ -122,6 +111,3 @@ function getExtension(path) {
   }
   return extension;
 }
-
-
-
