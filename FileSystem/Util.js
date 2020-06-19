@@ -92,41 +92,41 @@ function isValidAbsolutePath(path) {
 }
 
 /**
- * Helper function to obtain path type
- * @param {string} path File or directory path
+ * Helper function to obtain localPath type
+ * @param {string} localPath File or directory localPath
  * @return {string} File System type enumeration
  */
-function getFileSystemType(path) {
-  if (windowsPathRegExp.test(path)) {
+function getFileSystemType(localPath) {
+  if (windowsPathRegExp.test(localPath)) {
     return FileSystemType.WINDOWS;
-  } else if (unixPathRegExp.test(path)) {
+  } else if (unixPathRegExp.test(localPath)) {
     return FileSystemType.UNIX;
   }
   throw new Error('Unknown FileSystem');
 }
 
 /**
- * Helper function to sanitize local filesystem path.
+ * Helper function to sanitize local filesystem localPath.
  * Remove trailing file separator
  * @todo Fix file separator depending on FileSystem type
  * @body sanitize "C:\Users/Desktop\" to "C:\Users\Desktop"
- * @param {string} path File or directory path
+ * @param {string} localPath File or directory localPath
  * @returns {string} Path with trailing file separator
  */
-function sanitizePath(path) {
-  var fileSystemType = getFileSystemType(path);
+function sanitizePath(localPath) {
+  var fileSystemType = getFileSystemType(localPath);
   var windowsPrefix = 'C:\\';
-  // Remove trailing slash (file separator) from file paths
+  // Remove trailing slash (file separator) from file localPaths
   if (fileSystemType == FileSystemType.WINDOWS) {
     // Remove trailing \ in C:\something\
-    if (path.length > windowsPrefix.length && path.substr(-1) == '\\') {
-      path = path.slice(0, -1);
+    if (localPath.length > windowsPrefix.length && localPath.substr(-1) == '\\') {
+      localPath = localPath.slice(0, -1);
     }
   } else if (fileSystemType == FileSystemType.UNIX) {
     // Remove trailing / in /Users/
-    if (path.length > 1 && path.substr(-1) == '/') {
-      path = path.slice(0, -1);
+    if (localPath.length > 1 && localPath.substr(-1) == '/') {
+      localPath = localPath.slice(0, -1);
     }
   }
-  return path;
+  return localPath;
 }

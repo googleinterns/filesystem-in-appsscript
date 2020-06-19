@@ -60,8 +60,8 @@ function promptActiveWorkbookPath(error) {
   var drivePath = pathSplit.join('/');
   pathSplit.shift(); // Remove "Drive" or "My Drive" from path
   // Generate possible local path
-  var localPathExample = 'C:\\Documents\\' + pathSplit.join('\\');
-
+  var localPathPrefix = 'C:\\Documents\\';
+  var localPathExample = localPathPrefix + pathSplit.join('\\');
   // Retrieve existing active workbook path if present
   var documentProperties = PropertiesService.getDocumentProperties();
   var localPathValue = documentProperties.getProperty('ActiveWorkbookPath');
@@ -99,7 +99,7 @@ function getActiveWorkbookPath() {
 
 /**
  * @todo Register directory mapping with File Mapper
- * @body This mapping is very useful as in most cases this will hande most scenarios
+ * @body This mapping is very useful as in most cases this will handle most scenarios
  * Set the active workbook path in PropertyService
  * @param {string} path The active workbook path
  */
