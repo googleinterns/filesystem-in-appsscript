@@ -1,12 +1,10 @@
 <!--
 Copyright 2020 Google LLC
-
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
-
-     https://www.apache.org/licenses/LICENSE-2.0
-     
+   https://www.apache.org/licenses/LICENSE-2.0
+   
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,76 +13,78 @@ limitations under the License.
 -->
 
 <script>
-  // File Picker 
-  var DIALOG_DIMENSIONS = {width: 600, height: 425};
+  // File Picker
+  var DIALOG_DIMENSIONS = {width : 600, height : 425};
   var pickerApiLoaded = false;
-  
+
   // Next id for adding a new mapping
   var nextId = 1;
   // ID of mapping currently editing
   var activeId = 0;
 
+  // Config Table Column enumeration
+  var ConfigColumns = {
+    EDIT_BUTTON : 0,
+    LOCAL_PATH : 1,
+    DRIVE_PATH : 2,
+    FILE_OR_FOLDER : 3,
+    DELETE_BUTTON : 4
+  };
+
   /**
-  * Executed as soon as this page loads
-  * Gets the config data from the server
-  * to display in the table.
-  */
-  $(document).ready(function(){
+   * Executed as soon as this page loads
+   * Gets the config data from the server
+   * to display in the table.
+   */
+  $(document).ready(function() {
     google.script.run
-      .withSuccessHandler(function(configData){
-        displayTable(configData);
-      })
-      .withFailureHandler()
-      .getConfigData();
+        .withSuccessHandler(function(configData) { displayTable(configData); })
+        .withFailureHandler()
+        .getConfigData();
   })
 
   /**
-  * Loads the Google Picker API.
-  */
+   * Loads the Google Picker API.
+   */
   function callPicker() {
-    gapi.load('picker', {
-      'callback': function() {
-        pickerApiLoaded = true;
-      }
-    });
+    gapi.load('picker', {'callback' : function() { pickerApiLoaded = true; }});
     getOAuthToken();
-  }
-     
-  /**
-  * Gets the user's OAuth 2.0 access token from the server-side script so that
-  * it can be passed to Picker. This technique keeps Picker from needing to
-  * show its own authorization dialog, but is only possible if the OAuth scope
-  * that Picker needs is available in Apps Script.
-  */
-  function getOAuthToken() {
-    google.script.run
-      .withSuccessHandler(createPicker)
-      .withFailureHandler()
-      .getOAuthToken();
   }
 
   /**
-  * Creates a Picker that can access the user's spreadsheets.
-  *
-  * @param {String} token An OAuth 2.0 access token that lets
-  * Picker access the file type
-  */
+   * Gets the user's OAuth 2.0 access token from the server-side script so that
+   * it can be passed to Picker. This technique keeps Picker from needing to
+   * show its own authorization dialog, but is only possible if the OAuth scope
+   * that Picker needs is available in Apps Script.
+   */
+  function getOAuthToken() {
+    google.script.run.withSuccessHandler(createPicker)
+        .withFailureHandler()
+        .getOAuthToken();
+  }
+
+  /**
+   * Creates a Picker that can access the user's spreadsheets.
+   *
+   * @param {String} token An OAuth 2.0 access token that lets
+   * Picker access the file type
+   */
   function createPicker(token) {
     if (pickerApiLoaded && token) {
       var DisplayView = new google.picker.DocsView()
                             .setIncludeFolders(true)
                             .setSelectFolderEnabled(true);
 
-      var picker = new google.picker.PickerBuilder()
-        .enableFeature(google.picker.Feature.SUPPORT_DRIVES)
-        .addView(DisplayView)
-        .enableFeature(google.picker.Feature.NAV_HIDDEN)
-        .setOAuthToken(token)
-        .setCallback(pickerCallback)
-        .setSize(DIALOG_DIMENSIONS.width - 2,
-                 DIALOG_DIMENSIONS.height - 2)
-        .setOrigin(google.script.host.origin)
-        .build();
+      var picker =
+          new google.picker.PickerBuilder()
+              .enableFeature(google.picker.Feature.SUPPORT_DRIVES)
+              .addView(DisplayView)
+              .enableFeature(google.picker.Feature.NAV_HIDDEN)
+              .setOAuthToken(token)
+              .setCallback(pickerCallback)
+              .setSize(DIALOG_DIMENSIONS.width - 2, DIALOG_DIMENSIONS.height - 2)
+              .setOrigin(google.script.host.origin)
+              .build();
       picker.setVisible(true);
     } else {
       showAlert('Unable to load the file picker.', true);
@@ -92,241 +92,231 @@ limitations under the License.
   }
 
   /**
-  * A callback function that extracts the chosen document's metadata from the
-  * response object.
-  *
-  * @param {object} data The response object.
-  */
+   * A callback function that extracts the chosen document's metadata from the
+   * response object.
+   *
+   * @param {object} data The response object.
+   */
   function pickerCallback(data) {
     var action = data[google.picker.Response.ACTION];
     if (action == google.picker.Action.PICKED) {
       var doc = data[google.picker.Response.DOCUMENTS][0];
       var id = doc[google.picker.Document.ID];
       var mime = doc[google.picker.Document.MIME_TYPE];
-      
+
       $("#hiddenId").val("");
       $("#hiddenId").val(id);
-        
+
       google.script.run
-        .withSuccessHandler(function(fullpath){
-            $("#drivepathinput").val(fullpath);
-        })
-        .withFailureHandler()
-        .getFullDrivePath(id, ((mime === MimeType.FOLDER) ? true : false));
-    } 
-    else if (action == google.picker.Action.CANCEL) {
+          .withSuccessHandler(function(
+              fullpath) { $("#drivepathinput").val(fullpath); })
+          .withFailureHandler()
+          .getFullDrivePath(id, ((mime === MimeType.FOLDER) ? true : false));
+    } else if (action == google.picker.Action.CANCEL) {
       showAlert("No File selected.", true);
     }
   }
 
   /**
-  * Creates an HTML table containing all the config data
-  *
-  * @param {object} configData The config data object having keys containing 
-  *        local path with values containing coresponding drive path
-  */
-  function displayTable(configData){
+   * Creates an HTML table containing all the config data
+   *
+   * @param {object} configData The config data object having
+   * keys containing local path with values containing
+   * coresponding drive path
+   */
+  function displayTable(configData) {
     if ($("#configTable tbody").length == 0) {
       $("#configTable").append("<tbody></tbody>");
     }
-   
-    for(var localPath in configData){
-      $("#configTable tbody").append(pathBuildTableRow(
-        localPath, 
-        configData[localPath].drivepath, 
-        configData[localPath].isfolder, 
-        nextId)
-      );
+
+    for (var localPath in configData) {
+      $("#configTable tbody")
+          .append(pathBuildTableRow(localPath, configData[localPath].drivepath,
+                                    configData[localPath].isfolder, nextId));
       nextId += 1;
     }
-  } 
+  }
 
   /**
-  * Display the selected row in the form for edit
-  *
-  * @param {Object} ctl The reference to the HTML
-  * element which called this function
-  */
+   * Display the selected row in the form for edit
+   *
+   * @param {Object} ctl The reference to the HTML
+   * element which called this function
+   */
   function pathDisplay(ctl) {
     var row = $(ctl).parents("tr");
     var cols = row.children("td");
-    
-    activeId = $($(cols[0]).children("button")[0]).data("id");
-    $("#localpathinput").val($(cols[1]).text());
-    $("#drivepathinput").val($(cols[2]).text());
-    ($(cols[3]).text() === "File") ? ($("#isfolder").prop("checked", false)) : ($("#isfolder").prop("checked", true));
-     
+
+    activeId =
+        $($(cols[ConfigColumns.EDIT_BUTTON]).children("button")[0]).data("id");
+    $("#localpathinput").val($(cols[ConfigColumns.LOCAL_PATH]).text());
+    $("#drivepathinput").val($(cols[ConfigColumns.DRIVE_PATH]).text());
+    ($(cols[ConfigColumns.FILE_OR_FOLDER]).text() === "File")
+        ? ($("#isfolder").prop("checked", false))
+        : ($("#isfolder").prop("checked", true));
+
     $("#localpathinput").attr("readonly", true);
     $("#updateButton").text("Update");
   }
 
   /**
-  * Triggered when the form submit event takes place
-  */
+   * Triggered when the form submit event takes place
+   */
   function pathUpdate() {
     // Check empty inputs
-    if($("#localpathinput").val() === "" || $("#drivepathinput").val() === ""){
+    if ($("#localpathinput").val() === "" || $("#drivepathinput").val() === "") {
       showAlert("One or both of the Input Fields are Empty.", true);
       return;
     }
-    
+
     if ($("#updateButton").text() == "Update") {
       pathUpdateInTable(activeId);
-    }
-    else {
+    } else {
       // Check for absolute local path
-      if(!checkIfAbsolutePath($("#localpathinput").val())) {
+      if (!checkIfAbsolutePath($("#localpathinput").val())) {
         showAlert("Provide Absolute Local Path.", true);
         return;
       }
-    
+
       google.script.run
-        .withSuccessHandler(function(exists){
-          if(!exists){
-            pathAddToTable();
-          }
-          else{
-            showAlert("Local Path already exists.", true);
-          }
-        })
-        .withFailureHandler()
-        .checkMappingExists($("#localpathinput").val());
+          .withSuccessHandler(function(exists) {
+            if (!exists) {
+              pathAddToTable();
+            } else {
+              showAlert("Local Path already exists.", true);
+            }
+          })
+          .withFailureHandler()
+          .checkMappingExists($("#localpathinput").val());
     }
   }
 
   /**
-  * Add new row containing path mapping to the Html table and also to the config
-  * data on the server
-  */
+   * Add new row containing path mapping to
+   * the Html table and also to the config
+   * data on the server
+   */
   function pathAddToTable() {
     if ($("#configTable tbody").length == 0) {
       $("#configTable").append("<tbody></tbody>");
     }
-      
+
     google.script.run
-      .withSuccessHandler(function(success){
-        if(success){
-          showAlert("Mapping Added Successfully.", false);
-          $("#hiddenId").val("");
-          $("#configTable tbody").append(
-          pathBuildTableRow(
-            $("#localpathinput").val(),
-            $("#drivepathinput").val(),
-            $("#isfolder").is(':checked'),
-            nextId
-          ));
-          nextId += 1;
-          formClear();
-          $("#localpathinput").focus();
-        }
-        else{
-          showAlert("The MimeType of Local Path and Drive Path doesn't match.", true);
-        }
-      })
-      .withFailureHandler(function(){
-        showAlert("Mapping Add Failed", true);
-      })
-      .addMapping($("#localpathinput").val(), $("#drivepathinput").val() , $("#hiddenId").val(), $("#isfolder").is(':checked'));
+        .withSuccessHandler(function(success) {
+          if (success) {
+            showAlert("Mapping Added Successfully.", false);
+            $("#hiddenId").val("");
+            $("#configTable tbody")
+                .append(pathBuildTableRow($("#localpathinput").val(),
+                                          $("#drivepathinput").val(),
+                                          $("#isfolder").is(':checked'), nextId));
+            nextId += 1;
+            formClear();
+            $("#localpathinput").focus();
+          } else {
+            showAlert("The MimeType of Local Path and Drive Path doesn't match.",
+                      true);
+          }
+        })
+        .withFailureHandler(function() { showAlert("Mapping Add Failed", true); })
+        .addMapping($("#localpathinput").val(), $("#drivepathinput").val(),
+                    $("#hiddenId").val(), $("#isfolder").is(':checked'));
   }
 
   /**
-  * Update a row containing path mapping in the Html table and also in the config
-  * data on the server
-  */
+   * Update a row containing path mapping in
+   * the Html table and also in the config
+   * data on the server
+   */
   function pathUpdateInTable(id) {
-    var row = $("#configTable button[data-id='" + id + "']").parents("tr");
-    
+    var row = $("#configTable button[data-id='" + id + "']").parents("tr")[0];
+
     google.script.run
-      .withSuccessHandler(function(success){
-        if(success){
-          showAlert("Mapping Updated Successfully.", false);
-          $(row[0]).after(
-            pathBuildTableRow(
-              $("#localpathinput").val(),
-              $("#drivepathinput").val(),
-              $("#isfolder").is(':checked'),
-              id
-          ));
-          $(row[0]).remove();
-        }
-        else{
-          showAlert("The MimeType of Local Path and Drive Path doesn't match.", true);
-        }
-             
-        $("#hiddenId").val("");
-        formClear();
-        $("#updateButton").text("Add");
-        $("#localpathinput").attr("readonly", false);
-        $("#localpathinput").focus();
-      })
-      .withFailureHandler(function(){
-        showAlert("Update Failed", true);
-      })
-      .updateMapping($("#localpathinput").val(), $("#drivepathinput").val(), $("#hiddenId").val(), $("#isfolder").is(':checked'));
+        .withSuccessHandler(function(success) {
+          if (success) {
+            showAlert("Mapping Updated Successfully.", false);
+            $(row).after(pathBuildTableRow($("#localpathinput").val(),
+                                           $("#drivepathinput").val(),
+                                           $("#isfolder").is(':checked'), id));
+            $(row).remove();
+          } else {
+            showAlert("The MimeType of Local Path and Drive Path doesn't match.",
+                      true);
+          }
+
+          $("#hiddenId").val("");
+          formClear();
+          $("#updateButton").text("Add");
+          $("#localpathinput").attr("readonly", false);
+          $("#localpathinput").focus();
+        })
+        .withFailureHandler(function() { showAlert("Update Failed", true); })
+        .updateMapping($("#localpathinput").val(), $("#drivepathinput").val(),
+                       $("#hiddenId").val(), $("#isfolder").is(':checked'));
   }
 
   /**
-  * Build a new <table> row
-  */
+   * Build a new <table> row
+   */
   function pathBuildTableRow(localPath, drivePath, isFolder, id) {
-    var ret =
-      "<tr>" +
-        "<td>" +
-          "<button type='button' " +
-                  "onclick='pathDisplay(this);' " +
-                  "class='btn btn-default' " +
-                  "data-id='" + id + "'>" +
-                  "<span class='glyphicon glyphicon-edit' />" +
-          "</button>" +
-        "</td>" +
-        "<td>" + localPath + "</td>" +
-        "<td>" + drivePath + "</td>" +
-        "<td>" + ((isFolder)?"Folder":"File") + "</td>" +
-        "<td>" +
-          "<button type='button' " +
-                  "onclick='pathDelete(this);' " +
-                  "class='btn btn-default' " +
-                  "data-id='" + id + "'>" +
-                  "<span class='glyphicon glyphicon-remove' />" +
-          "</button>" +
-        "</td>" +
-      "</tr>"
+    var ret = "<tr>" +
+              "<td>" +
+              "<button type='button' " +
+              "id = 'rowbutton'" +
+              "onclick='pathDisplay(this);' " +
+              "class='btn btn-default' " +
+              "data-id='" + id + "'>" +
+              "<span class='glyphicon glyphicon-edit' />" +
+              "</button>" +
+              "</td>" +
+              "<td>" + localPath + "</td>" +
+              "<td>" + drivePath + "</td>" +
+              "<td>" + ((isFolder) ? "Folder" : "File") + "</td>" +
+              "<td>" +
+              "<button type='button' " +
+              "id = 'rowbutton'" +
+              "onclick='pathDelete(this);' " +
+              "class='btn btn-default' " +
+              "data-id='" + id + "'>" +
+              "<span class='glyphicon glyphicon-remove' />" +
+              "</button>" +
+              "</td>" +
+              "</tr>"
 
     return ret;
   }
 
   /**
-  * Delete a row containing path mapping from
-  * the Html table and also from the config
-  * data on the server
-  */
+   * Delete a row containing path mapping from
+   * the Html table and also from the config
+   * data on the server
+   */
   function pathDelete(ctl) {
     var row = $(ctl).parents("tr");
     var cols = row.children("td");
 
-    google.script.run
-      .withSuccessHandler()
-      .withFailureHandler()
-      .deleteMapping($(cols[1]).text());
-    
+    google.script.run.withSuccessHandler().withFailureHandler().deleteMapping(
+        $(cols[ConfigColumns.LOCAL_PATH]).text());
+
     $(ctl).parents("tr").remove();
     showAlert("Mapping Deleted Successfully.", false);
   }
 
   /**
-  * Inserts a div that contains an alert message after a given element.
-  *
-  * @param {String} msg The error message to display.
-  * @param {boolean} error The element which tells if it is an error alert or success alert.
-  */
-  function showAlert(msg, error) {  
-    var type = (error) ? "alert-danger": "alert-success";
-    var alert = $('<div class="alert ' + type + ' alert-dismissible text-center" role="alert" id="alertdiv">'+
-                  msg + 
-                  '<a href="#" class="close" data-dismiss="alert" aria-label="Close" id="alertclose">&times;</a>'+
-                  '</div>');
-    $("#alertdiv").remove();              
+   * Inserts a div that contains an alert message after a given element.
+   *
+   * @param {String} msg The error message to display.
+   * @param {boolean} error The element which tells if it is an error alert or
+   *     success alert.
+   */
+  function showAlert(msg, error) {
+    var type = (error) ? "alert-danger" : "alert-success";
+    var alert = $(
+        '<div class="alert ' + type +
+        ' alert-dismissible text-center" role="alert" id="alertdiv">' + msg +
+        '<a href="#" class="close" data-dismiss="alert" aria-label="Close" id="alertclose">&times;</a>' +
+        '</div>');
+    $("#alertdiv").remove();
     $("#tablecontainer").after(alert);
   }
-
 </script>

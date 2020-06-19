@@ -21,9 +21,10 @@
  */
 function onOpen() {
   SpreadsheetApp.getUi()
-    .createMenu('Config Table')
-    .addItem('Open', 'DisplayConfigTable')
-    .addToUi();
+      .createMenu('Local File Mapping')
+      .addItem('Edit Mapping', 'DisplayConfigTable')
+      //  .addItem('Run Tests', 'displayTestResults')
+      .addToUi();
 }
 
 /**
@@ -31,20 +32,18 @@ function onOpen() {
  */
 function DisplayConfigTable() {
   var html = HtmlService.createTemplateFromFile('config_table')
-    .evaluate()
-    .setWidth(1000)
-    .setHeight(425);
-  SpreadsheetApp.getUi()
-    .showModalDialog(html, 'Config Table');
+                 .evaluate()
+                 .setWidth(1000)
+                 .setHeight(425);
+  SpreadsheetApp.getUi().showModalDialog(html, 'Config Table');
 }
 
 /**
  * Imports the specified file content into the current file
  * Used to seperate the CSS and Script content into seperate files
  */
-function include(filename) {
-  return HtmlService.createHtmlOutputFromFile(filename)
-      .getContent();
+function getHtmlContentFromFile(filename) {
+  return HtmlService.createHtmlOutputFromFile(filename).getContent();
 }
 
 /**
@@ -61,5 +60,3 @@ function getOAuthToken() {
   DriveApp.getRootFolder();
   return ScriptApp.getOAuthToken();
 }
-
-
