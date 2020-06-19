@@ -2,14 +2,28 @@
  * @fileoverview FileIO Unit Tests
  */
 
+var fileIoTests = {
+  setup: file_io_test_setup,
+  tests: {
+    open_close: file_open_close_tests,
+    file_io: file_io_tests,
+    misc: file_misc_tests,
+  },
+  teardown: file_io_cleanup
+};
+
 function file_io_run_all_tests() {
-  Workbook.setActiveWorkbookPath('c:\\user\\desktop');
-  DirectoryManager.setCurrentDirectory('c:\\user\\desktop');
-  QUnit.module('FileIO');
+  file_io_test_setup();
   file_open_close_tests();
   file_io_tests();
   file_misc_tests();
-  cleanup();
+  file_io_cleanup();
+}
+
+function file_io_test_setup() {
+  Workbook.setActiveWorkbookPath('c:\\user\\desktop');
+  DirectoryManager.setCurrentDirectory('c:\\user\\desktop');
+  QUnit.module('FileIO');
 }
 
 function file_io_tests() {
@@ -258,7 +272,7 @@ function file_misc_tests() {
   });
 }
 
-function cleanup() {
+function file_io_cleanup() {
   deleteFile('TESTFILE');
   deleteFile('PRINT_TEST');
   deleteFile('WRITE_TEST');

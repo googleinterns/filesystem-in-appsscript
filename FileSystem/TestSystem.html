@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <base target="_top">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <h1>Test System</h1>
+
+    <ul id='main'>
+    </ul>
+
+    <div class="block">
+        <p id="message"></p>
+        <button class="action" id="submit" onclick="runTestHandler()">Run Tests</button>
+    </div>
+</body>
+
+</html>
+
+<style>
+    ul {
+        list-style: none;
+    }
+</style>
+
+<script>
+    var tests = <?!= tests ?>
+
+        function build() {
+            function buildUtil(root, tests) {
+                if (tests == true) return;
+                for (test in tests) {
+                    var testHtml = $(`<li><input type="checkbox" id="${test}">
+                    <label for="short-1">${test}</label></li>`);
+                    if (tests[test] != true) {
+                        var children = $('<ul></ul>');
+                        buildUtil(children, tests[test]);
+                        testHtml.append(children);
+                    }
+
+                    root.append(testHtml);
+                }
+            }
+            buildUtil($('#main'), tests);
+        };
+
+    function getData() {
+        var data = {}
+        function getDataUtil(root, obj) {
+            root.children().each(function () {
+                var checkbox = $(this).children('input[type="checkbox"]');
+                var children = $(this).children('ul');
+                var isLeaf = children.length == 0;
+                var id = checkbox.prop("id");
+                if (checkbox.prop("indeterminate") || checkbox.prop("checked")) {
+                    if (isLeaf) {
+                        obj[id] = true;
+                    }
+                    else {
+                        obj[id] = {};
+                        children.each(function () { getDataUtil(children, obj[id]) });
+                    }
+                }
+            })
+        }
+        getDataUtil($('#main'), data);
+        return data
+    }
+
+    $(function f() {
+        build();
+        $('input[type="checkbox"]').change(function (e) {
+            var checked = $(this).prop("checked"),
+                container = $(this).parent(),
+                siblings = container.siblings();
+            // Set children to true/false
+            container.find('input[type="checkbox"]').prop({
+                indeterminate: false,
+                checked: checked
+            });
+            function checkSiblings(el) {
+                var parent = el.parent().parent(),
+                    all = true;
+                el.siblings().each(function () {
+                    let returnValue = all = ($(this).children('input[type="checkbox"]').prop("checked") === checked);
+                    return returnValue;
+                });
+                if (all && checked) {
+                    parent.children('input[type="checkbox"]').prop({
+                        indeterminate: false,
+                        checked: checked
+                    });
+                    checkSiblings(parent);
+                } else if (all && !checked) {
+                    parent.children('input[type="checkbox"]').prop("checked", checked);
+                    parent.children('input[type="checkbox"]').prop("indeterminate", (parent.find('input[type="checkbox"]:checked').length > 0));
+                    checkSiblings(parent);
+                } else {
+                    el.parents("li").children('input[type="checkbox"]').prop({
+                        indeterminate: true,
+                        checked: false
+                    });
+                }
+            }
+            checkSiblings(container);
+        });
+    });
+
+    function runTestHandler() {
+        document.getElementById('submit').disabled = true;
+        google.script.run.withSuccessHandler(function () { document.getElementById('submit').disabled = false; }).withFailureHandler(function () { document.getElementById('submit').disabled = false; }).runCustomTests(getData())
+    }
+</script>

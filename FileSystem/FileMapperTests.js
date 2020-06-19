@@ -13,18 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+var fileMapperTests = {
+  setup: file_mapper_tests_setup,
+  tests: {
+    open_close: file_folder_get_tests,
+    existence: file_folder_existence_tests,
+    delete_tests: file_folder_delete_tests,
+    create: file_folder_create_tests,
+    move: file_folder_move_tests,
+    copy: file_folder_copy_tests,
+    search: file_folder_pattern_search_testing,
+  }
+};
+
 /**
  * @fileoverview File Mapper Unit Tests
  */
 function file_mapper_run_all_tests() {
-  QUnit.module('FileMapper');
+  file_mapper_tests_setup();
   file_folder_get_tests();
-  file_folder_existance_tests();
+  file_folder_existence_tests();
   file_folder_delete_tests();
   file_folder_create_tests();
   file_folder_move_tests();
   file_folder_copy_tests();
   file_folder_pattern_search_testing();
+}
+
+function file_mapper_tests_setup() {
+  QUnit.module('FileMapper');
 }
 
 function file_folder_get_tests() {
@@ -48,7 +66,7 @@ function file_folder_get_tests() {
   });
 }
 
-function file_folder_existance_tests() {
+function file_folder_existence_tests() {
   QUnit.test('hasFile - Check if file exists testing', function() {
     expect(2);
     var file1 = 'c:\\User\\Desktop\\marks.xlsx';

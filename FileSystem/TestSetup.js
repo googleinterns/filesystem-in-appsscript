@@ -51,17 +51,19 @@ function generateTestReport() {
   var blob = htmlOutput.getBlob();
   var pdf = blob.getAs('application/pdf');
   DriveApp.createFile(pdf).setName(fileName);
+  DriveApp.createFile(blob).setName(fileName);
 }
 
 function testFunctions() {
-  setupTestEnvironment();
-  workbook_run_all_tests();
-  file_io_run_all_tests();
-  file_mapper_run_all_tests();
-  directory_manager_run_all_tests();
+  //  setupTestEnvironment();
+  //  workbook_run_all_tests();
+  //  file_io_run_all_tests();
+  //  file_mapper_run_all_tests();
+  //  directory_manager_run_all_tests();
 }
 
 function setupTestEnvironment() {
+  return;
   FileMapper.deleteFolder('c:\\User\\Desktop\\folder1');
   FileMapper.deleteFolder('c:\\User\\Desktop\\folder2');
   FileMapper.copyFolder(
@@ -70,4 +72,17 @@ function setupTestEnvironment() {
         'c:\\User\\Desktop\\original\\folder2'
       ],
       'c:\\User\\Desktop');
+}
+
+function getFileSystemTests() {
+  var FileSystemTests = {
+    setup: setupTestEnvironment,
+    tests: {
+      'Directory Manager': DirectoryManagerTests,
+      'Workbook API': workbookTests,
+      'File IO': fileIoTests,
+      'File Mapper': fileMapperTests
+    }
+  }
+  return FileSystemTests;
 }

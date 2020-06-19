@@ -16,11 +16,29 @@
 /**
  * @fileoverview Workbook Unit Tests
  */
+
+var workbookTests = {
+  setup: workbook_tests_setup,
+  tests: {
+    open: workbook_open_tests,
+    active_path: workbook_active_path_tests
+  }
+};
+
 function workbook_run_all_tests() {
+  workbook_tests_setup();
+  workbook_open_tests();
+  workbook_active_path_tests();
+}
+
+function workbook_tests_setup() {
   QUnit.module('Workbook');
   Workbook.setActiveWorkbookPath('c:\\user\\desktop');
   DirectoryManager.setCurrentDirectory('c:\\user\\desktop');
+}
 
+
+function workbook_open_tests() {
   QUnit.test(
       'check if filemapper returns correct file and mimeType when file is present',
       function() {
@@ -49,7 +67,9 @@ function workbook_run_all_tests() {
         Workbook.openWorkbook(fileName2);
         Workbook.openWorkbook(fileName1);
       });
+}
 
+function workbook_active_path_tests() {
   QUnit.test(
       'ActiveWorkbook call when active workbook path is not set', function() {
         Workbook.resetActiveWorkbookPath();

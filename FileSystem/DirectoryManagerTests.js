@@ -1,19 +1,35 @@
 /**
  * @fileoverview DirectoryManager Unit Tests
  */
+
+var DirectoryManagerTests = {
+  setup: directory_manager_tests_setup,
+  tests: {
+    validation_util: validation_util_tests,
+    current_directory: current_directory_tests,
+    dir: dir_tests,
+    misc: misc_tests,
+    kill: kill_tests,
+  }
+};
+
 function directory_manager_run_all_tests() {
-  Workbook.setActiveWorkbookPath('c:\\user\\desktop');
-  QUnit.module('DirectoryManager', {
-    setup: function() {
-      DirectoryManager.setCurrentDirectory('c:\\user\\desktop');
-    }
-  });
+  directory_manager_tests_setup();
   validation_util_tests();
   current_directory_tests();
   absolute_localpath_tests();
   misc_tests();
   dir_tests();
   kill_tests();
+}
+
+function directory_manager_tests_setup() {
+  Workbook.setActiveWorkbookPath('c:\\user\\desktop');
+  QUnit.module('DirectoryManager', {
+    setup: function() {
+      DirectoryManager.setCurrentDirectory('c:\\user\\desktop');
+    }
+  });
 }
 
 function validation_util_tests() {
