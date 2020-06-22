@@ -1,5 +1,5 @@
 /**
- * @fileoverview Helper functions and structures for print API
+ * @fileoverview Helper functions and structures for FileIO API
  */
 
 /**
@@ -15,7 +15,6 @@ function printTab(file, tab) {
   // Calculate current line length
   var lineLength = filePointer - lineStartIndex;
   var insertSpaceCount;
-
   if (tab.column == 'NEXT_ZONE') {
     // If tab is next zone, then we need to insert the
     // next character on the nearest column with multiple of 14.
@@ -32,7 +31,7 @@ function printTab(file, tab) {
 /**
  * Print VbaDate
  * @param(object) file File structure
- * @param(Date) date Date structure
+ * @param(VbaDate) date Date to be printed
  */
 function printDate(file, date) {
   var day = date.getDate();
@@ -49,6 +48,29 @@ function printDate(file, date) {
 
   // Construct date string as per VBA format
   var str = day + '-' + month + '-' + year + ' ';
+  stringInsert(file, str);
+}
+
+/**
+ * Write VbaDate
+ * @param(object) file File structure
+ * @param(VbaDate) date Date to be written
+ */
+function writeDate(file, date) {
+  var day = date.getDate();
+  var month = date.getMonth() + 1;
+  var year = date.getFullYear();
+
+  // Prefix digit 0 to ensure double digit day/month
+  if (month < 10) {
+    month = '0' + month;
+  }
+  if (day < 10) {
+    day = '0' + day;
+  }
+
+  // Construct date string as per VBA format
+  var str = '#' + year + '-' + month + '-' + day + '#';
   stringInsert(file, str);
 }
 
@@ -73,6 +95,15 @@ function printString(file, str) {
 }
 
 /**
+ * Write string
+ * @param(object) file File structure
+ * @param(string) str string to be written
+ */
+function writeString(file, str) {
+  stringInsert(file, '"' + str + '"');
+}
+
+/**
  * Print number
  * @param(object) file File structure
  * @param(number) num number to be printed
@@ -83,12 +114,31 @@ function printNumber(file, num) {
 }
 
 /**
+ * Write number
+ * @param(object) file File structure
+ * @param(number) num number to be written
+ */
+function writeNumber(file, num) {
+  stringInsert(file, num.toString());
+}
+
+/**
  * Print boolean
  * @param(object) file File structure
  * @param(boolean) bool boolean to be printed
  */
 function printBool(file, bool) {
   var boolStr = bool ? 'True' : 'False';
+  stringInsert(file, boolStr);
+}
+
+/**
+ * Write boolean
+ * @param(object) file File structure
+ * @param(boolean) bool boolean to be written
+ */
+function writeBool(file, bool) {
+  var boolStr = bool ? '#TRUE#' : '#FALSE#';
   stringInsert(file, boolStr);
 }
 
@@ -109,6 +159,17 @@ function printNewline(file) {
  */
 function printError(file, err) {
   stringInsert(file, 'Error ' + err.message);
+}
+
+/**
+ * Write error
+ * @todo Use VbaError instead of JS Error
+ * @body Slight complication as information is lost in VbaError
+ * @param(object) file File structure
+ * @param(Error) err error to be written
+ */
+function writeError(file, err) {
+  stringInsert(file, '#ERROR ' + err.message + '#');
 }
 
 /**
