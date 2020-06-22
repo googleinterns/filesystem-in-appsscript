@@ -15,28 +15,45 @@
  */
 
 /**
+ * Enumeration for the return value of addMapping API
+ */
+var ReturnValue =
+    {
+      SUCCESS : 0,
+      FAILURE : {
+        INVALID_ABSOLUTE_PATH : 1,
+        INVALID_DRIVE_ID : 2,
+        DUPLICATE_MAPPING : 3
+      }
+    }
+
+function
+test111() {
+  Logger.log(addFileMapping("C:\\user\\Folder3\\File31.docx",
+                            "1FfHIcLeCYosRnZ_UVTkJEXDA80eJ0JlrCvJqwPsimKE"));
+}
+
+/**
  * API to add a new file mapping to the config
  *
  * @param {String} localPath The local file path
  * @param {String} driveId The corresponding drive file Id
- * @return {boolean} True if file mapping has been added,
- *                   False otherwise
+ * @return {number} SUCCESS if mapping has been added,
+ *                  FAILURE otherwise
  */
-function addFileMapping(localPath, driveId) {
-  return addMappingUtil(localPath, driveId, true);
-}
+function addFileMapping(
+    localPath, driveId) { return addMappingUtil(localPath, driveId, true); }
 
 /**
  * API to add a new folder mapping to the config
  *
  * @param {String} localPath The local folder path
  * @param {String} driveId The corresponding drive folder Id
- * @return {boolean} True if folder mapping has been added,
- *                   False otherwise
+ * @return {number} SUCCESS if mapping has been added,
+ *                  FAILURE otherwise
  */
-function addFolderMapping(localPath, driveId) {
-  return addMappingUtil(localPath, driveId, false);
-}
+function addFolderMapping(
+    localPath, driveId) { return addMappingUtil(localPath, driveId, false); }
 
 /**
  * Utility function to add a new mapping to the config
@@ -44,27 +61,31 @@ function addFolderMapping(localPath, driveId) {
  * @param {String} localPath The local destination path
  * @param {String} driveId The corresponding drive destination Id
  * @param {boolean} isFile To signify whether its a file or folder
- * @return {boolean} True if mapping has been added,
- *                   False otherwise
+ * @return {number} SUCCESS if mapping has been added,
+ *                  FAILURE otherwise
  */
 function addMappingUtil(localPath, driveId, isFile) {
   if (!checkIfAbsolutePath(localPath)) {
     // Not an absolute path error
-    return false;
+    return ReturnValue.FAILURE.INVALID_ABSOLUTE_PATH;
   }
 
   if (!ApiUtil.checkIfValidDriveId(driveId, isFile)) {
     // Invalid driveId error
-    return false;
+    return ReturnValue.FAILURE.INVALID_DRIVE_ID;
   }
 
-  if (ConfigUtil.checkMappingExists(localPath)) {
+  if (ConfigUtil.checkLocalPathExists(localPath)) {
+    // If the localpath is already mapped to the provided drive id
+    if (ConfigUtil.checkMappingExists(localPath, driveId)) {
+      return ReturnValue.SUCCESS;
+    }
     // If the localpath is already mapped to some drive file
-    return false;
+    return ReturnValue.FAILURE.DUPLICATE_MAPPING;
   }
 
   ApiUtil.addNewMappingToConfig(localPath, driveId, isFile);
-  return true;
+  return ReturnValue.SUCCESS;
 }
 
 /**
