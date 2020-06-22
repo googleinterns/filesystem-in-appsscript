@@ -5,11 +5,13 @@
 function file_io_run_all_tests() {
   QUnit.module('FileIO');
   file_open_close_tests();
-  file_print_tests();
+  file_io_tests();
+  file_misc_tests();
+
   cleanup();
 }
 
-function file_print_tests() {
+function file_io_tests() {
   QUnit.test('File print testing', function () {
     var fileNumber;
     fileNumber = FileIO.getNextAvailableFile();
@@ -37,6 +39,32 @@ function file_print_tests() {
     equal(content, actualContent, 'Test for exact print match');
   });
 
+  QUnit.test('File line input testing', function () {
+    var actualContent = [
+      'This is a test',
+      '',
+      'Zone 1        Zone 2',
+      'Hello World',
+      '     5 leading spaces ',
+      '         Hello',
+      'False is a Boolean value',
+      '12-02-1969  is a date',
+      'Null is a null value',
+      'Error 32767 is an error value',
+    ];
+    expect(actualContent.length + 1);
+    var fileNumber = FileIO.getNextAvailableFile();
+    FileIO.openFile('PRINT_TEST', fileNumber, OpenMode.INPUT);
+    for (var i = 0; i < actualContent.length; i++) {
+      var variable = new VbaBox('');
+      FileIO.lineInputFile(fileNumber, variable);
+      equal(variable.referenceValue, actualContent[i]);
+    }
+
+    ok(FileIO.isEOF(fileNumber));
+    FileIO.closeFileList();
+  });
+
   QUnit.test('File append testing', function () {
     var fileNumber;
     fileNumber = FileIO.getNextAvailableFile();
@@ -50,6 +78,27 @@ function file_print_tests() {
       'This is a test\r\n\r\nZone 1        Zone 2\r\nHello World\r\n     5 leading spaces \r\n         Hello\r\nFalse is a Boolean value\r\n12-02-1969  is a date\r\nNull is a null value\r\nError 32767 is an error value\r\nThis is a test\r\n';
     var content = FileIO.openFiles[fileNumber].content;
     equal(content, actualContent, 'Test for exact print match');
+    FileIO.closeFileList();
+  });
+
+  QUnit.test('File write testing', function () {
+    expect(1);
+    var fileNumber = FileIO.getNextAvailableFile();
+    FileIO.openFile('WRITE_TEST', fileNumber, OpenMode.OUTPUT);
+    FileIO.writeToFile(fileNumber, ['Hello World', 234]);
+    FileIO.writeToFile(fileNumber, []);
+    FileIO.writeToFile(fileNumber, [false, ' is a Boolean value']);
+    FileIO.writeToFile(fileNumber, [
+      new VbaDate(new Date('2/12/1969')),
+      ' is a date',
+    ]);
+    FileIO.writeToFile(fileNumber, [null, ' is a null value']);
+    FileIO.writeToFile(fileNumber, [new Error(32767), ' is an error value']);
+
+    var actualContent =
+      '"Hello World",234\r\n\r\n#FALSE#," is a Boolean value"\r\n#1969-02-12#," is a date"\r\n#NULL#," is a null value"\r\n#ERROR 32767#," is an error value"\r\n';
+    var content = FileIO.openFiles[fileNumber].content;
+    equal(content, actualContent, 'Test for exact write match');
     FileIO.closeFileList();
   });
 }
@@ -134,7 +183,49 @@ function file_open_close_tests() {
   });
 }
 
+function file_misc_tests() {
+  QUnit.test('File getPointer testing', function () {
+    var fileName = 'TESTFILE';
+    var fileNumber;
+    var fileContent = 'This is a string';
+
+    fileNumber = FileIO.getNextAvailableFile();
+    FileIO.openFile(fileName, FileIO.getNextAvailableFile(), OpenMode.OUTPUT);
+    equal(FileIO.getFilePointer(fileNumber), 0); // file pointer should be in beginning of file
+    FileIO.printToFile(fileNumber, [fileContent]);
+    equal(FileIO.getFilePointer(fileNumber), fileContent.length + 2); // +2 for line ending (\r\n)
+    FileIO.closeFileList();
+  });
+
+  QUnit.test('File setPointer testing', function () {
+    var fileName = 'TESTFILE';
+    var fileNumber;
+    var fileContent = 'This is a string';
+
+    fileNumber = FileIO.getNextAvailableFile();
+    FileIO.openFile(fileName, FileIO.getNextAvailableFile(), OpenMode.OUTPUT);
+    // file pointer should be in beginning of file
+    equal(FileIO.getFilePointer(fileNumber), 0);
+    FileIO.printToFile(fileNumber, [fileContent]);
+    // File should contain 1 line now
+    equal(FileIO.getFilePointer(fileNumber), fileContent.length + 2); // +2 for line ending (\r\n)
+    FileIO.printToFile(fileNumber, [fileContent]);
+    // File should contain 2 lines now
+    equal(FileIO.getFilePointer(fileNumber), 2 * (fileContent.length + 2)); // +2 for line ending (\r\n)
+    // Reset file pointer to beginning and write 3 times. It should contain 3 lines now
+    FileIO.setFilePointer(fileNumber, 0);
+    // file pointer should be in beginning of file
+    equal(FileIO.getFilePointer(fileNumber), 0);
+    FileIO.printToFile(fileNumber, [fileContent]);
+    FileIO.printToFile(fileNumber, [fileContent]);
+    FileIO.printToFile(fileNumber, [fileContent]);
+    equal(FileIO.getFilePointer(fileNumber), 3 * (fileContent.length + 2)); // +2 for line ending (\r\n)
+    FileIO.closeFileList();
+  });
+}
+
 function cleanup() {
   deleteFile('TESTFILE');
   deleteFile('PRINT_TEST');
+  deleteFile('WRITE_TEST');
 }

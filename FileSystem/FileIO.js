@@ -39,6 +39,10 @@ var FileIO = {
   lof: lof,
   isEOF: isEOF,
   printToFile: printToFile,
+  lineInputFile: lineInputFile,
+  writeToFile: writeToFile,
+  getFilePointer: getFilePointer,
+  setFilePointer: setFilePointer,
   openFiles: {},
   closeFile: closeFile,
 };
@@ -254,4 +258,121 @@ function printToFile(fileNumber, outputList) {
 
   // Print new line
   printNewline(file);
+}
+
+/**
+ * Emulates VBA Line Input statement API
+ * @param {number} fileNumber File number
+ * @param {VbaBox} variable reference variable to store line
+ */
+function lineInputFile(fileNumber, variable) {
+  if (!(fileNumber in this.openFiles)) {
+    throw new Error('File Number: ' + fileNumber + ' is not open');
+  }
+
+  var file = this.openFiles[fileNumber];
+  if (file.accessMode == AccessMode.WRITE) {
+    throw new Error('File is not open for reading');
+  }
+  var content = file.content;
+
+  // No data left, throw error
+  if (file.pointer == content.length) {
+    throw new Error('End of file reached');
+  }
+
+  var line = '';
+
+  // Read till \r or end of file
+  while (file.pointer < file.content.length && content[file.pointer] != '\r') {
+    line += content[file.pointer++];
+  }
+
+  // Skip \r
+  if (file.pointer < file.content.length) {
+    file.pointer++;
+  }
+
+  // Skip \n
+  if (file.pointer < content.length && content[file.pointer] == '\n') {
+    file.pointer++;
+  }
+
+  variable.referenceValue = line;
+}
+
+/**
+ * Emulates VBA write statement API
+ * @param {number} fileNumber File number
+ * @param {Array} outputList Expression List
+ */
+function writeToFile(fileNumber, outputList) {
+  if (!(fileNumber in this.openFiles)) {
+    throw new Error('File Number: ' + fileNumber + ' is not open');
+  }
+
+  // Set default argument
+  outputList = outputList || [];
+
+  var file = this.openFiles[fileNumber];
+  if (file.accessMode == AccessMode.READ) {
+    throw new Error('File is not open for writing');
+  }
+
+  for (var i = 0; i < outputList.length; i++) {
+    var exp = outputList[i];
+
+    // Insert Delimiter
+    if (i > 0) {
+      stringInsert(file, ',');
+    }
+
+    if (typeof exp === 'string') {
+      writeString(file, exp);
+    } else if (typeof exp === 'number') {
+      writeNumber(file, exp);
+    } else if (typeof exp === 'boolean') {
+      writeBool(file, exp);
+    } else if (exp instanceof VbaDate) {
+      writeDate(file, exp);
+    } else if (exp instanceof Error) {
+      writeError(file, exp);
+    } else if (exp === null) {
+      stringInsert(file, '#NULL#');
+    } else {
+      throw new Error('Unknown Expression');
+    }
+  }
+
+  printNewline(file);
+}
+
+/**
+ * Emulates VBA loc statement API
+ * @param {number} fileNumber File number
+ * @return {number} file pointer
+ */
+function getFilePointer(fileNumber) {
+  if (!(fileNumber in this.openFiles)) {
+    throw new Error('File Number: ' + fileNumber + ' is not open');
+  }
+  return this.openFiles[fileNumber].pointer;
+}
+
+/**
+ * Emulates VBA seek statement API
+ * @param {number} fileNumber File number
+ * @param {number} position File pointer position
+ */
+function setFilePointer(fileNumber, position) {
+  if (!(fileNumber in this.openFiles)) {
+    throw new Error('File Number: ' + fileNumber + ' is not open');
+  }
+
+  this.openFiles[fileNumber].pointer = position;
+  var content = this.openFiles[fileNumber].content;
+  if(position > content.length) {
+    content +=  Array(position - content.length + 1).join(' ');
+  }
+  this.openFiles[fileNumber].content = content;
 }

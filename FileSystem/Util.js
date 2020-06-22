@@ -38,3 +38,95 @@ function deleteFile(name) {
     DriveApp.removeFile(fileList.next());
   }
 }
+
+/**
+ * Computes the Drive path for a file/folder using their Id
+ * @param {string} id The drive destination Id whose path needs to be computed
+ * @return {string} The corresponding drive path
+ */
+function getAbsoluteDrivePath(id, isFile) {
+  var current;
+
+  if (isFile) {
+    current = DriveApp.getFileById(id);
+  } else {
+    current = DriveApp.getFolderById(id);
+  }
+
+  var folders = [];
+  var parentIterator = current.getParents();
+
+  while (parentIterator.hasNext()) {
+    var parent = parentIterator.next();
+    folders.push(parent.getName());
+    parentIterator = parent.getParents();
+  }
+
+  var drivePath = folders.reverse().join('/') + '/' + current.getName();
+  return drivePath;
+}
+
+/**
+ * File System Type Enumeration
+ */
+var FileSystemType = {
+  WINDOWS: 'windows',
+  UNIX: 'unix',
+};
+
+/**
+ * @todo Write tests for validation
+ * @body Tests will be written in the directory API module as these are more closely related to that module.
+ */
+// Regex expressions to validate absolute paths
+var windowsPathRegExp = /^[\w]\:(\\|(\\[^<>\\/:"\|\?\*]+)+)\\?$/;
+var unixPathRegExp = /^(\/[^<>\\/:"\|\?\*]+)*\/?$/;
+
+/**
+ * Validates if path is a valid absolute Windows/Unix path
+ * @param {string} path File or Directory path
+ * @return {boolean} true if path is a valid Windows/Unix path
+ */
+function isValidAbsolutePath(path) {
+  return windowsPathRegExp.test(path) || unixPathRegExp.test(path);
+}
+
+/**
+ * Helper function to obtain localPath type
+ * @param {string} localPath File or directory localPath
+ * @return {string} File System type enumeration
+ */
+function getFileSystemType(localPath) {
+  if (windowsPathRegExp.test(localPath)) {
+    return FileSystemType.WINDOWS;
+  } else if (unixPathRegExp.test(localPath)) {
+    return FileSystemType.UNIX;
+  }
+  throw new Error('Unknown FileSystem');
+}
+
+/**
+ * Helper function to sanitize local filesystem localPath.
+ * Remove trailing file separator
+ * @todo Fix file separator depending on FileSystem type
+ * @body sanitize "C:\Users/Desktop\" to "C:\Users\Desktop"
+ * @param {string} localPath File or directory localPath
+ * @returns {string} Path with trailing file separator
+ */
+function sanitizePath(localPath) {
+  var fileSystemType = getFileSystemType(localPath);
+  var windowsPrefix = 'C:\\';
+  // Remove trailing slash (file separator) from file localPaths
+  if (fileSystemType == FileSystemType.WINDOWS) {
+    // Remove trailing \ in C:\something\
+    if (localPath.length > windowsPrefix.length && localPath.substr(-1) == '\\') {
+      localPath = localPath.slice(0, -1);
+    }
+  } else if (fileSystemType == FileSystemType.UNIX) {
+    // Remove trailing / in /Users/
+    if (localPath.length > 1 && localPath.substr(-1) == '/') {
+      localPath = localPath.slice(0, -1);
+    }
+  }
+  return localPath;
+}
