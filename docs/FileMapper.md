@@ -10,7 +10,12 @@
 - [Delete Folder API](#delete-folder-api)
 - [Move File API](#move-file-api)
 - [Move Folder API](#move-folder-api)
-- [Get Pattern Matches API](#get-pattern-matches-api)
+- [Copy File API](#copy-file-api)
+- [Copy Folder API](#copy-folder-api)
+- [Find Files By Pattern API](#find-files-by-pattern-api)
+- [Find Folders By Pattern API](#find-folders-by-pattern-api)
+- [Add File Mapping API](#add-file-mapping-api)
+- [Add Folder Mapping API](#add-folder-mapping-api)
 
 
 ## Get File Id API
@@ -21,7 +26,7 @@ Intended to provide drive file id corresponding to the absolute local file path.
 
 **Parameters:**
 `localPath` - String
-Absolute local file path in the Windows or Unix file system format. eg, "C:\Desktop\MyFile.txt", "/Downloads/MyFile.txt" etc.
+Absolute local file path in the Windows or Unix file system format. eg, "C:\Desktop\MyFile.txt", "/home/MyFile.txt" etc.
 
 **Return Values:**
 1. If the file mapping is found in the config : 
@@ -45,7 +50,7 @@ Intended to provide drive folder id corresponding to the absolute local folder p
 
 **Parameters:**
 `localPath` - String
-Absolute local folder path in the Windows or Unix file system format. eg, "C:\Desktop\MyFolder, "/Downloads/MyFolder" etc.
+Absolute local folder path in the Windows or Unix file system format. eg, "C:\Desktop\MyFolder, "/home/MyFolder" etc.
 
 **Return Values:**
 1. If the folder mapping is found in the config : 
@@ -57,8 +62,8 @@ Prompts the user by throwing a `MappingNotFoundException`   :
    > **MappingNotFoundException** : Mapping for the local path provided is not found. Provide a Folder to be Mapped to the `localPath`
      
 1. If the file at the local path provided has been deleted previously :
-Throws a `FolderDoesNotExistException` :
-    > **FolderDoesNotExistException :** Folder Mapped to the local path provided has been deleted.
+Throws a `FileDoesNotExistException` :
+    > **FileDoesNotExistException :** Folder Mapped to the local path provided has been deleted.
 
 
 ## Create File API
@@ -69,7 +74,7 @@ Intended to create an empty drive file corresponding to the absolute local file 
 
 **Parameters:**
 `localPath` - String
-Absolute local file path in the Windows or Unix file system format. eg, "C:\Desktop\MyFile.txt", "/Downloads/MyFile.txt" etc.
+Absolute local file path in the Windows or Unix file system format. eg, "C:\Desktop\MyFile.txt", "/home/MyFile.txt" etc.
 
 **Return Values:**
 1. If the new drive file is created : 
@@ -93,7 +98,7 @@ Intended to create an empty drive folder corresponding to the absolute local fol
 
 **Parameters:**
 `localPath` - String
-Absolute local folder path in the Windows or Unix file system format. eg, "C:\Desktop\MyFolder, "/Downloads/MyFolder" etc.
+Absolute local folder path in the Windows or Unix file system format. eg, "C:\Desktop\MyFolder, "/home/MyFolder" etc.
 
 **Return Values:**
 1. If the folder mapping is found in the config : 
@@ -105,8 +110,8 @@ Prompts the user by throwing a `MappingNotFoundException`   :
    > **MappingNotFoundException** : Mapping for the local path provided is not found. Provide a Folder to be Mapped to the `localPath`
      
 1. If the folder at the local path already exists :
-Throws a `FolderAlreadyExistsException` :
-    >" **FolderAlreadyExistsException :** Folder Mapped to the local path provided already exists."
+Throws a `FileAlreadyExistsException` :
+    >" **FileAlreadyExistsException :** Folder Mapped to the local path provided already exists."
 
 
 ## File Exists API
@@ -117,7 +122,7 @@ Intended to check if the drive file corresponding to the absolute local file pat
 
 **Parameters:**
 `localPath` - String
-Absolute local file path in the Windows or Unix file system format. eg, "C:\Desktop\MyFile.txt", "/Downloads/MyFile.txt" etc.
+Absolute local file path in the Windows or Unix file system format. eg, "C:\Desktop\MyFile.txt", "/home/MyFile.txt" etc.
 
 **Return Values:**
 1. If the file mapping is found in the config : 
@@ -126,7 +131,7 @@ Returns a boolean value (true or false) to tell if the drive file corresponding 
 
 1. If the file mapping is not found in the config : 
 Prompts the user by throwing a `MappingNotFoundException`   : 
-   > "**MappingNotFoundException** : Mapping for the local path provided is not found. Provide a File to be Mapped to the `localPath`"
+   > **MappingNotFoundException** : Mapping for the local path provided is not found. Provide a mapping for the `localPath`
  
 
 ## Folder Exists API
@@ -137,7 +142,7 @@ Intended to check if the drive folder corresponding to the absolute local folder
 
 **Parameters:**
 `localPath` - String
-Absolute local folder path in the Windows or Unix file system format. eg, "C:\Desktop\MyFolder, "/Downloads/MyFolder" etc.
+Absolute local folder path in the Windows or Unix file system format. eg, "C:\Desktop\MyFolder, "/home/MyFolder" etc.
 
 **Return Values:**
 1. If the folder mapping is found in the config : 
@@ -146,7 +151,7 @@ Returns a boolean value (true or false) to tell if the drive folder correspondin
 
 1. If the folder mapping is not found in the config : 
 Prompts the user by throwing a `MappingNotFoundException`   : 
-   > **MappingNotFoundException** : Mapping for the local path provided is not found. Provide a Folder to be Mapped to the `localPath`
+   > **MappingNotFoundException** : Mapping for the local path provided is not found. Provide a mapping for the `localPath`
   
 
 ## Delete File API
@@ -157,7 +162,7 @@ Intended to delete the drive file which is mapped to the absolute local file pat
 
 **Parameters:**
 `localPath` - String
-Absolute local file path in the Windows or Unix file system format. eg, "C:\Desktop\MyFile.txt", "/Downloads/MyFile.txt" etc.
+Absolute local file path in the Windows or Unix file system format. eg, "C:\Desktop\MyFile.txt", "/home/MyFile.txt" etc.
 
 **Return Values:**
 1. If the file mapping is found in the config : 
@@ -165,11 +170,11 @@ Returns a boolean value - `true` to tell that the drive file corresponding to th
 
 1. If the file mapping is not found in the config : 
 Prompts the user by throwing a `MappingNotFoundException`   : 
-   > "**MappingNotFoundException** : Mapping for the local path provided is not found. Provide a File to be Mapped to the `localPath`"
+   > **MappingNotFoundException** : Mapping for the local path provided is not found. Provide a mapping for the `localPath`
      
 1. If the file at the local path provided has been deleted previously :
 Throws a `FileDoesNotExistException` :
-    >" **FileDoesNotExistException :** File Mapped to the local path provided has already been deleted."
+    > **FileDoesNotExistException :** File Mapped to the local path provided has already been deleted.
 
 
 ## Delete Folder API
@@ -180,7 +185,7 @@ Intended to delete the drive folder which is mapped to the absolute local folder
 
 **Parameters:**
 `localPath` - String
-Absolute local folder path in the Windows or Unix file system format. eg, "C:\Desktop\MyFolder, "/Downloads/MyFolder" etc.
+Absolute local folder path in the Windows or Unix file system format. eg, "C:\Desktop\MyFolder, "/home/MyFolder" etc.
 
 **Return Values:**
 1. If the folder mapping is found in the config : 
@@ -188,18 +193,18 @@ Returns a boolean value - `true` to tell that the drive folder corresponding to 
 
 1. If the folder mapping is not found in the config : 
 Prompts the user by throwing a `MappingNotFoundException`   : 
-   > **MappingNotFoundException** : Mapping for the local path provided is not found. Provide a Folder to be Mapped to the `localPath`
+   >**MappingNotFoundException** : Mapping for the local path provided is not found. Provide a mapping for the `localPath`
      
 1. If the file at the local path provided has been deleted previously :
-Throws a `FolderDoesNotExistException` :
-    > **FolderDoesNotExistException :** Folder Mapped to the local path provided has already been deleted.
+Throws a `FileDoesNotExistException` :
+    > **FileDoesNotExistException :** Folder Mapped to the local path provided has already been deleted.
 
 
 ## Move File API
 
 Intended to move a file from it's source location to a destination location.
 
-**Implementation:**  `moveFile(sourceFilePaths,targetFolderPath)`
+**Implementation:**  `moveFiles(sourceFilePaths,targetFolderPath)`
 
 **Parameters:**
 1. `sourceFilePaths` - String Array
@@ -213,22 +218,22 @@ Moves all the files to the target folder. Doesn't return anything.
 
 1. If the target or source path mapping is not found in the config : 
 Prompts the user by throwing a `MappingNotFoundException`   : 
-   > "**MappingNotFoundException** : Mapping for the local path provided is not found. Provide a File to be Mapped to the local path"
+   > **MappingNotFoundException** : Mapping for the local path provided is not found. Provide a mapping for the `localPath`
      
 1. If the target folder provided has been deleted previously :
-Throws a `TargetFolderDoesNotExistException` :
-    >" **TargetFolderDoesNotExistException :** Folder Mapped to the target path provided has been deleted."
+Throws a `FileDoesNotExistException` :
+    >" **FileDoesNotExistException :** Folder Mapped to the target path provided has been deleted."
 
 
 ## Move Folder API
 
 Intended to move a folder from it's source location to a destination location.
 
-**Implementation:**  `moveFolder(sourceFolderPaths,targetFolderPath)`
+**Implementation:**  `moveFolders(sourceFolderPaths,targetFolderPath)`
 
 **Parameters:**
 1. `sourceFolderPaths` - String Array
-An array of Absolute local folder paths in the Windows or Unix file system format of the files which are needed to be moved.
+An array of Absolute local folder paths in the Windows or Unix file system format of the folders which are needed to be moved.
 2. `targetFolderPath` -  String
  Absolute local folder path in the Windows or Unix file system format of the folder to which the folders are needed to be moved to. 
 
@@ -238,26 +243,136 @@ Moves all the folders to the target folder. Doesn't return anything.
 
 1. If the target or source path mapping is not found in the config : 
 Prompts the user by throwing a `MappingNotFoundException`   : 
-   > "**MappingNotFoundException** : Mapping for the local path provided is not found. Provide a File to be Mapped to the local path"
+   > **MappingNotFoundException** : Mapping for the local path provided is not found. Provide a mapping for the `localPath`
      
 1. If the target folder provided has been deleted previously :
-Throws a `TargetFolderDoesNotExistException` :
-    >" **TargetFolderDoesNotExistException :** Folder Mapped to the target path provided has been deleted."
+Throws a `FileDoesNotExistException` :
+    >" **FileDoesNotExistException :** Folder Mapped to the target path provided has been deleted."
 
 
-## Get Pattern Matches API
+## Copy File API
 
-Intended to provide all the file and folder names which matches a specified pattern. It supports the use of multiple character (*) and single character (?) wildcards to specify multiple files and folders.
+Intended to copy a file from it's source location to a destination location.
 
-**Implementation:**  `getPatternMatches(pattern)`
+**Implementation:**  `copyFiles(sourceFilePaths,targetFolderPath)`
+
+**Parameters:**
+1. `sourceFilePaths` - String Array
+An array of Absolute local file paths in the Windows or Unix file system format of the files which are needed to be copied.
+2. `targetFolderPath` -  String
+ Absolute local folder path in the Windows or Unix file system format of the folder to which the files are needed to be copied to. 
+
+**Return Values:**
+1. If the file mapping is found in the config : 
+Copies all the files to the target folder. Doesn't return anything.
+
+1. If the target or source path mapping is not found in the config : 
+Prompts the user by throwing a `MappingNotFoundException`   : 
+   > **MappingNotFoundException** : Mapping for the local path provided is not found. Provide a mapping for the `localPath`
+     
+1. If the target folder provided has been deleted previously :
+Throws a `FileDoesNotExistException` :
+    >" **FileDoesNotExistException :** Folder Mapped to the target path provided has been deleted."
+
+
+## Copy Folder API
+
+Intended to copy a folder from it's source location to a destination location.
+
+**Implementation:**  `copyFolders(sourceFolderPaths,targetFolderPath)`
+
+**Parameters:**
+1. `sourceFolderPaths` - String Array
+An array of Absolute local folder paths in the Windows or Unix file system format of the folders which are needed to be copied.
+2. `targetFolderPath` -  String
+ Absolute local folder path in the Windows or Unix file system format of the folder to which the folders are needed to be copied to. 
+
+**Return Values:**
+1. If the folder mapping is found in the config : 
+Copies all the folders to the target folder. Doesn't return anything.
+
+1. If the target or source path mapping is not found in the config : 
+Prompts the user by throwing a `MappingNotFoundException`   : 
+   > **MappingNotFoundException** : Mapping for the local path provided is not found. Provide a mapping for the `localPath`
+     
+1. If the target folder provided has been deleted previously :
+Throws a `FileDoesNotExistException` :
+    >" **FileDoesNotExistException :** Folder Mapped to the target path provided has been deleted."
+
+
+## Find Files By Pattern API
+
+Intended to provide all the file names which matches a specified pattern. It supports the use of multiple character (*) and single character (?) wildcards to specify multiple files.
+
+**Implementation:**  `findFilesByPattern(pattern)`
 
 **Parameters:**
 `pattern` - String
-Absolute local path string expression in the Windows or Unix file system format.  eg, "C:\Desktop\*.txt", "/Downloads/file?.txt" etc.
+Absolute local file path string expression in the Windows or Unix file system format.  eg, "C:\Desktop\*.txt", "/home/file?.txt" etc.
 
 **Return Values:**
-`matches` - String Array
-Returns a string array representing the names of  files, directories, or folders that matches the specified pattern.
+1. `matches` - String Array
+Returns a string array representing the names of  files that matches the specified pattern.
 
+1. If the base folder mapping is not found in the config : 
+Prompts the user by throwing a `MappingNotFoundException`   : 
+   >**MappingNotFoundException** : Mapping for the local path provided is not found. Provide a mapping for the `localPath`
 
+## Find Folders By Pattern API
+
+Intended to provide all the folder names which matches a specified pattern. It supports the use of multiple character (*) and single character (?) wildcards to specify multiple folders.
+
+**Implementation:**  `findFoldersByPattern(pattern)`
+
+**Parameters:**
+`pattern` - String
+Absolute local folder path string expression in the Windows or Unix file system format.  eg, "C:\Desktop\*", "/home/Folder?" etc.
+
+**Return Values:**
+1. `matches` - String Array
+Returns a string array representing the names of folders that matches the specified pattern.
+
+1. If the base folder mapping is not found in the config : 
+Prompts the user by throwing a `MappingNotFoundException`   : 
+   >**MappingNotFoundException** : Mapping for the local path provided is not found. Provide a mapping for the `localPath`
+
+## Add File Mapping API
+Intended to add a new file mapping to the config.
+
+**Implementation:**  `addFileMapping(localPath, driveId)`
+
+**Parameters:**
+1. `localPath` - String
+Absolute local file path in the Windows or Unix file system format. eg, "C:\Desktop\MyFile.txt", "/home/MyFile.txt" etc.
+2. `driveId` - String
+Drive file id to which the above local file path is to be mapped.
+
+**Return Values:**
+1.  If the file mapping is added successfully : 
+Returns a number - `SUCCESS = 0`  to tell that the mapping has been added to the config successfully.
+1. If the file mapping is not added successfully : 
+Returns a number - `FAILURE`  to tell that the mapping has not been added to the config successfully due to any of the following reasons - 
+  * `INVALID_ABSOLUTE_PATH = 1` the local path provided may not be absolute, 
+  * `INVALID_DRIVE_ID = 2` the drive id provided may be invalid or 
+  * `DUPLICATE_MAPPING = 3` the local path provided has a mapping already present in the config. 
+
+## Add Folder Mapping API
+Intended to add a new folder mapping to the config.
+
+**Implementation:**  `addFolderMapping(localPath, driveId)`
+
+**Parameters:**
+1. `localPath` - String
+Absolute local folder path in the Windows or Unix file system format. eg, "C:\Desktop\MyFolder, "/home/MyFolder" etc.
+2. `driveId` - String
+Drive folder id to which the above local folder path is to be mapped.
+
+**Return Values:**
+1.  If the folder mapping is added successfully : 
+Returns a number - `SUCCESS = 0`  to tell that the mapping has been added to the config successfully.
+1. If the folder mapping is not added successfully : 
+Returns a number - `FAILURE`  to tell that the mapping has not been added to the config successfully due to any of the following reasons - 
+  * `INVALID_ABSOLUTE_PATH = 1` the local path provided may not be absolute, 
+  * `INVALID_DRIVE_ID = 2` the drive id provided may be invalid or 
+  * `DUPLICATE_MAPPING = 3` the local path provided has a mapping already present in the config. 
 
