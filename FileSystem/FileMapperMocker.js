@@ -22,8 +22,8 @@ var USE_FILEMAPPER_MOCKER = true;
  * Mocks the FileMapper module. The mocker is implemented as we need a way to
  * test the FileSystem APIs before the FileMapper is ready. This is to be
  * replaced with complete implementation. This mocker implements all the
- * functionality as per the design of the FileMapper. The primary difference is
- * that there is no config file, instead there is a hardcoded base directory.
+ * functionalities as per the design of the FileMapper. The primary difference
+ * is that there is no config file, instead there is a hardcoded base directory.
  * All file paths have to contain this base directory as prefix. The mocker does
  * NOT do the following things 1) Check MimeType, Permissions 2) Check for
  * duplicate files 3) Throw errors as per design (because we are not doing
@@ -31,25 +31,18 @@ var USE_FILEMAPPER_MOCKER = true;
  */
 var VBAFileMapperMocker = {
   baseDirectory: 'c:\\user\\desktop',
-  getFileUtil: getFileUtil,
   getFileId: getFileId,
-  getFolderUtil: getFolderUtil,
   getFolderId: getFolderId,
   hasFile: hasFile,
   hasFolder: hasFolder,
   deleteFile: deleteFile,
   deleteFolder: deleteFolder,
-  getFinalFolderUtil: getFinalFolderUtil,
   createFile: createFile,
   createFolder: createFolder,
-  getOrCreateFolderUtil: getOrCreateFolderUtil,
-  cloneFilesUtil: cloneFilesUtil,
-  cloneFolderUtil: cloneFolderUtil,
   moveFile: moveFile,
   moveFolder: moveFolder,
   copyFile: copyFile,
   copyFolder: copyFolder,
-  findByPatternUtil: findByPatternUtil,
   findFilesByPattern: findFilesByPattern,
   findFoldersByPattern: findFoldersByPattern,
   getRelativePathSplit: getRelativePathSplit,
@@ -59,35 +52,13 @@ var VBAFileMapperMocker = {
 var FileMapper = USE_FILEMAPPER_MOCKER ? VBAFileMapperMocker : VBAFileMapper;
 
 /**
- * Get File Helper function
- * Gets the file id of a local file if available. Otherwise returns null.
- * @param {string} localPath Local filepath of the file
- * @return {string} File id of the local file if available, otherwise null
- */
-function getFileUtil(localPath) {
-  // Get platform agnostic relative path split
-  var pathSplit = this.getRelativePathSplit(localPath);
-  // Get base directory
-  var root = this.getFinalFolderUtil(pathSplit);
-  if (root == null) {
-    return null;
-  }
-  // Obtain the file
-  var fileIterator = root.getFilesByName(pathSplit[pathSplit.length - 1]);
-  if (!fileIterator.hasNext()) {
-    return null;
-  }
-  return fileIterator.next().getId();
-}
-
-/**
  * Get File API
  * Gets the file id of a local file
  * @param {string} localPath Local filepath of the file
  * @return {string} File id of the local file
  */
 function getFileId(localPath) {
-  var fileId = this.getFileUtil(localPath);
+  var fileId = getFileIdUtil(localPath);
   if (fileId == null) {
     throw new Error(localPath + ' not found');
   }
@@ -101,33 +72,8 @@ function getFileId(localPath) {
  * @return {boolean} true if the local file exists
  */
 function hasFile(localPath) {
-  var fileId = this.getFileUtil(localPath);
+  var fileId = getFileIdUtil(localPath);
   return fileId != null;
-}
-
-/**
- * Get Folder Helper function
- * Gets the file id of a local folder if available. Otherwise returns null.
- * @param {string} localPath Local filepath of the folder
- * @return {string} Folder id of the local folder if available, otherwise null
- */
-function getFolderUtil(localPath) {
-  // Get platform agnostic relative path split
-  var pathSplit = this.getRelativePathSplit(localPath);
-  // Get base directory
-  var root = this.getFinalFolderUtil(pathSplit);
-  if (root == null) {
-    return null;
-  }
-  if (pathSplit.length == 0) {
-    return root.getId();
-  }
-  // Obtain the folder
-  var folderIterator = root.getFoldersByName(pathSplit[pathSplit.length - 1]);
-  if (!folderIterator.hasNext()) {
-    return null;
-  }
-  return folderIterator.next().getId();
 }
 
 /**
@@ -137,7 +83,7 @@ function getFolderUtil(localPath) {
  * @return {string} Folder id of the local folder
  */
 function getFolderId(localPath) {
-  var folderId = this.getFolderUtil(localPath);
+  var folderId = getFolderUtil(localPath);
   if (folderId == null) {
     throw new Error(localPath + ' not found');
   }
@@ -151,7 +97,7 @@ function getFolderId(localPath) {
  * @return {boolean} true if the local folder exists
  */
 function hasFolder(localPath) {
-  var folderId = this.getFolderUtil(localPath);
+  var folderId = getFolderUtil(localPath);
   return folderId != null;
 }
 
@@ -176,26 +122,6 @@ function deleteFolder(localPath) {
 }
 
 /**
- * Helper function to get the last but one folder. If the path is
- * 'C:\User\folder\something.txt', this function will return the folder id to
- * 'C:\User\folder'.
- * @param {Array} pathSplit Platform agnostic path split array
- * @return {Folder} Final folder, Null if folder not found
- */
-function getFinalFolderUtil(pathSplit) {
-  var root = this.getBaseDriveFolder();
-  for (var i = 0; i < pathSplit.length - 1; i++) {
-    var folderIterator = root.getFoldersByName(pathSplit[i]);
-    if (!folderIterator.hasNext()) {
-      return null;
-    } else {
-      root = folderIterator.next();
-    }
-  }
-  return root;
-}
-
-/**
  * Create file API
  * The API creates intermediate folders if required.
  * Currently, the MimeType is set to PLAIN_TEXT
@@ -209,10 +135,7 @@ function createFile(localPath) {
   // Get platform agnostic relative path split
   var pathSplit = this.getRelativePathSplit(localPath);
   // Get directory
-  var root = this.getFinalFolderUtil(pathSplit);
-  if (root == null) {
-    throw new Error(localPath + ' not found');
-  }
+  var root = getFinalFolderUtil(pathSplit);
   var fileName = pathSplit[pathSplit.length - 1];
   return root.createFile(fileName, MimeType.PLAIN_TEXT).getId();
 }
@@ -226,52 +149,9 @@ function createFolder(localPath) {
   // Get platform agnostic relative path split
   var pathSplit = this.getRelativePathSplit(localPath);
   // Get directory
-  var root = this.getFinalFolderUtil(pathSplit);
-  if (root == null) {
-    throw new Error(localPath + ' not found');
-  }
+  var root = getFinalFolderUtil(pathSplit);
   var folderName = pathSplit[pathSplit.length - 1];
   return root.createFolder(folderName).getId();
-}
-
-/**
- * Helper function to get or create a folder if it doesn't exist
- * @param {string} localPath Local file path of the folder
- * @return {Folder} Folder corresponding to the local path
- */
-function getOrCreateFolderUtil(localPath) {
-  var folderId;
-  // Get folder, if it doesn't exist then create it
-  try {
-    folderId = this.getFolderId(localPath);
-  } catch (e) {
-    folderId = this.createFolder(localPath);
-  }
-  var folder = DriveApp.getFolderById(folderId);
-  return folder;
-}
-
-/**
- * Clone file helper function
- * API clones all files to the target folder. Optionally deletes source files.
- * Apps Script does not have a move API. Move is implemented by making a copy
- * and deleting the original file.
- * @param {Array} sourceFilePaths List of local files to be moved
- * @param {string} targetFolderPath Destination folder path
- * @param {boolean} deleteOriginal If true, source files will be deleted
- */
-function cloneFilesUtil(sourceFilePaths, targetFolderPath, deleteOriginal) {
-  // Get folder, if it doesn't exist then create it
-  var targetFolder = this.getOrCreateFolderUtil(targetFolderPath);
-  // Move all files
-  for (var i = 0; i < sourceFilePaths.length; i++) {
-    var fileId = this.getFileId(sourceFilePaths[i]);
-    var file = DriveApp.getFileById(fileId);
-    file.makeCopy(file.getName(), targetFolder);
-    if (deleteOriginal) {
-      file.setTrashed(true);
-    }
-  }
 }
 
 /**
@@ -283,7 +163,7 @@ function cloneFilesUtil(sourceFilePaths, targetFolderPath, deleteOriginal) {
  * @param {string} targetFolderPath Destination folder path
  */
 function moveFile(sourceFilePaths, targetFolderPath) {
-  this.cloneFilesUtil(sourceFilePaths, targetFolderPath, true);
+  cloneFilesUtil(sourceFilePaths, targetFolderPath, true);
 }
 
 /**
@@ -293,31 +173,7 @@ function moveFile(sourceFilePaths, targetFolderPath) {
  * @param {string} targetFolderPath Destination folder path
  */
 function copyFile(sourceFilePaths, targetFolderPath) {
-  this.cloneFilesUtil(sourceFilePaths, targetFolderPath, false);
-}
-
-/**
- * Clone file helper function
- * API clones all folders to the target folder. Optionally deletes source
- * folders. Apps Script does not have a move API. Move is implemented by making
- * a recursive copy and deleting the original folder.
- * @param {Array} sourceFilePaths List of local files to be moved
- * @param {string} targetFolderPath Destination folder path
- * @param {boolean} deleteOriginal If true, source folders will be deleted
- */
-function cloneFolderUtil(sourceFolderPaths, targetFolderPath, deleteOriginal) {
-  // Get folder, if it doesn't exist then create it
-  var targetFolder = this.getOrCreateFolderUtil(targetFolderPath);
-  // Move all folders
-  for (var i = 0; i < sourceFolderPaths.length; i++) {
-    var folderId = this.getFolderId(sourceFolderPaths[i]);
-    var folder = DriveApp.getFolderById(folderId);
-    var destination = targetFolder.createFolder(folder.getName());
-    recursiveCopyFolder(folder, destination);
-    if (deleteOriginal) {
-      folder.setTrashed(true);
-    }
-  }
+  cloneFilesUtil(sourceFilePaths, targetFolderPath, false);
 }
 
 /**
@@ -330,7 +186,7 @@ function cloneFolderUtil(sourceFolderPaths, targetFolderPath, deleteOriginal) {
  * @param {string} targetFolderPath Destination folder path
  */
 function moveFolder(sourceFilePaths, targetFolderPath) {
-  this.cloneFolderUtil(sourceFilePaths, targetFolderPath, true);
+  cloneFolderUtil(sourceFilePaths, targetFolderPath, true);
 }
 
 /**
@@ -341,59 +197,7 @@ function moveFolder(sourceFilePaths, targetFolderPath) {
  * @param {string} targetFolderPath Destination folder path
  */
 function copyFolder(sourceFilePaths, targetFolderPath) {
-  this.cloneFolderUtil(sourceFilePaths, targetFolderPath, false);
-}
-
-/**
- * Recursively copy source folder to target folder
- * @param {Folder} source Source Folder
- * @param {Folder} target Target Folder
- */
-function recursiveCopyFolder(source, target) {
-  var folders = source.getFolders();
-  var files = source.getFiles();
-  while (files.hasNext()) {
-    var file = files.next();
-    file.makeCopy(file.getName(), target);
-  }
-  while (folders.hasNext()) {
-    var subFolder = folders.next();
-    var folderName = subFolder.getName();
-    var targetFolder = target.createFolder(folderName);
-    recursiveCopyFolder(subFolder, targetFolder);
-  }
-}
-
-/**
- * Find files or folders by pattern helper function
- * This function searches for  file or folders which match the given pattern
- * consisting of wildcards. Wildcard ? matches with any one valid character.
- * Wildcard * matches with one or more valid characters
- * @param {string} localPath Local file path of the folder
- * @param {boolean} isFile Boolean indicating if localPath is a file
- * @return {Array} List of files/folders matching the pattern
- */
-function findByPatternUtil(localPath, isFile) {
-  // Get platform agnostic relative path split
-  var pathSplit = this.getRelativePathSplit(localPath);
-  // Get base directory
-  var root = this.getFinalFolderUtil(pathSplit);
-  if (root == null) {
-    return [];
-  }
-  // Generate regex matching pattern
-  var pattern = pathSplit[pathSplit.length - 1];
-  var patternRegex = generateRegexFromPattern(pattern);
-  var iterator = isFile ? root.getFiles() : root.getFolders();
-  var matches = [];
-  // Search for files/ folders matching the pattern
-  while (iterator.hasNext()) {
-    var item = iterator.next();
-    if (patternRegex.test(item.getName())) {
-      matches.push(item.getName());
-    }
-  }
-  return matches;
+  cloneFolderUtil(sourceFilePaths, targetFolderPath, false);
 }
 
 /**
@@ -405,7 +209,7 @@ function findByPatternUtil(localPath, isFile) {
  * @return {Array} List of files matching the pattern
  */
 function findFilesByPattern(localPath) {
-  return this.findByPatternUtil(localPath, true);
+  return findByPatternUtil(localPath, true);
 }
 
 /**
@@ -417,7 +221,7 @@ function findFilesByPattern(localPath) {
  * @return {Array} List of folders matching the pattern
  */
 function findFoldersByPattern(localPath) {
-  return this.findByPatternUtil(localPath, false);
+  return findByPatternUtil(localPath, false);
 }
 
 /**
@@ -453,31 +257,4 @@ function getBaseDriveFolder() {
   var id = SpreadsheetApp.getActive().getId();
   var file = DriveApp.getFileById(id);
   return file.getParents().next();
-}
-
-/**
- * Generates equivalent Regex expression of pattern
- * containing wildcards for folder/filename
- * @param {string} pattern Pattern containing wildcards
- * @return {RegExp} Equivalent Regular expression of the pattern
- */
-function generateRegexFromPattern(pattern) {
-  var regex = '';
-  for (var i = 0; i < pattern.length; i++) {
-    if (pattern[i] == '*') {
-      // Allow any number of valid characters
-      regex += '[^<>\\\\/:"\\|\\?\\*]*';
-    } else if (pattern[i] == '?') {
-      // Allow any one valid character
-      regex += '[^<>\\\\/:"\\|\\?\\*]?';
-    } else if (pattern[i] == '.') {
-      // Escape . character
-      regex += '\\.';
-    } else {
-      regex += pattern[i];
-    }
-  }
-  // Expression matches full string
-  regex = '^' + regex + '$';
-  return new RegExp(regex);
 }
