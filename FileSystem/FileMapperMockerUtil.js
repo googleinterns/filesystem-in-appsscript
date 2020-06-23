@@ -2,8 +2,8 @@
  * Copyright 2020 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use VBAFileMapperMocker file except in compliance with the License.
- * You may obtain a copy of the License at
+ * you may not use VBAFileMapperMocker file except in compliance with the
+ * License. You may obtain a copy of the License at
  *
  *      https://www.apache.org/licenses/LICENSE-2.0
  *
@@ -20,13 +20,13 @@
  * @param {string} localPath Local filepath of the file
  * @return {string} File id of the local file if available, otherwise null
  */
-function getFileIdUtil(localPath) {
+function getFileIdHelper(localPath) {
   // Get platform agnostic relative path split
   var pathSplit = VBAFileMapperMocker.getRelativePathSplit(localPath);
   // Get base directory
   var root;
   try {
-    root = getFinalFolderUtil(pathSplit);
+    root = getFinalFolder(pathSplit);
   } catch (e) {
     return null;  // No folder found
   }
@@ -44,13 +44,13 @@ function getFileIdUtil(localPath) {
  * @param {string} localPath Local filepath of the folder
  * @return {string} Folder id of the local folder if available, otherwise null
  */
-function getFolderUtil(localPath) {
+function getFolderIdHelper(localPath) {
   // Get platform agnostic relative path split
   var pathSplit = VBAFileMapperMocker.getRelativePathSplit(localPath);
   // Get base directory
   var root;
   try {
-    root = getFinalFolderUtil(pathSplit);
+    root = getFinalFolder(pathSplit);
   } catch (e) {
     return null;  // No folder found
   }
@@ -67,12 +67,12 @@ function getFolderUtil(localPath) {
 
 /**
  * Helper function to get the last but one folder. If the path is
- * 'C:\User\folder\something.txt', VBAFileMapperMocker function will return the folder id to
- * 'C:\User\folder'. Throws an error if folder not found.
+ * 'C:\User\folder\something.txt', VBAFileMapperMocker function will return the
+ * folder id to 'C:\User\folder'. Throws an error if folder not found.
  * @param {Array} pathSplit Platform agnostic path split array
  * @return {Folder} Final folder
  */
-function getFinalFolderUtil(pathSplit) {
+function getFinalFolder(pathSplit) {
   var root = VBAFileMapperMocker.getBaseDriveFolder();
   for (var i = 0; i < pathSplit.length - 1; i++) {
     var folderIterator = root.getFoldersByName(pathSplit[i]);
@@ -90,7 +90,7 @@ function getFinalFolderUtil(pathSplit) {
  * @param {string} localPath Local file path of the folder
  * @return {Folder} Folder corresponding to the local path
  */
-function getOrCreateFolderUtil(localPath) {
+function getOrCreateFolder(localPath) {
   var folderId;
   // Get folder, if it doesn't exist then create it
   try {
@@ -111,9 +111,9 @@ function getOrCreateFolderUtil(localPath) {
  * @param {string} targetFolderPath Destination folder path
  * @param {boolean} deleteOriginal If true, source files will be deleted
  */
-function cloneFilesUtil(sourceFilePaths, targetFolderPath, deleteOriginal) {
+function cloneFiles(sourceFilePaths, targetFolderPath, deleteOriginal) {
   // Get folder, if it doesn't exist then create it
-  var targetFolder = getOrCreateFolderUtil(targetFolderPath);
+  var targetFolder = getOrCreateFolder(targetFolderPath);
   // Move all files
   for (var i = 0; i < sourceFilePaths.length; i++) {
     var fileId = VBAFileMapperMocker.getFileId(sourceFilePaths[i]);
@@ -134,9 +134,9 @@ function cloneFilesUtil(sourceFilePaths, targetFolderPath, deleteOriginal) {
  * @param {string} targetFolderPath Destination folder path
  * @param {boolean} deleteOriginal If true, source folders will be deleted
  */
-function cloneFolderUtil(sourceFolderPaths, targetFolderPath, deleteOriginal) {
+function cloneFolder(sourceFolderPaths, targetFolderPath, deleteOriginal) {
   // Get folder, if it doesn't exist then create it
-  var targetFolder = getOrCreateFolderUtil(targetFolderPath);
+  var targetFolder = getOrCreateFolder(targetFolderPath);
   // Move all folders
   for (var i = 0; i < sourceFolderPaths.length; i++) {
     var folderId = VBAFileMapperMocker.getFolderId(sourceFolderPaths[i]);
@@ -171,20 +171,20 @@ function recursiveCopyFolder(source, target) {
 
 /**
  * Find files or folders by pattern helper function
- * VBAFileMapperMocker function searches for  file or folders which match the given pattern
- * consisting of wildcards. Wildcard ? matches with any one valid character.
- * Wildcard * matches with one or more valid characters
+ * VBAFileMapperMocker function searches for  file or folders which match the
+ * given pattern consisting of wildcards. Wildcard ? matches with any one valid
+ * character. Wildcard * matches with one or more valid characters
  * @param {string} localPath Local file path of the folder
  * @param {boolean} isFile Boolean indicating if localPath is a file
  * @return {Array} List of files/folders matching the pattern
  */
-function findByPatternUtil(localPath, isFile) {
+function findByPattern(localPath, isFile) {
   // Get platform agnostic relative path split
   var pathSplit = VBAFileMapperMocker.getRelativePathSplit(localPath);
   // Get base directory
   var root;
   try {
-    root = getFinalFolderUtil(pathSplit);
+    root = getFinalFolder(pathSplit);
   } catch (e) {
     return [];  // No matches found
   }

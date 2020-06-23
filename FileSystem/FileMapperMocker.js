@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      https://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.orag/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -58,7 +58,7 @@ var FileMapper = USE_FILEMAPPER_MOCKER ? VBAFileMapperMocker : VBAFileMapper;
  * @return {string} File id of the local file
  */
 function getFileId(localPath) {
-  var fileId = getFileIdUtil(localPath);
+  var fileId = getFileIdHelper(localPath);
   if (fileId == null) {
     throw new Error(localPath + ' not found');
   }
@@ -72,7 +72,7 @@ function getFileId(localPath) {
  * @return {boolean} true if the local file exists
  */
 function hasFile(localPath) {
-  var fileId = getFileIdUtil(localPath);
+  var fileId = getFileIdHelper(localPath);
   return fileId != null;
 }
 
@@ -83,7 +83,7 @@ function hasFile(localPath) {
  * @return {string} Folder id of the local folder
  */
 function getFolderId(localPath) {
-  var folderId = getFolderUtil(localPath);
+  var folderId = getFolderIdHelper(localPath);
   if (folderId == null) {
     throw new Error(localPath + ' not found');
   }
@@ -97,7 +97,7 @@ function getFolderId(localPath) {
  * @return {boolean} true if the local folder exists
  */
 function hasFolder(localPath) {
-  var folderId = getFolderUtil(localPath);
+  var folderId = getFolderIdHelper(localPath);
   return folderId != null;
 }
 
@@ -135,7 +135,7 @@ function createFile(localPath) {
   // Get platform agnostic relative path split
   var pathSplit = this.getRelativePathSplit(localPath);
   // Get directory
-  var root = getFinalFolderUtil(pathSplit);
+  var root = getFinalFolder(pathSplit);
   var fileName = pathSplit[pathSplit.length - 1];
   return root.createFile(fileName, MimeType.PLAIN_TEXT).getId();
 }
@@ -149,7 +149,7 @@ function createFolder(localPath) {
   // Get platform agnostic relative path split
   var pathSplit = this.getRelativePathSplit(localPath);
   // Get directory
-  var root = getFinalFolderUtil(pathSplit);
+  var root = getFinalFolder(pathSplit);
   var folderName = pathSplit[pathSplit.length - 1];
   return root.createFolder(folderName).getId();
 }
@@ -163,7 +163,7 @@ function createFolder(localPath) {
  * @param {string} targetFolderPath Destination folder path
  */
 function moveFile(sourceFilePaths, targetFolderPath) {
-  cloneFilesUtil(sourceFilePaths, targetFolderPath, true);
+  cloneFiles(sourceFilePaths, targetFolderPath, true);
 }
 
 /**
@@ -173,7 +173,7 @@ function moveFile(sourceFilePaths, targetFolderPath) {
  * @param {string} targetFolderPath Destination folder path
  */
 function copyFile(sourceFilePaths, targetFolderPath) {
-  cloneFilesUtil(sourceFilePaths, targetFolderPath, false);
+  cloneFiles(sourceFilePaths, targetFolderPath, false);
 }
 
 /**
@@ -186,7 +186,7 @@ function copyFile(sourceFilePaths, targetFolderPath) {
  * @param {string} targetFolderPath Destination folder path
  */
 function moveFolder(sourceFilePaths, targetFolderPath) {
-  cloneFolderUtil(sourceFilePaths, targetFolderPath, true);
+  cloneFolder(sourceFilePaths, targetFolderPath, true);
 }
 
 /**
@@ -197,7 +197,7 @@ function moveFolder(sourceFilePaths, targetFolderPath) {
  * @param {string} targetFolderPath Destination folder path
  */
 function copyFolder(sourceFilePaths, targetFolderPath) {
-  cloneFolderUtil(sourceFilePaths, targetFolderPath, false);
+  cloneFolder(sourceFilePaths, targetFolderPath, false);
 }
 
 /**
@@ -209,7 +209,7 @@ function copyFolder(sourceFilePaths, targetFolderPath) {
  * @return {Array} List of files matching the pattern
  */
 function findFilesByPattern(localPath) {
-  return findByPatternUtil(localPath, true);
+  return findByPattern(localPath, true);
 }
 
 /**
@@ -221,7 +221,7 @@ function findFilesByPattern(localPath) {
  * @return {Array} List of folders matching the pattern
  */
 function findFoldersByPattern(localPath) {
-  return findByPatternUtil(localPath, false);
+  return findByPattern(localPath, false);
 }
 
 /**
