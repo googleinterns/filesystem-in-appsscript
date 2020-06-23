@@ -21,9 +21,6 @@ QUnit.helpers(this);
  */
 function doGet(e) {
   QUnit.urlParams(e.parameter);
-  QUnit.config({
-    title: 'File System', // Sets the title of the test page.
-  });
   QUnit.load(testFunctions);
 
   return QUnit.getHtml();
@@ -34,12 +31,8 @@ function doGet(e) {
  */
 function generateTestReport() {
   var fileName = 'FileSystem - Report.pdf';
-  deleteFile(fileName);
 
   QUnit.urlParams({});
-  QUnit.config({
-    title: 'File System', // Sets the title of the test page.
-  });
   QUnit.load(testFunctions);
 
   var content = QUnit.getHtml().getContent();
@@ -52,6 +45,29 @@ function generateTestReport() {
 }
 
 function testFunctions() {
+  setupTestEnvironment();
   workbook_run_all_tests();
   file_io_run_all_tests();
+  file_mapper_run_all_tests();
+}
+
+function setupTestEnvironment() {
+  try {
+    FileMapper.deleteFolder('c:\\User\\Desktop\\folder1');
+  } 
+  catch (e) {
+    // Do Nothing
+  }
+  try {
+    FileMapper.deleteFolder('c:\\User\\Desktop\\folder2');
+  }
+  catch (e) {
+    // Do Nothing
+  }
+  FileMapper.copyFolder(
+      [
+        'c:\\User\\Desktop\\original\\folder1',
+        'c:\\User\\Desktop\\original\\folder2'
+      ],
+      'c:\\User\\Desktop');
 }
