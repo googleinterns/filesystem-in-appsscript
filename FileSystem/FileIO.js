@@ -1,4 +1,19 @@
 /**
+ * Copyright 2020 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/**
  * File open mode enumeration
  */
 var OpenMode = {
@@ -51,7 +66,8 @@ var FileIO = {
 /**
  * Emulates VBA open statement API
  * @todo Implement file locking
- * @body File locking is not possible in Google Drive but it could be emulated by using PropertyServices.
+ * @body File locking is not possible in Google Drive but it could be emulated
+ * by using PropertyServices.
  * @param {string} path The local file path
  * @param {number} fileNumber File number
  * @param {string} openMode Open Mode enumeration
@@ -98,19 +114,19 @@ function openFile(path, fileNumber, openMode, accessMode, lockMode) {
   switch (openMode) {
     case OpenMode.RANDOM:
     case OpenMode.INPUT:
-      file.pointer = 0; // Beginning of file
+      file.pointer = 0;  // Beginning of file
       file.content = driveFile.getBlob().getDataAsString();
       break;
     case OpenMode.APPEND:
       file.content = driveFile.getBlob().getDataAsString();
-      file.pointer = file.content.length; // End of file
+      file.pointer = file.content.length;  // End of file
       break;
     case OpenMode.OUTPUT:
-      file.pointer = 0; // Beginning of file
-      file.content = ''; // Empty file
+      file.pointer = 0;   // Beginning of file
+      file.content = '';  // Empty file
       break;
     case OpenMode.BINARY:
-      file.pointer = 0; // Beginning of file
+      file.pointer = 0;  // Beginning of file
       file.content = driveFile.getBlob().getBytes();
       break;
   }
@@ -372,15 +388,16 @@ function setFilePointer(fileNumber, position) {
 
   this.openFiles[fileNumber].pointer = position;
   var content = this.openFiles[fileNumber].content;
-  if(position > content.length) {
-    content +=  Array(position - content.length + 1).join(' ');
+  if (position > content.length) {
+    content += Array(position - content.length + 1).join(' ');
   }
   this.openFiles[fileNumber].content = content;
 }
 
 /**
- * Emulates VBA input statement API. inputList contains a list of input variables.
- * Each variable can be read independently by the inputFileUtil function
+ * Emulates VBA input statement API. inputList contains a list of input
+ * variables. Each variable can be read independently by the inputFileUtil
+ * function
  * @todo Implement/use custom DateTime/Time/Date structures
  * @body Javascript only has a DateTime Type, No Time or Date type.
  * @param {number} fileNumber File number

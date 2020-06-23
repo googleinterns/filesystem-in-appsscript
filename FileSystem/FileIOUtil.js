@@ -1,4 +1,19 @@
 /**
+ * Copyright 2020 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/**
  * @fileoverview Helper functions and structures for FileIO API
  */
 
@@ -212,8 +227,10 @@ function getLineStart(file) {
 }
 
 /**
- * Helper function to parse one variable. This function is designed to be robust against whitespaces.
- * It will read a boolean, null, number, string, date or error into the variable
+ * Helper function to parse one variable. This function is designed to be robust
+ * against whitespaces. It will read a boolean, null, number, string, date or
+ * error into the variable. It will attempt to match the input buffer with any
+ * of the possible types and set the reference variable accordingly.
  * @param(object) file File structure
  * @param {VbaBox} variable reference variable to store value
  */
@@ -238,13 +255,13 @@ function inputFileUtil(file, variable) {
   while (filePointer < content.length) {
     var char = content[filePointer];
     if (char == ' ') {
-      filePointer++; // Jump over whitespace
+      filePointer++;  // Jump over whitespace
     } else if (content.substr(filePointer, 2) == '\r\n') {
       filePointer += 2;
-      break; // Break at delimiter
+      break;  // Break at delimiter
     } else if (char == ',' || char == '\r' || char == '\n') {
       filePointer++;
-      break; // Break at delimiter
+      break;  // Break at delimiter
     } else {
       throw new Error('Unknown Error Occurred');
     }
@@ -253,8 +270,9 @@ function inputFileUtil(file, variable) {
 }
 
 /**
- * Helper function to parse constant values.
- * Constants include true, false, null and empty.
+ * Helper function to parse one constant value. Constants include true, false,
+ * null and empty. It attempts to match the buffer with the various constant
+ * expressions
  * @param(object) file File structure
  * @param {VbaBox} variable reference variable to store value
  * @return {boolean} true if constant is found
@@ -267,12 +285,8 @@ function tryInputConstant(file, variable) {
   var trueExp = '#TRUE#';
   var falseExp = '#FALSE#';
   // Tests the different constant expressions
-  if (
-    content[filePointer] == ',' ||
-    content.substr(filePointer, 2) == '\r\n' ||
-    content[filePointer] == '\r' ||
-    content[filePointer] == '\n'
-  ) {
+  if (content[filePointer] == ',' || content.substr(filePointer, 2) == '\r\n' ||
+      content[filePointer] == '\r' || content[filePointer] == '\n') {
     // Empty Match
     variable.referenceValue = '';
     return true;
@@ -292,12 +306,15 @@ function tryInputConstant(file, variable) {
     variable.referenceValue = false;
     return true;
   }
-  return false; // No match found
+  return false;  // No match found
 }
 
 /**
- * Helper function to parse variable value. The different types include string,
- * numbers, error and 3 forms of date format.
+ * Helper function to parse one variable value. The different types include
+ * string, numbers, error and 3 forms of date format. This helper function
+ * attempts to match the input buffer with the various variable regex
+ * expressions. On a successful match, relevant details are extracted from the
+ * input and the required Apps Script variable is constructed.
  * @param(object) file File structure
  * @param {VbaBox} variable reference variable to store value
  * @return {boolean} true if variable is found
