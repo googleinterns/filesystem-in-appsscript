@@ -80,10 +80,8 @@ function writeDate(file, date) {
  * @param(object) space Space structure
  */
 function printSpace(file, space) {
-  var spaces = '';
-  for (var i = 0; i < space.count; i++) {
-    spaces += ' ';
-  }
+  // Create string with space.count spaces
+  var spaces = Array(space.count + 1).join(' ');
   stringInsert(file, spaces);
 }
 
@@ -190,8 +188,8 @@ function stringInsert(file, str) {
     source[index++] = str[i++];
   }
   // Append new content by extending the file
-  while (i < str.length) {
-    source += str[i++];
+  if (i < str.length) {
+    source += str.substr(i);
   }
 
   file.content = source;

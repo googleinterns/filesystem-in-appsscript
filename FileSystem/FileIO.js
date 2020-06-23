@@ -44,9 +44,7 @@ var FileIO = {
   inputFile: inputFile,
   getFilePointer: getFilePointer,
   setFilePointer: setFilePointer,
-
   openFiles: {},
-
   closeFile: closeFile,
 };
 
@@ -73,11 +71,7 @@ function openFile(path, fileNumber, openMode, accessMode, lockMode) {
 
   // Check if file number is valid
   if (fileNumber < 1 || fileNumber > 511) {
-    throw new Error(
-      'File Number: ' +
-        fileNumber +
-        ' is invalid. File numbers need to be an number value between 1 and 511'
-    );
+    throw new Error('File Number: ' + fileNumber + ' is invalid.');
   }
 
   // If file exists, get file id else create and get file id
@@ -100,18 +94,15 @@ function openFile(path, fileNumber, openMode, accessMode, lockMode) {
   };
 
   // Set file content and file pointer (In memory buffer) depending on type
+  var driveFile = DriveApp.getFileById(file.fileId);
   switch (openMode) {
     case OpenMode.RANDOM:
     case OpenMode.INPUT:
       file.pointer = 0; // Beginning of file
-      file.content = DriveApp.getFileById(file.fileId)
-        .getBlob()
-        .getDataAsString();
+      file.content = driveFile.getBlob().getDataAsString();
       break;
     case OpenMode.APPEND:
-      file.content = DriveApp.getFileById(file.fileId)
-        .getBlob()
-        .getDataAsString();
+      file.content = driveFile.getBlob().getDataAsString();
       file.pointer = file.content.length; // End of file
       break;
     case OpenMode.OUTPUT:
@@ -120,7 +111,7 @@ function openFile(path, fileNumber, openMode, accessMode, lockMode) {
       break;
     case OpenMode.BINARY:
       file.pointer = 0; // Beginning of file
-      file.content = DriveApp.getFileById(file.fileId).getBlob().getBytes();
+      file.content = driveFile.getBlob().getBytes();
       break;
   }
 
@@ -333,7 +324,7 @@ function writeToFile(fileNumber, outputList) {
     var exp = outputList[i];
 
     // Insert Delimiter
-    if (i) {
+    if (i > 0) {
       stringInsert(file, ',');
     }
 
@@ -354,7 +345,6 @@ function writeToFile(fileNumber, outputList) {
     }
   }
 
-  // Print new line
   printNewline(file);
 }
 
@@ -382,8 +372,8 @@ function setFilePointer(fileNumber, position) {
 
   this.openFiles[fileNumber].pointer = position;
   var content = this.openFiles[fileNumber].content;
-  while (content.length < position) {
-    content += ' ';
+  if(position > content.length) {
+    content +=  Array(position - content.length + 1).join(' ');
   }
   this.openFiles[fileNumber].content = content;
 }
