@@ -72,6 +72,7 @@ function testFunctions() {
   directory_manager_run_all_tests();
   vba_file_run_all_tests();
   vba_folder_run_all_tests();
+  file_system_run_all_tests();
 }
 
 function setupTestEnvironment() {
@@ -190,6 +191,7 @@ function getFileSystemTests() {
       'Workbook': workbookTests,
       'VBA File': vbaFileTests,
       'VBA Folder': vbaFolderTests,
+      'File System': fileSystemApiTests,
     }
   };
   return FileSystemTests;
