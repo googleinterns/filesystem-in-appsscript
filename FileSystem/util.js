@@ -85,6 +85,9 @@ var FileSystemType = {
 var windowsPathRegExp = /^[\w]\:(\\|(\\[^<>\\/:"\|\?\*]+)+)\\?$/;
 var unixPathRegExp = /^(\/[^<>\\/:"\|\?\*]+)*\/?$/;
 
+// Regex Expression to match file separator - / or \
+var fileSeparatorRegExp = /\\|\//;
+
 /**
  * Validates if path is a valid absolute Windows/Unix path
  * @param {string} path File or Directory path
@@ -170,8 +173,8 @@ function getAbsoluteLocalPath(currentDirectory, relativePath) {
   var fileSeparator = fileSystemType == FileSystemType.UNIX ? '/' : '\\';
   // First element of windows path split is drive letter ("C:") and
   // First element of unix path split is empty string ("")
-  var pathSplit = currentDirectory.split(fileSeparator);
-  var relativePathSplit = relativePath.split(fileSeparator);
+  var pathSplit = currentDirectory.split(fileSeparatorRegExp);
+  var relativePathSplit = relativePath.split(fileSeparatorRegExp);
 
   for (var i = 0; i < relativePathSplit.length; i++) {
     if (relativePathSplit[i] == '.') {
@@ -188,8 +191,8 @@ function getAbsoluteLocalPath(currentDirectory, relativePath) {
   }
   // Reconstruct absolute file path
   var absolutePath = pathSplit.join(fileSeparator);
-  // If path is root path, i.e. "C:\" or "/" then we need to add a trailing
-  // seperator
+  // If path is root path, i.e. "C:\" or "/" then we need to
+  // add a trailing separator
   if (pathSplit.length == 1) {
     absolutePath += fileSeparator;
   }

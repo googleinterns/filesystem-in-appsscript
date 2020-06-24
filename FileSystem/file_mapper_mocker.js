@@ -240,7 +240,7 @@ function getRelativePathSplit(localPath) {
     throw new Error(prefix + ' is not the base Directory prefix');
   }
   // Find relative path from base directory
-  var pathSplit = localPath.substr(prefixLength).split(/\\|\//);
+  var pathSplit = localPath.substr(prefixLength).split(fileSeparatorRegExp);
   // Remove any empty strings (required to handle trailing file separators)
   pathSplit = pathSplit.filter(function(el) {
     return el != '';
