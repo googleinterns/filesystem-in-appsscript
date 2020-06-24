@@ -259,5 +259,15 @@ function blockFunctionDecorator(func) {
       }
       throw err;
     }
-  }
-}
+  };
+};
+
+/**
+ * Get parent directory file path. This method returns a path that
+ * is one directory above localPath
+ * @param {string} localPath Local file path
+ * @return {string} Parent directory file path
+ */
+function getParentFolderPath(localPath) {
+  return getAbsoluteLocalPath(localPath, '..');
+};

@@ -44,6 +44,7 @@ function file_io_test_setup() {
         currentRunningTestModule = moduleName;
         Workbook.setActiveWorkbookPath('c:\\user\\desktop');
         DirectoryManager.setCurrentDirectory('c:\\user\\desktop');
+        file_io_cleanup();
       }
     }
   });
