@@ -137,7 +137,7 @@ function createFile(localPath) {
   // Get directory
   var root = getFinalFolder(pathSplit);
   var fileName = pathSplit[pathSplit.length - 1];
-  return root.createFile(fileName, MimeType.PLAIN_TEXT).getId();
+  return root.createFile(fileName, '', MimeType.PLAIN_TEXT).getId();
 }
 
 /**

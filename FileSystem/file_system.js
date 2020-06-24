@@ -134,3 +134,56 @@ FileSystem.getBaseName = function(localPath) {
 FileSystem.getAbsolutePathName = function(localPath) {
   return DirectoryManager.getAbsolutePath(localPath);
 };
+
+/**
+ * Emulates VBA FileSystemObject.CreateTextFile
+ * Create an empty text file. Optionally overwrite an existing file. File is
+ * created and opened in write mode.
+ * @param {string} localPath Local file path of the text file to be created
+ * @param {boolean} overwrite Flag to overwrite if the file already exists
+ * @return {VbaTextStream} TextStream object representing the created file
+ *     opened in write mode
+ */
+FileSystem.createTextFile = function(localPath, overWrite) {
+  // Set default values
+  if (overWrite === undefined) {
+    overWrite = true;
+  }
+  localPath = DirectoryManager.getAbsolutePath(localPath);
+  // Check if file exists
+  if (FileMapper.hasFile(localPath)) {
+    if (overWrite) {
+      FileMapper.deleteFile(localPath);  // overwrite
+    } else {
+      throw new Error(localPath + ' already exists');
+    }
+  }
+  FileMapper.createFile(localPath);
+  return new VbaTextStream(localPath, IoMode.FOR_WRITING);
+};
+
+/**
+ * Emulates VBA FileSystemObject.OpenTextFile
+ * Open a text file in read, write or append mode. Optionally create the file if
+ * it doesn't exist.
+ * @param {string} localPath Local file path of the text file to be opened
+ * @param {string} ioMode IoMode mode enumeration - Reading, writing or append
+ * @param {boolean} createIfNotExists Flag to create file if it doesn't exist
+ * @return {VbaTextStream} TextStream object representing the opened file
+ */
+FileSystem.openTextFile = function(localPath, ioMode, createIfNotExists) {
+  // Set default values
+  if (createIfNotExists === undefined) {
+    createIfNotExists = false;
+  }
+  ioMode = ioMode || IoMode.FOR_READING;
+  localPath = DirectoryManager.getAbsolutePath(localPath);
+  if (!FileMapper.hasFile(localPath)) {
+    if (createIfNotExists) {
+      FileMapper.createFile(localPath);
+    } else {
+      throw new Error(localPath + ' does not exist');
+    }
+  }
+  return new VbaTextStream(localPath, ioMode);
+};

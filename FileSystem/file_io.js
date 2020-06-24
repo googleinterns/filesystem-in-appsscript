@@ -293,31 +293,7 @@ function lineInputFile(fileNumber, variable) {
   if (file.accessMode == AccessMode.WRITE) {
     throw new Error('File is not open for reading');
   }
-  var content = file.content;
-
-  // No data left, throw error
-  if (file.pointer == content.length) {
-    throw new Error('End of file reached');
-  }
-
-  var line = '';
-
-  // Read till \r or end of file
-  while (file.pointer < file.content.length && content[file.pointer] != '\r') {
-    line += content[file.pointer++];
-  }
-
-  // Skip \r
-  if (file.pointer < file.content.length) {
-    file.pointer++;
-  }
-
-  // Skip \n
-  if (file.pointer < content.length && content[file.pointer] == '\n') {
-    file.pointer++;
-  }
-
-  variable.referenceValue = line;
+  variable.referenceValue = readLine(file)
 }
 
 /**
