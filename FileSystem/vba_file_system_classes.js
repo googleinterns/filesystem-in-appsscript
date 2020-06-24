@@ -165,6 +165,16 @@ VbaFile.prototype.getType = function() {
 };
 
 /**
+ * Emulates VBA FileSystemObject.openAsTextStream
+ * Open a text file in read, write or append mode.
+ * @param {string} ioMode IoMode mode enumeration - Reading, writing or append
+ * @return {VbaTextStream} TextStream object representing the opened file
+ */
+VbaFile.prototype.openAsTextStream = function(ioMode) {
+  return new VbaTextStream(this.localPath, ioMode);
+};
+
+/**
  * Create a new VbaFolder Object
  * @constructor
  * @param {string} localPath Local file path of the folder
