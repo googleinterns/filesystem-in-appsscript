@@ -16,7 +16,6 @@
 
 /**
  * Workbook APIs
- * @todo migrate currentDirectory calls to DirectoryManager
  */
 var Workbook = {
   openWorkbook: openWorkbook,
@@ -33,8 +32,8 @@ var Workbook = {
  * @return {Spreadsheet} The spreadsheet object of the path
  */
 function openWorkbook(path) {
-  var fileId =
-      FileMapper.getFileId(this.currentDirectory, path, MimeType.GOOGLE_SHEETS);
+  path = DirectoryManager.getAbsolutePath(path);
+  var fileId = FileMapper.getFileId(path);
   var file = SpreadsheetApp.openById(fileId);
   openURL(file.getUrl(), file.getName() + ' file open in new tab');
   return file;

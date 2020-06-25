@@ -91,12 +91,13 @@ function openFile(path, fileNumber, openMode, accessMode, lockMode) {
     throw new Error('File Number: ' + fileNumber + ' is invalid.');
   }
 
+  path = DirectoryManager.getAbsolutePath(path);
   // If file exists, get file id else create and get file id
   var fileId;
-  if (FileMapper.hasMapping(FileSystem.currentDirectory, path)) {
-    fileId = FileMapper.getFileId(FileSystem.currentDirectory, path);
+  if (FileMapper.hasFile(path)) {
+    fileId = FileMapper.getFileId(path);
   } else if (openMode != OpenMode.INPUT) {
-    fileId = createFile(FileSystem.currentDirectory, path, MimeType.PLAIN_TEXT);
+    fileId = FileMapper.createFile(path);
   } else {
     throw new Error('File not present');
   }
