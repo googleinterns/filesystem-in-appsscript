@@ -56,15 +56,17 @@ function deleteFolder(localPath) {
 
     // To delete all the mappings in the config which has this localPath as a
     // part of their path
-    var documentProperties = PropertiesService.getDocumentProperties();
-    var properties = documentProperties.getProperties();
+    var configData = CONFIG.getConfigData();
+    for (var mapping in configData) {
+      var prefixPath = mapping.slice(0, localPath.length);
 
-    for (var property in properties) {
-      var prefix = property.slice(0, localPath.length);
+      if (prefixPath.toLowerCase() === localPath.toLowerCase()) {
+        // Can't delete a file/folder which has been moved
+        if (ConfigUtil.checkIfDrivePathChanged(configData[mapping])) {
+          continue;
+        }
 
-      if (prefix === localPath) {
-        var mappingObj = JSON.parse(properties[property]);
-        
+        var mappingObj = configData[mapping];
         if (mappingObj.isfolder) {
           var folder = DriveApp.getFolderById(mappingObj.id);
           folder.setTrashed(true);

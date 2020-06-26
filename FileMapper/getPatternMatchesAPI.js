@@ -65,26 +65,37 @@ function getPatternMatchesUtil(pattern, isFile) {
   // Path to the directory in which pattern is to be searched
   var directoryPath = pattern.slice(0, position);
   // Convert destination name value containing Pattern to regular expression
-  var regex = ApiUtil.getRegExFromPattern(pattern.slice(position + 1));
+  var regex =
+      ApiUtil.getRegExFromPattern(pattern.slice(position + 1).toLowerCase());
 
   // First find if some path in the config matches the pattern directly
-  var documentProperties = PropertiesService.getDocumentProperties();
-  var properties = documentProperties.getProperties();
-  for (var property in properties) {
-    if (properties[property].isfolder === !isFile) {
-      var isThisUnix = PathUtil.checkIfUnixPath(property);
-      var tempPosition = PathUtil.getLastSlash(property, isThisUnix);
+  var configData = CONFIG.getConfigData();
+  for (var mapping in configData) {
+    if (configData[mapping].isfolder === !isFile) {
+      // If the file/folder was marked deleted then we don't want to include it
+      if (ApiUtil.checkIfMarkedDeleted(mapping)) {
+        continue;
+      }
+
+      // If the current directory has been moved
+      if (ConfigUtil.checkIfDrivePathChanged(configData[mapping])) {
+        continue;
+      }
+
+      var isThisUnix = PathUtil.checkIfUnixPath(mapping);
+      var tempPosition = PathUtil.getLastSlash(mapping, isThisUnix);
 
       // First checking the directory path
-      var tempDir = property.slice(0, tempPosition);
-      if (tempDir !== directoryPath) {
+      var tempDir = mapping.slice(0, tempPosition).toLowerCase();
+      if (tempDir !== directoryPath.toLowerCase()) {
         continue;
       }
 
       // Now check for destination pattern match
-      var tempDestination = property.slice(tempPosition + 1);
-      var tempArray = tempDestination.match(regex);
-      if (tempArray.length > 0 && tempArray[0] === tempDestination) {
+      var tempDestination = mapping.slice(tempPosition + 1);
+      var tempDestinationInLowerCase = tempDestination.toLowerCase();
+      var tempArray = tempDestinationInLowerCase.match(regex);
+      if (tempArray.length > 0 && tempArray[0] === tempDestinationInLowerCase) {
         if (!(tempDestination in done)) {
           done[tempDestination] = true;
           matches.push(tempDestination);
@@ -94,7 +105,7 @@ function getPatternMatchesUtil(pattern, isFile) {
   }
 
   /**
-   * Finding the mapping for the folder in which the pattern matching
+   * Now find the mapping for the folder in which the pattern matching
    * files/folders are to be found by making a call to the getFolderId()
    * function if it return a drive id then find all the files/folders matching
    * the given pattern within this folder using regular expressions and return
@@ -108,11 +119,12 @@ function getPatternMatchesUtil(pattern, isFile) {
       var files = directory.getFiles();
       while (files.hasNext()) {
         var file = files.next();
-        var tempArray = file.getName().match(regex);
-        if (tempArray != null && tempArray[0] === file.getName()) {
-          if (!(tempArray[0] in done)) {
-            done[tempArray[0]] = true;
-            matches.push(tempArray[0]);
+        var fileName = file.getName().toLowerCase();
+        var tempArray = fileName.match(regex);
+        if (tempArray !== null && tempArray[0] === fileName) {
+          if (!(file.getName() in done)) {
+            done[file.getName()] = true;
+            matches.push(file.getName());
           }
         }
       }
@@ -120,11 +132,12 @@ function getPatternMatchesUtil(pattern, isFile) {
       var folders = directory.getFolders();
       while (folders.hasNext()) {
         var folder = folders.next();
-        var tempArray = folder.getName().match(regex);
-        if (tempArray.length > 0 && tempArray[0] === folder.getName()) {
-          if (!(tempArray[0] in done)) {
-            done[tempArray[0]] = true;
-            matches.push(tempArray[0]);
+        var folderName = folder.getName().toLowerCase();
+        var tempArray = folderName.match(regex);
+        if (tempArray !== null && tempArray[0] === folderName) {
+          if (!(folder.getName() in done)) {
+            done[folder.getName()] = true;
+            matches.push(folder.getName());
           }
         }
       }

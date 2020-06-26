@@ -71,16 +71,24 @@ function createFileOrFolderUtil(localPath, isFile) {
   var driveId = null;
 
   while (!created && mappedPath.length > 0) {
-    var currentDirectoryId = ApiUtil.getFromConfig(mappedPath);
-    if (currentDirectoryId !== null) {
+    var currentDirectoryMapping = CONFIG.getMappingFromConfigData(mappedPath);
+
+    if (currentDirectoryMapping) {
+      var currentDirectoryId = currentDirectoryMapping.id;
+
       if (ApiUtil.checkIfMarkedDeleted(mappedPath)) {
+        currentDirectoryId = ApiUtil.createDeletedDestination(mappedPath);
+      }
+
+      // If the current directory has been moved
+      if (ConfigUtil.checkIfDrivePathChanged(currentDirectoryMapping)) {
         currentDirectoryId = ApiUtil.createDeletedDestination(mappedPath);
       }
 
       if (relativePath.length > 0) {
         var currentDirectory = DriveApp.getFolderById(currentDirectoryId);
-        var relativeMapping = ApiUtil.createInDrive(
-            currentDirectory, relativePath, isUnix, isFile);
+        var relativeMapping = 
+            ApiUtil.createInDrive(currentDirectory, relativePath, isUnix, isFile);
 
         if (relativeMapping !== null) {
           ApiUtil.addNewMappingToConfig(localPath, relativeMapping, isFile);

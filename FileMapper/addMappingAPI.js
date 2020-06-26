@@ -17,20 +17,14 @@
 /**
  * Enumeration for the return value of addMapping API
  */
-var ReturnValue =
-    {
-      SUCCESS : 0,
-      FAILURE : {
-        INVALID_ABSOLUTE_PATH : 1,
-        INVALID_DRIVE_ID : 2,
-        DUPLICATE_MAPPING : 3
-      }
-    }
-
-function
-test111() {
-  Logger.log(addFileMapping("C:\\user\\Folder3\\File31.docx",
-                            "1FfHIcLeCYosRnZ_UVTkJEXDA80eJ0JlrCvJqwPsimKE"));
+var ReturnValue = {
+  SUCCESS : 0,
+  FAILURE : {
+    INVALID_ABSOLUTE_PATH : 1,
+    INVALID_DRIVE_ID : 2,
+    DUPLICATE_MAPPING : 3,
+    INCOMPATIBLE_MIMETYPES : 4
+  }
 }
 
 /**
@@ -39,10 +33,11 @@ test111() {
  * @param {String} localPath The local file path
  * @param {String} driveId The corresponding drive file Id
  * @return {number} SUCCESS if mapping has been added,
- *                  FAILURE otherwise
+ *     FAILURE otherwise
  */
-function addFileMapping(
-    localPath, driveId) { return addMappingUtil(localPath, driveId, true); }
+function addFileMapping(localPath, driveId) { 
+  return addMappingUtil(localPath, driveId, true); 
+}
 
 /**
  * API to add a new folder mapping to the config
@@ -50,10 +45,11 @@ function addFileMapping(
  * @param {String} localPath The local folder path
  * @param {String} driveId The corresponding drive folder Id
  * @return {number} SUCCESS if mapping has been added,
- *                  FAILURE otherwise
+ *     FAILURE otherwise
  */
-function addFolderMapping(
-    localPath, driveId) { return addMappingUtil(localPath, driveId, false); }
+function addFolderMapping(localPath, driveId) { 
+  return addMappingUtil(localPath, driveId, false); 
+}
 
 /**
  * Utility function to add a new mapping to the config
@@ -62,7 +58,7 @@ function addFolderMapping(
  * @param {String} driveId The corresponding drive destination Id
  * @param {boolean} isFile To signify whether its a file or folder
  * @return {number} SUCCESS if mapping has been added,
- *                  FAILURE otherwise
+ *     FAILURE otherwise
  */
 function addMappingUtil(localPath, driveId, isFile) {
   if (!checkIfAbsolutePath(localPath)) {
@@ -75,7 +71,7 @@ function addMappingUtil(localPath, driveId, isFile) {
     return ReturnValue.FAILURE.INVALID_DRIVE_ID;
   }
 
-  if (ConfigUtil.checkLocalPathExists(localPath)) {
+  if (CONFIG.checkIfLocalPathExists(localPath)) {
     // If the localpath is already mapped to the provided drive id
     if (ConfigUtil.checkMappingExists(localPath, driveId)) {
       return ReturnValue.SUCCESS;
@@ -84,28 +80,32 @@ function addMappingUtil(localPath, driveId, isFile) {
     return ReturnValue.FAILURE.DUPLICATE_MAPPING;
   }
 
+  if (!ConfigUtil.checkIfMimeTypeMatches(localPath, driveId)) {
+    // If mimetype of local and drive files doesn't match
+    return ReturnValue.FAILURE.INCOMPATIBLE_MIMETYPES;
+  }
+
   ApiUtil.addNewMappingToConfig(localPath, driveId, isFile);
   return ReturnValue.SUCCESS;
 }
 
 /**
- * Check if the given path is a windows
- * or Unix's absolute path or not
+ * Check if the given path is a windows or Unix's absolute path or not
  *
  * @param {String} path The path to be checked
  * @return {boolean} True if it is an absolute path,
- * False otherwise
+ *     False otherwise
  */
-// needs to be shared from satvik
+// needs to be shared from the common library
 function checkIfAbsolutePath(path) {
   if (path.length == 0) {
     return false;
   }
 
   var forwardSlash = path.match(/\//g);
-  forwardSlash = (forwardSlash === null) ? 0 : forwardSlash.length;
+  var forwardSlashCount = (forwardSlash === null) ? 0 : forwardSlash.length;
 
-  if (forwardSlash > 0) {
+  if (forwardSlashCount > 0) {
     return (path[0] == '/');
   } else {
     return (path.length >= 3 && path[0].toLowerCase() == "c" &&

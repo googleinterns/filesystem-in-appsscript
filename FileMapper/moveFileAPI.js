@@ -20,8 +20,7 @@
  * @param {String} sourceFilePath Absolute local file paths of the file which is
  *     needed to be moved.
  * @param {String} targetFolderPath Absolute local folder path of the folder to
- *     which
- *                 the files are needed to be moved to.
+ *     which the files are needed to be moved to.
  */
 function moveFile(sourceFilePath, targetFolderPath) {
   // First find the drive id for the target folder
@@ -43,9 +42,12 @@ function moveFile(sourceFilePath, targetFolderPath) {
     throw new FileDoesNotExistException(errorMessage);
   }
   var sourceFileId = getFileId(sourceFilePath);
-  moveFileById(sourceFileId, targetFolderId);
 
-  eraseMapping(sourceFilePath);
+  ApiUtil.moveFileById(sourceFileId, targetFolderId);
+
+  // Add the mapping of the newly moved file to the config
+  var newPath = PathUtil.createNewMovedPath(targetFolderPath, sourceFilePath);
+  ApiUtil.addNewMappingToConfig(newPath, sourceFileId, true);
 }
 
 /**
@@ -54,8 +56,7 @@ function moveFile(sourceFilePath, targetFolderPath) {
  * @param {String} sourceFolderPath Absolute local folder paths of the folders
  *     which is needed to be moved.
  * @param {String} targetFolderPath Absolute local folder path of the folder to
- *     which
- *                 the files are needed to be moved to.
+ *     which the files are needed to be moved to.
  */
 function moveFolder(sourceFolderPath, targetFolderPath) {
   // First find the drive id for the target folder
@@ -77,42 +78,10 @@ function moveFolder(sourceFolderPath, targetFolderPath) {
     throw new FileDoesNotExistException(errorMessage);
   }
   var sourceFolderId = getFolderId(sourceFolderPath);
-  moveFolderById(sourceFolderId, targetFolderId);
 
-  // To delete all the mappings in the config which has this localPath as a part
-  // of their path
-  var documentProperties = PropertiesService.getDocumentProperties();
-  var properties = documentProperties.getProperties();
+  ApiUtil.moveFolderById(sourceFolderId, targetFolderId);
 
-  for (var property in properties) {
-    var prefix = property.slice(0, sourceFolderPath.length);
-    if (prefix === sourceFolderPath) {
-      documentProperties.deleteProperty(property);
-    }
-  }
-}
-
-/**
- * Utility function to move a file given by its drive id to a destination folder
- *
- * @param {String} sourceId Drive id of the source file
- * @param {String} targetFolderId Drive id of the target folder
- */
-function moveFileById(sourceId, targetFolderId) {
-  var file = DriveApp.getFileById(sourceId);
-  file.getParents().next().removeFile(file);
-  DriveApp.getFolderById(targetFolderId).addFile(file);
-}
-
-/**
- * Utility function to move a folder given by its drive id to a destination
- * folder
- *
- * @param {String} sourceId Drive id of the source folder
- * @param {String} targetFolderId Drive id of the target folder
- */
-function moveFolderById(sourceId, targetFolderId) {
-  var folder = DriveApp.getFolderById(sourceId);
-  folder.getParents().next().removeFolder(folder);
-  DriveApp.getFolderById(targetFolderId).addFolder(folder);
+  // Add the mapping of the newly moved folder to the config
+  var newPath = PathUtil.createNewMovedPath(targetFolderPath, sourceFolderPath);
+  ApiUtil.addNewMappingToConfig(newPath, sourceFolderId, false);
 }

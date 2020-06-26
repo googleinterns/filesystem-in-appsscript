@@ -20,9 +20,11 @@
  *
  * @param {String} localPath Local File Path whose mapping is to be checked
  * @return {boolean} found  True if the file exists,
- *                          False if the file has been deleted
+ *     False if the file has been deleted
  */
-function hasFile(localPath) { return hasFileOrFolderUtil(localPath, true); }
+function hasFile(localPath) { 
+  return hasFileOrFolderUtil(localPath, true); 
+}
 
 /**
  * API to check if the drive folder corresponding to the absolute local folder
@@ -30,9 +32,11 @@ function hasFile(localPath) { return hasFileOrFolderUtil(localPath, true); }
  *
  * @param {String} localPath Local folder Path whose mapping is to be checked
  * @return {boolean} found  True if the folder exists,
- *                          False if the folder has been deleted
+ *     False if the folder has been deleted
  */
-function hasFolder(localPath) { return hasFileOrFolderUtil(localPath, false); }
+function hasFolder(localPath) { 
+  return hasFileOrFolderUtil(localPath, false); 
+}
 
 /**
  * Utility function to check if the drive file/folder corresponding to the
@@ -41,7 +45,7 @@ function hasFolder(localPath) { return hasFileOrFolderUtil(localPath, false); }
  * @param {String} localPath Local Path whose mapping is to be checked
  * @param {boolean} isFile To signify whether its a file or folder
  * @return {boolean} found  True if the file/folder exists,
- *                          False if the file/folder has been deleted
+ *     False if the file/folder has been deleted
  */
 function hasFileOrFolderUtil(localPath, isFile) {
   // Checking if the path is windows or unix
@@ -53,12 +57,19 @@ function hasFileOrFolderUtil(localPath, isFile) {
   var checked = false;
 
   while (!found && mappedPath.length > 0) {
-    var currentDirectoryId = ApiUtil.getFromConfig(mappedPath);
-    if (currentDirectoryId !== null) {
+    var currentDirectoryMapping = CONFIG.getMappingFromConfigData(mappedPath);
+
+    if (currentDirectoryMapping) {
+      var currentDirectoryId = currentDirectoryMapping.id;
       checked = true;
 
       // If the file whose id is to be returned has been deleted
       if (ApiUtil.checkIfMarkedDeleted(mappedPath)) {
+        break;
+      }
+
+      // If the current directory has been moved
+      if (ConfigUtil.checkIfDrivePathChanged(currentDirectoryMapping)) {
         break;
       }
 
@@ -69,7 +80,6 @@ function hasFileOrFolderUtil(localPath, isFile) {
 
         // If the mapping is found
         if (relativeMapping !== null) {
-          ApiUtil.addNewMappingToConfig(localPath, relativeMapping, isFile);
           found = true;
         }
       } else {

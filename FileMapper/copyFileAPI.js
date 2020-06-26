@@ -20,8 +20,7 @@
  * @param {String} sourceFilePath Absolute local file paths of the files which
  *     are needed to be copied.
  * @param {String} targetFolderPath Absolute local folder path of the folder to
- *     which
- *                 the files are needed to be copied to.
+ *     which the files are needed to be copied to.
  */
 function copyFile(sourceFilePath, targetFolderPath) {
   // First find the drive id for the target folder
@@ -43,7 +42,12 @@ function copyFile(sourceFilePath, targetFolderPath) {
   }
   var sourceFileId = getFileId(sourceFilePath);
 
-  copyFileById(sourceFileId, targetFolderId);
+  var newCopiedFileId = 
+      ApiUtil.copyFileById(sourceFileId, targetFolderId);
+
+  // Add the mapping of the newly copied file to the config
+  var newPath = PathUtil.createNewMovedPath(targetFolderPath, sourceFilePath);
+  ApiUtil.addNewMappingToConfig(newPath, newCopiedFileId, true);
 }
 
 /**
@@ -52,8 +56,7 @@ function copyFile(sourceFilePath, targetFolderPath) {
  * @param {String} sourceFolderPath Absolute local folder paths of the folders
  *     which is needed to be copied.
  * @param {String} targetFolderPath Absolute local folder path of the folder to
- *     which
- *                 the files are needed to be copied to.
+ *     which the files are needed to be copied to.
  */
 function copyFolder(sourceFolderPath, targetFolderPath) {
   // First find the drive id for the target folder
@@ -75,59 +78,10 @@ function copyFolder(sourceFolderPath, targetFolderPath) {
   }
   var sourceFolderId = getFolderId(sourceFolderPath);
 
-  copyFolderById(sourceFolderId, targetFolderId);
-}
+  var newCopiedFolderId =
+      ApiUtil.copyFolderById(sourceFolderId, targetFolderId);
 
-/**
- * Utility function to copy a file given by its drive id to a destination folder
- *
- * @param {String} sourceId Drive id of the source file
- * @param {String} targetFolderId Drive id of the target folder
- */
-function copyFileById(sourceId, targetFolderId) {
-  var file = DriveApp.getFileById(sourceId);
-  var targetFolder = DriveApp.getFolderById(targetFolderId);
-  file.makeCopy(file.getName(), targetFolder);
-}
-
-/**
- * Utility function to copy a folder given by its drive id to a destination
- * folder
- *
- * @param {String} sourceId Drive id of the source folder
- * @param {String} targetFolderId Drive id of the target folder
- */
-function copyFolderById(sourceId, targetFolderId) {
-  var sourceFolder = DriveApp.getFolderById(sourceId);
-  var targetFolder = DriveApp.getFolderById(targetFolderId);
-
-  var targetFolder = targetFolder.createFolder(sourceFolder.getName());
-  copyFolderInDrive(sourceFolder, targetFolder);
-}
-
-/**
- * Utility function to copy a folder given by Folder Object to the target folder
- * in the drive
- *
- * @param {FolderObject} source The Drive Folder Object of the source folder
- * @param {FolderObject} target The Drive Folder Object of the target folder
- */
-function copyFolderInDrive(source, target) {
-  var folders = source.getFolders();
-  var files = source.getFiles();
-
-  // Make copy of all the files in the source to the target folder
-  while (files.hasNext()) {
-    var file = files.next();
-    file.makeCopy(file.getName(), target);
-  }
-
-  // Recursive call to copyFolder function to make copies of all the folders
-  // inside source
-  while (folders.hasNext()) {
-    var subFolder = folders.next();
-    var folderName = subFolder.getName();
-    var targetFolder = target.createFolder(folderName);
-    copyFolderInDrive(subFolder, targetFolder);
-  }
+  // Add the mapping of the newly moved folder to the config
+  var newPath = PathUtil.createNewMovedPath(targetFolderPath, sourceFolderPath);
+  ApiUtil.addNewMappingToConfig(newPath, newCopiedFolderId, false);
 }

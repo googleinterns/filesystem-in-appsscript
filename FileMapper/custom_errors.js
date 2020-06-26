@@ -28,21 +28,26 @@ MappingNotFoundException = function(message) {
  * Get the exception's name.
  * @return {string}
  */
-MappingNotFoundException.prototype.getName = function() { return this.name; };
+MappingNotFoundException.prototype.getName = function() {
+  return this.name;
+};
 
 /**
  * Get the exception message.
  * @return {string}
  */
-MappingNotFoundException.prototype.getMessage =
-    function() { return this.message; };
+MappingNotFoundException.prototype.getMessage = function() {
+  return this.message;
+};
 
 /**
  * Get the printable message
  * @return {string}
  */
-MappingNotFoundException.prototype.toString =
-    function() { return this.name + ': ' + this.message; };
+MappingNotFoundException.prototype.toString = function() {
+  return this.name + ': ' + this.message;
+};
+
 
 /**
  * Create a new file/folder doesnot exist exception object.
@@ -58,21 +63,26 @@ FileDoesNotExistException = function(message) {
  * Get the exception's name.
  * @return {string}
  */
-FileDoesNotExistException.prototype.getName = function() { return this.name; };
+FileDoesNotExistException.prototype.getName = function() {
+  return this.name;
+};
 
 /**
  * Get the exception message.
  * @return {string}
  */
-FileDoesNotExistException.prototype.getMessage =
-    function() { return this.message; };
+FileDoesNotExistException.prototype.getMessage = function() {
+  return this.message;
+};
 
 /**
  * Get the printable message
  * @return {string}
  */
-FileDoesNotExistException.prototype.toString =
-    function() { return this.name + ': ' + this.message; };
+FileDoesNotExistException.prototype.toString = function() {
+  return this.name + ': ' + this.message;
+};
+
 
 /**
  * Create a new file/folder already exists exception object.
@@ -88,18 +98,57 @@ FileAlreadyExistsException = function(message) {
  * Get the exception's name.
  * @return {string}
  */
-FileAlreadyExistsException.prototype.getName = function() { return this.name; };
+FileAlreadyExistsException.prototype.getName = function() {
+  return this.name;
+};
 
 /**
  * Get the exception message.
  * @return {string}
  */
-FileAlreadyExistsException.prototype.getMessage =
-    function() { return this.message; };
+FileAlreadyExistsException.prototype.getMessage = function() {
+  return this.message;
+};
 
 /**
  * Get the printable message
  * @return {string}
  */
-FileAlreadyExistsException.prototype.toString =
-    function() { return this.name + ': ' + this.message; };
+FileAlreadyExistsException.prototype.toString = function() {
+  return this.name + ': ' + this.message;
+};
+
+
+/**
+ * Create a new file/folder has been moved exception object.
+ * @constructor
+ */
+FileHasBeenMovedException = function(message) {
+  this.constructor.prototype.__proto__ = Error.prototype;
+  this.name = 'FileHasBeenMovedException';
+  this.message = message;
+};
+
+/**
+ * Get the exception's name.
+ * @return {string}
+ */
+FileHasBeenMovedException.prototype.getName = function() {
+  return this.name;
+};
+
+/**
+ * Get the exception message.
+ * @return {string}
+ */
+FileHasBeenMovedException.prototype.getMessage = function() {
+  return this.message;
+};
+
+/**
+ * Get the printable message
+ * @return {string}
+ */
+FileHasBeenMovedException.prototype.toString = function() {
+  return this.name + ': ' + this.message;
+};
