@@ -24,7 +24,8 @@ var PathUtil =
       getLastSlash : getLastSlash,
       joinPath : joinPath,
       splitPath : splitPath,
-      getExtension : getExtension
+      getExtension : getExtension,
+      createNewMovedPath : createNewMovedPath
     }
 
 /**
@@ -47,8 +48,8 @@ function checkIfUnixPath(path) {
  * @return {Integer} index The index of the first slash in the local path
  */
 function getFirstSlash(path, isUnix) {
-  var slash = (isUnix) ? '/' : '\\';
-  var index = path.indexOf(slash);
+  var fileSeparator = (isUnix) ? '/' : '\\';
+  var index = path.indexOf(fileSeparator);
   return index;
 }
 
@@ -60,26 +61,26 @@ function getFirstSlash(path, isUnix) {
  * @return {Integer} index The index of the last slash in the local path
  */
 function getLastSlash(path, isUnix) {
-  var slash = (isUnix) ? '/' : '\\';
-  var index = path.lastIndexOf(slash);
+  var fileSeparator = (isUnix) ? '/' : '\\';
+  var index = path.lastIndexOf(fileSeparator);
   return index;
 }
 
 /**
- * Join relative path and current directory path using slash
+ * Join relative path and current directory path using file seperator
  *
  * @param {String} curDirPath The current directory path
- * @param {String} relPath The relative path
+ * @param {String} relativePath The relative path
  * @param {boolean} isUnix To signify whether its a windows path or unix path
  * @return {String} path The joined path
  */
-function joinPath(curDirPath, relPath, isUnix) {
-  var slash = (isUnix) ? '/' : '\\';
+function joinPath(curDirPath, relativePath, isUnix) {
+  var fileSeparator = (isUnix) ? '/' : '\\';
   var path;
-  if (relPath.length === 0) {
+  if (relativePath.length === 0) {
     path = curDirPath;
   } else {
-    path = curDirPath + slash + relPath;
+    path = curDirPath + fileSeparator + relativePath;
   }
   return path;
 }
@@ -93,8 +94,8 @@ function joinPath(curDirPath, relPath, isUnix) {
  *     the path
  */
 function splitPath(path, isUnix) {
-  var slash = (isUnix) ? '/' : '\\';
-  return path.split(slash);
+  var fileSeparator = (isUnix) ? '/' : '\\';
+  return path.split(fileSeparator);
 }
 
 /**
@@ -110,4 +111,22 @@ function getExtension(path) {
     extension = path.substr(index + 1);
   }
   return extension;
+}
+
+/**
+ * Creates the new path of a file/folder when it is moved from source to target
+ */
+function createNewMovedPath(targetDirectoryPath, sourcePath) {
+  var isUnixForTarget = PathUtil.checkIfUnixPath(targetDirectoryPath);
+  var fileSeparator = (isUnixForTarget) ? '/' : '\\';
+
+  var isUnixForSource = PathUtil.checkIfUnixPath(sourcePath);
+  var index = PathUtil.getLastSlash(sourcePath, isUnixForSource);
+  var destinationName = sourcePath;
+  if (index != -1) {
+    destinationName = sourcePath.substr(index + 1);
+  }
+
+  var newPath = targetDirectoryPath + fileSeparator + destinationName;
+  return newPath;
 }

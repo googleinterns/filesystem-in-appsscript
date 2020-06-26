@@ -19,75 +19,34 @@
  */
 var ApiUtil =
     {
-      checkInConfig : checkInConfig,
-      getFromConfig : getFromConfig,
       addNewMappingToConfig : addNewMappingToConfig,
-      eraseMapping : eraseMapping,
       checkIfMarkedDeleted : checkIfMarkedDeleted,
+      checkIfValidDriveId : checkIfValidDriveId,
       findInDrive : findInDrive,
       getDestinationId : getDestinationId,
       createDeletedDestination : createDeletedDestination,
       createInDrive : createInDrive,
       createDestination : createDestination,
-      getRegExFromPattern : getRegExFromPattern
+      getRegExFromPattern : getRegExFromPattern,
+      moveFileById : moveFileById,
+      moveFolderById : moveFolderById,
+      copyFileById : copyFileById,
+      copyFolderById : copyFolderById,
+      copyFolderInDrive : copyFolderInDrive
     }
 
 /**
- * Checks if the mapping for a particular Local path exists or not in the config
- *
- * @param {String} localPath The local destination path whose mapping is to be
- *     checked
- * @return {boolean} True if mapping exists,
- *                   False otherwise
- */
-function checkInConfig(localPath) {
-  var documentProperties = PropertiesService.getDocumentProperties();
-  var value = documentProperties.getProperty(localPath);
-  return (value !== null);
-}
-
-/**
- * Get the mapping corresponding to the localPath
- *
- * @param {String} localPath The local destination path whose mapping is to be
- *     returned
- * @return {String} value The corresponding drive Id if mapping exists,
- *                  null otherwise
- */
-function getFromConfig(localPath) {
-  var documentProperties = PropertiesService.getDocumentProperties();
-  var value = documentProperties.getProperty(localPath);
-  if (value !== null) {
-    var mappingObj = JSON.parse(value);
-    return mappingObj.id;
-  } else {
-    return null;
-  }
-}
-
-/**
- * Adds a mapping to the config
+ * Adds a mapping to the config after computing the drive path
  *
  * @param {String} localPath The local destination path
  * @param {String} id The corresponding drive destination Id
  * @param {boolean} isFile To signify whether its a file or folder
  */
 function addNewMappingToConfig(localPath, id, isFile) {
-  var documentProperties = PropertiesService.getDocumentProperties();
   var drivepath = getFullDrivePath(id, isFile);
   var mappingObject = {id : id, drivepath : drivepath, isfolder : !isFile};
-  documentProperties.setProperty(localPath, JSON.stringify(mappingObject));
-}
-
-/**
- * Erase a mapping from the config
- *
- * @param {String} localPath The local destination path whose mapping is to be
- *     deleted
- */
-function eraseMapping(localPath) {
-  var documentProperties = PropertiesService.getDocumentProperties();
-  documentProperties.deleteProperty(localPath);
+  CONFIG.setMappingInConfigData(localPath, mappingObject);
+  CONFIG.flushConfigDataToFile();
 }
 
 /**
@@ -96,30 +55,41 @@ function eraseMapping(localPath) {
  * @param {String} localPath The local destination path whose mapping is to be
  *     checked
  * @return {boolean} True if mapping has been deleted,
- *                   False otherwise
+ *     False otherwise
  */
 function checkIfMarkedDeleted(localPath) {
-  var documentProperties = PropertiesService.getDocumentProperties();
-  var value = documentProperties.getProperty(localPath);
+  var mappingObj = CONFIG.getMappingFromConfigData(localPath);
 
-  var mappingObj = JSON.parse(value);
-  var deleted = false;
+  var exists = checkIfValidDriveId(mappingObj.id, !mappingObj.isfolder);
+  return !exists;
+}
+
+/**
+ * Checks if the driveId exists in the drive or not
+ *
+ * @param {String} driveId The drive Id
+ * @param {boolean} isFile To signify whether its a file or folder
+ * @return {boolean} True if id is invalid,
+ *                   False if id has been deleted or doesnot exist
+ */
+function checkIfValidDriveId(driveId, isFile) {
+  var isValid = true;
   try {
-    if (mappingObj.isfolder) {
-      var folder = DriveApp.getFolderById(mappingObj.id);
-      // Check if folder is in trash
-      deleted = folder.isTrashed();
-    } else {
-      var file = DriveApp.getFileById(mappingObj.id);
+    if (isFile) {
+      var file = DriveApp.getFileById(driveId);
       // Check if file is in trash
-      deleted = file.isTrashed();
+      isValid = !file.isTrashed();
+    } else {
+      var folder = DriveApp.getFolderById(driveId);
+      // Check if folder is in trash
+      isValid = !folder.isTrashed();
     }
   } catch (err) {
     // If the ids were not found in the drive then it throws an error
     // Ids will not be found in the drive after 30 days of being in trash
-    deleted = true;
+    isValid = false;
   }
-  return deleted;
+  return isValid;
 }
 
 /**
@@ -128,13 +98,11 @@ function checkIfMarkedDeleted(localPath) {
  * @param {FolderObject} currentDirectory The Folder object for the current
  *     directory
  * @param {String} path The path to be traversed from the current directory to
- *     reach the
- *                 destination
+ *     reach the destination
  * @param {boolean} isUnix To signify whether its a windows path or unix path
  * @param {boolean} isFile To signify whether its a file or folder
  * @return {String} driveId The drive id of the local file/folder if found or
- *     null if file
- *                          is not found
+ *     null if file is not found
  */
 function findInDrive(currentDirectory, path, isUnix, isFile) {
   var index = PathUtil.getFirstSlash(path, isUnix);
@@ -145,7 +113,7 @@ function findInDrive(currentDirectory, path, isUnix, isFile) {
   } else {
     // The folder which is to be searched in current directory
     var folderName = path.slice(0, index);
-    // New path is now without the folder which will be serached in this call
+    // New path is now without the folder which will be searched in this call
     path = path.slice(index + 1);
 
     var folders = currentDirectory.getFoldersByName(folderName);
@@ -163,18 +131,17 @@ function findInDrive(currentDirectory, path, isUnix, isFile) {
  * @param {FolderObject} folder The Folder in which the file is to be searched
  * @param {boolean} isFile To signify whether its a file or folder
  * @return {String} driveId The drive id of the local file/folder if found or
- *     null if file
- *                  is not found
+ *     null if file is not found
  */
 function getDestinationId(destination, folder, isFile) {
   var driveId = null;
   if (isFile) {
     var extension = getExtension(destination);
-    var mime = ConfigUtil.getMimeTypeFromExtension(extension);
+    var destinationMimetype = ConfigUtil.getMimeTypeFromExtension(extension);
     var files = folder.getFilesByName(destination);
     while (files.hasNext()) {
       var x = files.next();
-      if (x.getMimeType() === mime) {
+      if (x.getMimeType() === destinationMimetype) {
         driveId = x.getId();
       }
     }
@@ -185,7 +152,6 @@ function getDestinationId(destination, folder, isFile) {
       driveId = x.getId();
     }
   }
-
   return driveId;
 }
 
@@ -197,15 +163,13 @@ function getDestinationId(destination, folder, isFile) {
  * @return {String} driveId The drive id of the newly created file or folder
  */
 function createDeletedDestination(localPath) {
-  var documentProperties = PropertiesService.getDocumentProperties();
-  var value = documentProperties.getProperty(localPath);
-  var mapping = JSON.parse(value);
+  var mappingObj = CONFIG.getMappingFromConfigData(localPath);
 
-  var path = mapping.drivepath;
+  var path = mappingObj.drivepath;
 
-  // Drive path which is connected by forward slash (hence isUnix is set true)
+  // Drive path is connected by forward slash (hence isUnix is set true)
   var isUnix = true;
-  var isFile = !mapping.isfolder;
+  var isFile = !mappingObj.isfolder;
   var index = PathUtil.getFirstSlash(path, isUnix);
   // Removing the "My Drive" part from the path since it is the root folder and
   // will be used as the current directory
@@ -213,8 +177,9 @@ function createDeletedDestination(localPath) {
 
   var driveId = createInDrive(DriveApp.getRootFolder(), path, isUnix, isFile);
 
-  mapping.id = driveId;
-  documentProperties.setProperty(localPath, JSON.stringify(mapping));
+  mappingObj.id = driveId;
+  CONFIG.setMappingInConfigData(localPath, mappingObj);
+  CONFIG.flushConfigDataToFile();
   return driveId;
 }
 
@@ -224,13 +189,11 @@ function createDeletedDestination(localPath) {
  * @param {FolderObject} currentDirectory The Folder object for the current
  *     directory
  * @param {String} relativePath The path to be traversed from the current
- *     directory to reach the
- *                              destination
+ *     directory to reach the destination
  * @param {boolean} isUnix To signify whether its a windows path or unix path
  * @param {boolean} isFile To signify whether its a file or folder
  * @return {String} driveId The drive id of the local file/folder if found or
- *     null if file
- *                          is not found
+ *     null if file is not found
  */
 function createInDrive(currentDirectory, relativePath, isUnix, isFile) {
   var index = PathUtil.getFirstSlash(relativePath, isUnix);
@@ -289,6 +252,7 @@ function createDestination(destinationName, folder, isFile) {
         destination = DriveApp.createFile(destinationName, '', mimetype);
       }
     }
+
     driveId = destination.getId();
     moveFileById(driveId, folder.getId());
   } else {
@@ -312,4 +276,86 @@ function getRegExFromPattern(pattern) {
   pattern = pattern.replace(/\?/g, ".");
   var regex = "^" + pattern + "$";
   return regex;
+}
+
+/**
+ * Utility function to move a file given by its drive id to a destination folder
+ *
+ * @param {String} sourceId Drive id of the source file
+ * @param {String} targetFolderId Drive id of the target folder
+ */
+function moveFileById(sourceId, targetFolderId) {
+  var file = DriveApp.getFileById(sourceId);
+  file.getParents().next().removeFile(file);
+  DriveApp.getFolderById(targetFolderId).addFile(file);
+}
+
+/**
+ * Utility function to move a folder given by its drive id to a destination
+ * folder
+ *
+ * @param {String} sourceId Drive id of the source folder
+ * @param {String} targetFolderId Drive id of the target folder
+ */
+function moveFolderById(sourceId, targetFolderId) {
+  var folder = DriveApp.getFolderById(sourceId);
+  folder.getParents().next().removeFolder(folder);
+  DriveApp.getFolderById(targetFolderId).addFolder(folder);
+}
+
+/**
+ * Utility function to copy a file given by its drive id to a destination folder
+ *
+ * @param {String} sourceId Drive id of the source file
+ * @param {String} targetFolderId Drive id of the target folder
+ */
+function copyFileById(sourceId, targetFolderId) {
+  var file = DriveApp.getFileById(sourceId);
+  var targetFolder = DriveApp.getFolderById(targetFolderId);
+  var newCopiedFile = file.makeCopy(file.getName(), targetFolder);
+  return newCopiedFile.getId();
+}
+
+/**
+ * Utility function to copy a folder given by its drive id to a destination
+ * folder
+ *
+ * @param {String} sourceId Drive id of the source folder
+ * @param {String} targetFolderId Drive id of the target folder
+ */
+function copyFolderById(sourceId, targetFolderId) {
+  var sourceFolder = DriveApp.getFolderById(sourceId);
+  var targetFolder = DriveApp.getFolderById(targetFolderId);
+
+  var targetFolder = targetFolder.createFolder(sourceFolder.getName());
+  ApiUtil.copyFolderInDrive(sourceFolder, targetFolder);
+
+  return targetFolder.getId();
+}
+
+/**
+ * Utility function to copy a folder given by Folder Object to the target folder
+ * in the drive
+ *
+ * @param {FolderObject} source The Drive Folder Object of the source folder
+ * @param {FolderObject} target The Drive Folder Object of the target folder
+ */
+function copyFolderInDrive(source, target) {
+  var folders = source.getFolders();
+  var files = source.getFiles();
+
+  // Make copy of all the files in the source to the target folder
+  while (files.hasNext()) {
+    var file = files.next();
+    file.makeCopy(file.getName(), target);
+  }
+
+  // Recursive call to copyFolder function to make copies of all the folders
+  // inside source
+  while (folders.hasNext()) {
+    var subFolder = folders.next();
+    var folderName = subFolder.getName();
+    var targetFolder = target.createFolder(folderName);
+    copyFolderInDrive(subFolder, targetFolder);
+  }
 }

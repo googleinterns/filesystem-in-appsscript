@@ -20,7 +20,9 @@
  * @param {String} localPath Local File Path whose mapping is to be found
  * @return {String} driveMapping The Drive id of the mapped file
  */
-function getFileId(localPath) { return getDriveIdUtil(localPath, true); }
+function getFileId(localPath) { 
+  return getDriveIdUtil(localPath, true); 
+}
 
 /**
  * API to find the Drive Id for a local folder path
@@ -28,7 +30,9 @@ function getFileId(localPath) { return getDriveIdUtil(localPath, true); }
  * @param {String} localPath Local Folder Path whose mapping is to be found
  * @return {String} driveMapping The Drive id of the mapped folder
  */
-function getFolderId(localPath) { return getDriveIdUtil(localPath, false); }
+function getFolderId(localPath) { 
+  return getDriveIdUtil(localPath, false); 
+}
 
 /**
  * Utility function to find the Drive id for a local file/folder path
@@ -47,14 +51,27 @@ function getDriveIdUtil(localPath, isFile) {
   var driveMapping = null;
 
   while (!found && mappedPath.length > 0) {
-    var currentDirectoryId = ApiUtil.getFromConfig(mappedPath);
-    if (currentDirectoryId !== null) {
+    var currentDirectoryMapping = CONFIG.getMappingFromConfigData(mappedPath);
+
+    if (currentDirectoryMapping) {
+      var currentDirectoryId = currentDirectoryMapping.id;
+
       // If the file whose id is to be returned has been deleted
       if (ApiUtil.checkIfMarkedDeleted(mappedPath)) {
-        var errorMessage = ((isFile) ? "File" : "Folder") +
-                           " mapped to the local path " + mappedPath +
-                           " has been deleted previously.";
+        var errorMessage =
+            ((currentDirectoryMapping.isfolder) ? "Folder" : "File") +
+            " mapped to the local path " + mappedPath +
+            " has been deleted previously.";
         throw new FileDoesNotExistException(errorMessage);
+      }
+
+      // If the current directory has been moved
+      if (ConfigUtil.checkIfDrivePathChanged(currentDirectoryMapping)) {
+        var errorMessage =
+            ((currentDirectoryMapping.isfolder) ? "Folder" : "File") +
+            " mapped to the local path " + mappedPath +
+            " has been moved to another location.";
+        throw new FileHasBeenMovedException(errorMessage);
       }
 
       if (relativePath.length > 0) {
@@ -64,7 +81,6 @@ function getDriveIdUtil(localPath, isFile) {
 
         // If the mapping is found
         if (relativeMapping !== null) {
-          ApiUtil.addNewMappingToConfig(localPath, relativeMapping, isFile);
           found = true;
           driveMapping = relativeMapping;
         }
@@ -95,6 +111,7 @@ function getDriveIdUtil(localPath, isFile) {
     throw new MappingNotFoundException(
         "Mapping for the local path provided is not found. Provide a mapping for " +
         localPath);
-  } else
+  } else {
     return driveMapping;
+  }
 }
