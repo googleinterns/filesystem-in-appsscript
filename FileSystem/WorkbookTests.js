@@ -20,82 +20,59 @@ function workbook_run_all_tests() {
   QUnit.module('Workbook');
 
   QUnit.test(
-    'check if filemapper returns correct file and mimeType when file is present',
-    function () {
-      var fileName = 'c:\\User\\Desktop\\marks.xlsx';
-      var fileId = FileMapper.getFileId(
-        FileSystem.currentDirectory,
-        fileName,
-        MimeType.GOOGLE_SHEETS
-      );
-      equal(
-        fileId,
-        '1i3M1cYfubmXnosn5LJQmHCghBzhPBrDjBQszkWvZkxA',
-        'FileMapper returns correct file id'
-      );
-      var file = DriveApp.getFileById(fileId);
-      equal(
-        file.getMimeType(),
-        MimeType.GOOGLE_SHEETS,
-        'FileMapper returns correct mimeType'
-      );
-    }
-  );
+      'check if filemapper returns correct file and mimeType when file is present',
+      function() {
+        var fileName = 'c:\\User\\Desktop\\marks.xlsx';
+        var fileId = FileMapper.getFileId(
+            FileSystem.currentDirectory, fileName, MimeType.GOOGLE_SHEETS);
+        equal(
+            fileId, '1i3M1cYfubmXnosn5LJQmHCghBzhPBrDjBQszkWvZkxA',
+            'FileMapper returns correct file id');
+        var file = DriveApp.getFileById(fileId);
+        equal(
+            file.getMimeType(), MimeType.GOOGLE_SHEETS,
+            'FileMapper returns correct mimeType');
+      });
+
+  QUnit.test('single call to workbook.open() when file is present', function() {
+    expect(0);
+    var fileName = 'c:\\User\\Desktop\\marks.xlsx';
+    Workbook.openWorkbook(fileName);
+  });
 
   QUnit.test(
-    'single call to workbook.open() when file is present',
-    function () {
-      expect(0);
-      var fileName = 'c:\\User\\Desktop\\marks.xlsx';
-      Workbook.openWorkbook(fileName);
-    }
-  );
+      'multiple calls to workbook.open() when files are present', function() {
+        expect(0);
+        var fileName1 = 'c:\\User\\Desktop\\marks.xlsx';
+        var fileName2 = 'c:\\User\\Desktop\\attendance.xlsx';
+        Workbook.openWorkbook(fileName2);
+        Workbook.openWorkbook(fileName1);
+      });
 
   QUnit.test(
-    'multiple calls to workbook.open() when files are present',
-    function () {
-      expect(0);
-      var fileName1 = 'c:\\User\\Desktop\\marks.xlsx';
-      var fileName2 = 'c:\\User\\Desktop\\attendance.xlsx';
-      Workbook.openWorkbook(fileName2);
-      Workbook.openWorkbook(fileName1);
-    }
-  );
+      'single call to workbook.open() when file is not present', function() {
+        expect(0);
+        var fileName1 = 'FileNotExist.xlsx';
+        Workbook.openWorkbook(fileName1);
+      });
 
   QUnit.test(
-    'single call to workbook.open() when file is not present',
-    function () {
-      expect(0);
-      var fileName1 = 'FileNotExist.xlsx';
-      Workbook.openWorkbook(fileName1);
-    }
-  );
-
-  QUnit.test(
-    'ActiveWorkbook call when active workbook path is not set',
-    function () {
-      Workbook.resetActiveWorkbookPath();
-      throws(
-        function () {
+      'ActiveWorkbook call when active workbook path is not set', function() {
+        Workbook.resetActiveWorkbookPath();
+        throws(function() {
           Workbook.getActiveWorkbookPath();
-        },
-        'ActiveWorkbookPath not defined',
-        'Error thrown correctly'
-      );
-    }
-  );
+        }, 'ActiveWorkbookPath not defined', 'Error thrown correctly');
+      });
 
   QUnit.test(
-    'ActiveWorkbook call when active workbook path is set',
-    function () {
-      expect(2);
-      Workbook.resetActiveWorkbookPath();
-      var path = 'C:\\User\\Desktop';
-      Workbook.setActiveWorkbookPath(path);
-      equal(path, Workbook.getActiveWorkbookPath(), 'Path set correctly');
-      Workbook.resetActiveWorkbookPath();
-      Workbook.setActiveWorkbookPath(path + '\\');
-      equal(path, Workbook.getActiveWorkbookPath(), 'Path set correctly');
-    }
-  );
+      'ActiveWorkbook call when active workbook path is set', function() {
+        expect(2);
+        Workbook.resetActiveWorkbookPath();
+        var path = 'C:\\User\\Desktop';
+        Workbook.setActiveWorkbookPath(path);
+        equal(path, Workbook.getActiveWorkbookPath(), 'Path set correctly');
+        Workbook.resetActiveWorkbookPath();
+        Workbook.setActiveWorkbookPath(path + '\\');
+        equal(path, Workbook.getActiveWorkbookPath(), 'Path set correctly');
+      });
 }
