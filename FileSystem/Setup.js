@@ -15,13 +15,57 @@
  */
 
 /**
- * Creates a menu entry in the Google Spreadsheet UI when the document is opened.
+ * Creates a menu entry in the Google Spreadsheet UI when the document is
+ * opened.
  * @param {object} e The event parameter for a simple onOpen trigger. To
  *     determine which authorization mode (ScriptApp.AuthMode) the trigger is
  *     running in, inspect e.authMode.
  */
 function onOpen(e) {
-    SpreadsheetApp.getUi().createMenu('FileSystem')
-        .addItem('Set Local File Path', 'promptActiveWorkbookPath')
-        .addToUi();
+  SpreadsheetApp.getUi()
+      .createMenu('FileSystem')
+      .addItem('Set Local File Path', 'promptActiveWorkbookPath')
+      .addItem('Run Tests', 'generateTestReport')
+      .addItem('View Tests', 'createTestSidebar')
+      .addToUi();
+}
+
+/**
+ * Creates the test sidebar with hierarchy of all tests available. User can
+ * selectively chose what tests are to be run.
+ */
+function createTestSidebar() {
+  var template = HtmlService.createTemplateFromFile('TestSystem');
+  var tests = {};
+  buildTestMetadata(getFileSystemTests().tests, tests);
+  template.tests = JSON.stringify(tests);
+  var htmlOutput = template.evaluate();
+  // SpreadsheetApp.getUi().showModalDialog(htmlOutput, 'Test System');
+  SpreadsheetApp.getUi().showSidebar(htmlOutput);
+}
+
+/**
+ * Helper function to build test metadata for the view.
+ * @param {object} tests Source test data
+ * @param {object} metadata Destination test metadata
+ */
+function buildTestMetadata(tests, metadata) {
+  for (test in tests) {
+    if (typeof (tests[test]) == 'function') {
+      metadata[test] = true;
+    } else {
+      metadata[test] = {};
+      buildTestMetadata(tests[test].tests, metadata[test]);
+    }
   }
+}
+
+/**
+ * Helper function to include external HTML content in templated HTML Files
+ * @param {string} filename Filename of the external html content that is to be
+ *     included
+ * @return {string} External HTML content
+ */
+function include(filename) {
+  return HtmlService.createHtmlOutputFromFile(filename).getContent();
+}
