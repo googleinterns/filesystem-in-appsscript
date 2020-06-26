@@ -1,0 +1,137 @@
+<!--
+Copyright 2020 Google LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+     https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<script>
+    /**
+     * @param {HtmlElement} root HtmlElement to insert tests into
+     * @param {object} tests Test Metadata object
+     */
+    function build(root, tests) {
+        if (tests == true) return;
+        for (test in tests) {
+            // Add Checkbox and label
+            var testHtml = $(`<li><input type="checkbox" id="${test}">
+                <label for="short-1">${test}</label></li>`);
+            // If test is a module, then recursively build
+            if (tests[test] != true) {
+                var children = $('<ul></ul>');
+                build(children, tests[test]);
+                testHtml.append(children);
+            }
+            // Add to document
+            root.append(testHtml);
+        }
+    }
+
+    /**
+     * Helper function to extract selected test metadata from view
+     * @return {object} Selected tests metadata
+     */
+    function getData() {
+        var data = {}
+        /**
+         * Helper function to recursively extract selected test metadata from view
+         * @param {HtmlElement} root HtmlElement from which, selected tests metadata
+         *     needs to be extracted
+         * @param {object} obj Destination metadata object
+         */
+        function getDataHelper(root, obj) {
+            root.children().each(function () {
+                var checkbox = $(this).children('input[type="checkbox"]');
+                var children = $(this).children('ul');
+                var isLeaf = children.length == 0;
+                var id = checkbox.prop('id');
+                if (checkbox.prop('indeterminate') || checkbox.prop('checked')) {
+                    if (isLeaf) {
+                        obj[id] = true;
+                    } else {
+                        obj[id] = {};
+                        children.each(function () {
+                            getDataHelper(children, obj[id])
+                        });
+                    }
+                }
+            })
+        } getDataHelper($('#main'), data);
+        return data
+    }
+
+    // Setup function once DOM is loaded
+    $(function f() {
+        // Build UI
+        build($('#main'), tests);
+        // Setup UI listeners
+        $('input[type="checkbox"]').change(function (e) {
+            var checked = $(this).prop('checked'), container = $(this).parent(),
+                siblings = container.siblings();
+            // Set children to true/false
+            container.find('input[type="checkbox"]')
+                .prop({ indeterminate: false, checked: checked });
+            /**
+             * Helper function to update parent based on siblings
+             * @param {HtmlElement} root HtmlElement to check
+             */
+            function checkSiblings(root) {
+                var parent = root.parent().parent();
+                var all = true;
+                // Check if all siblings are checked
+                root.siblings().each(function () {
+                    let returnValue = all =
+                        ($(this).children('input[type="checkbox"]').prop('checked') ===
+                            checked);
+                    return returnValue;
+                });
+                if (all && checked) {
+                    // All are set at current level, so recursively move to parent and check
+                    parent.children('input[type="checkbox"]')
+                        .prop({ indeterminate: false, checked: checked });
+                    checkSiblings(parent);
+                } else if (all && !checked) {
+                    // all are not set at current level, so recursively move to parent and
+                    // check
+                    parent.children('input[type="checkbox"]').prop('checked', checked);
+                    parent.children('input[type="checkbox"]')
+                        .prop(
+                            'indeterminate',
+                            (parent.find('input[type="checkbox"]:checked').length > 0));
+                    checkSiblings(parent);
+                } else {
+                    // Set indeterminate
+                    root.parents('li').children('input[type="checkbox"]').prop({
+                        indeterminate: true,
+                        checked: false
+                    });
+                }
+            }
+            // Initialize
+            checkSiblings(container);
+        });
+    });
+
+    /**
+     * Handler to run custom tests
+     */
+    function runTestHandler() {
+        document.getElementById('submit').disabled = true;
+        google.script.run
+            .withSuccessHandler(function () {
+                document.getElementById('submit').disabled = false;
+            })
+            .withFailureHandler(function () {
+                document.getElementById('submit').disabled = false;
+            })
+            .runCustomTests(getData())
+    }
+</script>
