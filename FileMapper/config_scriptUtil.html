@@ -1,8 +1,10 @@
 <!--
 Copyright 2020 Google LLC
+
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
+
          https://www.apache.org/licenses/LICENSE-2.0
          
 Unless required by applicable law or agreed to in writing, software
@@ -13,6 +15,16 @@ limitations under the License.
 -->
 
 <script>
+  var ScriptUtil = 
+      {
+        checkIfAbsolutePath: checkIfAbsolutePath,
+        checkIfFolder: checkIfFolder,
+        formClear: formClear,
+        displayLoadingMessage: displayLoadingMessage,
+        removeLoadingMessage: removeLoadingMessage,
+        showAlert: showAlert
+      }
+
   /**
    * Check if the given path is a windows
    * or Unix's absolute path or not
@@ -71,5 +83,43 @@ limitations under the License.
     $("#localpathinput").val("");
     $("#drivepathinput").val("");
     $("#isfolder").prop("checked", false);
+  }
+
+  /**
+   * Display the loading modal
+   */
+  function displayLoadingMessage(message) {
+    $("#loading-alert").text(message);
+    $("#loading-modal").modal('show');
+  }
+
+  /**
+   * Remove the loading modal
+   */
+  function removeLoadingMessage() {
+    $("#loading-modal").modal('hide');
+    $("#loading-alert").text("");
+  }
+
+  /**
+   * Inserts a div that contains an alert message after a given element.
+   *
+   * @param {String} msg The error message to display.
+   * @param {boolean} error The element which tells if it is an error alert or
+   *     success alert.
+   */
+  function showAlert(msg, error) {
+    var type = (error) ? "alert-danger" : "alert-success";
+    var alert = $(
+        '<div class="alert ' + type +
+        ' alert-dismissible text-center" role="alert" id="alertdiv">' + msg +
+        '<a href="#" class="close" data-dismiss="alert" aria-label="Close" id="alertclose">&times;</a>' +
+        '</div>');
+    $("#alertdiv").remove();
+    $("#tablecontainer").after(alert);
+
+    setTimeout(function() {
+      $("#alertdiv").remove();
+    }, 2000);
   }
 </script>

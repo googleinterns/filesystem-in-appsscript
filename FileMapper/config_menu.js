@@ -23,7 +23,7 @@ function onOpen() {
   SpreadsheetApp.getUi()
       .createMenu('Local File Mapping')
       .addItem('Edit Mapping', 'DisplayConfigTable')
-      //  .addItem('Run Tests', 'displayTestResults')
+      .addItem('Run Tests', 'displayTestResults')
       .addToUi();
 }
 

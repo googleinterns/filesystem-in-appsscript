@@ -20,6 +20,7 @@
 var ConfigUtil =
     {
       getFullDrivePath : getFullDrivePath,
+      checkIfDrivePathChanged : checkIfDrivePathChanged,
       checkMappingExists : checkMappingExists,
       checkIfMimeTypeMatches : checkIfMimeTypeMatches,
       getMimeTypeFromExtension : getMimeTypeFromExtension
@@ -30,14 +31,14 @@ var ConfigUtil =
  *
  * @param {String} id The drive destination Id whose path needs to be computed
  * @param {boolean} isFolder To signify whether its a file or folder
- * @return {String} drivePath The corresponding
- * drive path
+ * @return {String} drivePath The corresponding drive path
  */
 function getFullDrivePath(id, isFolder) {
   var current =
       (!isFolder) ? DriveApp.getFileById(id) : DriveApp.getFolderById(id);
 
-  var folders = [], parent = current.getParents();
+  var folders = [];
+  var parent = current.getParents();
 
   while (parent.hasNext()) {
     parent = parent.next();
@@ -50,18 +51,39 @@ function getFullDrivePath(id, isFolder) {
 }
 
 /**
- * Checks if the mapping for a particular Local path exists or not in the config
+ * Checks if the Drive Path for a particular mapping has been changed due to
+ * the file being moved
+ *
+ * @param {Object} mapping The mapping object containg the drive id and previous
+ *     drive path
+ * @return {boolean} True if drive path is changed,
+ *     False otherwise
+ */
+function checkIfDrivePathChanged(mapping) {
+  var newDrivePath = ConfigUtil.getFullDrivePath(mapping.id, !mapping.isfolder);
+  return !(newDrivePath === mapping.drivepath);
+}
+
+/**
+ * Checks if the mapping for a particular pair of Local path and drive id exists
+ * or not in the config
  *
  * @param {String} localPath The local destination path whose mapping is to be
  *     checked
- * @return {boolean} True if mapping exists,
- *                   False otherwise
+ * @param {String} driveId The drive Id which needs to be mapped to the provided
+ *     local path
+ * @return {boolean} True if mapping pair exists,
+ *     False otherwise
  */
-function checkMappingExists(localPath) {
-  var documentProperties = PropertiesService.getDocumentProperties();
-  var value = documentProperties.getProperty(localPath);
+function checkMappingExists(localPath, driveId) {
+  var localPathInConfig = CONFIG.getLocalPathCaseMapping(localPath);
 
-  return (value !== null);
+  if (localPathInConfig) {
+    var mappedData = CONFIG.getMappingFromConfigData(localPathInConfig);
+    return (mappedData.id === driveId);
+  } else {
+    return false;
+  }
 }
 
 /**
@@ -74,11 +96,7 @@ function checkMappingExists(localPath) {
  *                   False otherwise
  */
 function checkIfMimeTypeMatches(localPath, driveId) {
-  var index = localPath.lastIndexOf(".");
-  var extension = "";
-  if (index != -1) {
-    extension = localPath.substr(index + 1);
-  }
+  var extension = PathUtil.getExtension(localPath);
 
   var localMimeType = ConfigUtil.getMimeTypeFromExtension(extension);
   var driveMimeType = DriveApp.getFileById(driveId).getMimeType();

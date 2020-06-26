@@ -1,8 +1,10 @@
 <!--
 Copyright 2020 Google LLC
+
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
+
      https://www.apache.org/licenses/LICENSE-2.0
      
 Unless required by applicable law or agreed to in writing, software
@@ -17,6 +19,27 @@ limitations under the License.
   #configTable {
     table-layout: fixed; 
     word-break: break-all;
+    border-color: #ccc;
+  }
+
+  .table > tbody > tr > td {
+    vertical-align: middle;
+  }
+
+  .table-bordered td, .table-bordered th{
+    border-color: #ccc !important;
+  }
+
+  #loading-alert {
+    color: #004085;
+    background-color: #cce5ff;
+    border-color: #b8daff;
+    font-size: 15px;
+  }
+
+  .modal-backdrop {
+    opacity: 1;
+    background-color: white;
   }
 
   #drivepathdiv {

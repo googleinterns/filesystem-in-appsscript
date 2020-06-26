@@ -1,8 +1,10 @@
 <!--
 Copyright 2020 Google LLC
+
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
+
    https://www.apache.org/licenses/LICENSE-2.0
    
 Unless required by applicable law or agreed to in writing, software
@@ -37,10 +39,12 @@ limitations under the License.
    * to display in the table.
    */
   $(document).ready(function() {
+    // Display the loading modal 
+    ScriptUtil.displayLoadingMessage("Config Data Is Loading...");
     google.script.run
-        .withSuccessHandler(function(configData) { displayTable(configData); })
+        .withSuccessHandler(function(configData) { displayTable(configData);})
         .withFailureHandler()
-        .getConfigData();
+        .getConfigDataToBuildTable();
   })
 
   /**
@@ -58,7 +62,8 @@ limitations under the License.
    * that Picker needs is available in Apps Script.
    */
   function getOAuthToken() {
-    google.script.run.withSuccessHandler(createPicker)
+    google.script.run
+        .withSuccessHandler(createPicker)
         .withFailureHandler()
         .getOAuthToken();
   }
@@ -67,7 +72,7 @@ limitations under the License.
    * Creates a Picker that can access the user's spreadsheets.
    *
    * @param {String} token An OAuth 2.0 access token that lets
-   * Picker access the file type
+   *     Picker access the file type
    */
   function createPicker(token) {
     if (pickerApiLoaded && token) {
@@ -87,7 +92,7 @@ limitations under the License.
               .build();
       picker.setVisible(true);
     } else {
-      showAlert('Unable to load the file picker.', true);
+      ScriptUtil.showAlert('Unable to load the file picker.', true);
     }
   }
 
@@ -108,21 +113,21 @@ limitations under the License.
       $("#hiddenId").val(id);
 
       google.script.run
-          .withSuccessHandler(function(
-              fullpath) { $("#drivepathinput").val(fullpath); })
+          .withSuccessHandler(function(fullpath) {
+               $("#drivepathinput").val(fullpath); 
+            })
           .withFailureHandler()
           .getFullDrivePath(id, ((mime === MimeType.FOLDER) ? true : false));
     } else if (action == google.picker.Action.CANCEL) {
-      showAlert("No File selected.", true);
+      ScriptUtil.showAlert("No File selected.", true);
     }
   }
 
   /**
    * Creates an HTML table containing all the config data
    *
-   * @param {object} configData The config data object having
-   * keys containing local path with values containing
-   * coresponding drive path
+   * @param {object} configData The config data object having keys containing 
+   *     local path with values containing coresponding drive path
    */
   function displayTable(configData) {
     if ($("#configTable tbody").length == 0) {
@@ -131,17 +136,23 @@ limitations under the License.
 
     for (var localPath in configData) {
       $("#configTable tbody")
-          .append(pathBuildTableRow(localPath, configData[localPath].drivepath,
-                                    configData[localPath].isfolder, nextId));
+          .append(pathBuildTableRow(
+              localPath, 
+              configData[localPath].drivepath,
+              configData[localPath].isfolder,
+              nextId, 
+              configData[localPath].isdeleted
+            ));
       nextId += 1;
-    }
+    }    
+    // Removing the loading modal once the table has been loaded
+    ScriptUtil.removeLoadingMessage();
   }
 
   /**
    * Display the selected row in the form for edit
    *
-   * @param {Object} ctl The reference to the HTML
-   * element which called this function
+   * @param {Object} ctl The reference to the HTML element which called this function
    */
   function pathDisplay(ctl) {
     var row = $(ctl).parents("tr");
@@ -149,6 +160,7 @@ limitations under the License.
 
     activeId =
         $($(cols[ConfigColumns.EDIT_BUTTON]).children("button")[0]).data("id");
+
     $("#localpathinput").val($(cols[ConfigColumns.LOCAL_PATH]).text());
     $("#drivepathinput").val($(cols[ConfigColumns.DRIVE_PATH]).text());
     ($(cols[ConfigColumns.FILE_OR_FOLDER]).text() === "File")
@@ -165,7 +177,7 @@ limitations under the License.
   function pathUpdate() {
     // Check empty inputs
     if ($("#localpathinput").val() === "" || $("#drivepathinput").val() === "") {
-      showAlert("One or both of the Input Fields are Empty.", true);
+      ScriptUtil.showAlert("One or both of the Input Fields are Empty.", true);
       return;
     }
 
@@ -173,27 +185,31 @@ limitations under the License.
       pathUpdateInTable(activeId);
     } else {
       // Check for absolute local path
-      if (!checkIfAbsolutePath($("#localpathinput").val())) {
-        showAlert("Provide Absolute Local Path.", true);
+      if (!ScriptUtil.checkIfAbsolutePath($("#localpathinput").val())) {
+        ScriptUtil.showAlert("Provide Absolute Local Path.", true);
         return;
       }
+
+      // Display the loading message
+      ScriptUtil.displayLoadingMessage("Mapping Is Being Added...");
 
       google.script.run
           .withSuccessHandler(function(exists) {
             if (!exists) {
               pathAddToTable();
             } else {
-              showAlert("Local Path already exists.", true);
+              // Removing the loading modal once the mapping has been added
+              ScriptUtil.removeLoadingMessage();
+              ScriptUtil.showAlert("Local Path already exists.", true);
             }
           })
           .withFailureHandler()
-          .checkMappingExists($("#localpathinput").val());
+          .checkIfLocalPathExists($("#localpathinput").val());
     }
   }
 
   /**
-   * Add new row containing path mapping to
-   * the Html table and also to the config
+   * Add new row containing path mapping to the Html table and also to the config
    * data on the server
    */
   function pathAddToTable() {
@@ -203,54 +219,79 @@ limitations under the License.
 
     google.script.run
         .withSuccessHandler(function(success) {
+          // Removing the loading modal once the mapping has been added
+          ScriptUtil.removeLoadingMessage();
+
           if (success) {
-            showAlert("Mapping Added Successfully.", false);
+            ScriptUtil.showAlert("Mapping Added Successfully.", false);
             $("#hiddenId").val("");
             $("#configTable tbody")
                 .append(pathBuildTableRow($("#localpathinput").val(),
                                           $("#drivepathinput").val(),
-                                          $("#isfolder").is(':checked'), nextId));
+                                          $("#isfolder").is(':checked'),
+                                           nextId, false));
             nextId += 1;
-            formClear();
+            ScriptUtil.formClear();
             $("#localpathinput").focus();
           } else {
-            showAlert("The MimeType of Local Path and Drive Path doesn't match.",
+            ScriptUtil.showAlert("The MimeType of Local Path and Drive Path doesn't match.",
                       true);
           }
         })
-        .withFailureHandler(function() { showAlert("Mapping Add Failed", true); })
+        .withFailureHandler(function() { 
+          // Removing the loading modal once the mapping has been added
+          ScriptUtil.removeLoadingMessage();
+          ScriptUtil.showAlert("Mapping Add Failed", true); 
+        })
         .addMapping($("#localpathinput").val(), $("#drivepathinput").val(),
                     $("#hiddenId").val(), $("#isfolder").is(':checked'));
   }
 
   /**
-   * Update a row containing path mapping in
-   * the Html table and also in the config
+   * Update a row containing path mapping in the Html table and also in the config
    * data on the server
    */
   function pathUpdateInTable(id) {
     var row = $("#configTable button[data-id='" + id + "']").parents("tr")[0];
 
+    // Display the loading message
+    ScriptUtil.displayLoadingMessage("Mapping Is Being Updated...");
+
     google.script.run
         .withSuccessHandler(function(success) {
+          // Removing the loading modal once the mapping has been updated
+          ScriptUtil.removeLoadingMessage();
+
           if (success) {
-            showAlert("Mapping Updated Successfully.", false);
+            ScriptUtil.showAlert("Mapping Updated Successfully.", false);
+
+            // To check if the updated row needs to be marked deleted or not
+            var isDeleted = $(row).hasClass('danger');
+            if($("#hiddenId").val()){
+              isDeleted = false;
+            }
+
             $(row).after(pathBuildTableRow($("#localpathinput").val(),
                                            $("#drivepathinput").val(),
-                                           $("#isfolder").is(':checked'), id));
+                                           $("#isfolder").is(':checked'), 
+                                           id, isDeleted ));
             $(row).remove();
           } else {
-            showAlert("The MimeType of Local Path and Drive Path doesn't match.",
+            ScriptUtil.showAlert("The MimeType of Local Path and Drive Path doesn't match.",
                       true);
           }
 
           $("#hiddenId").val("");
-          formClear();
+          ScriptUtil.formClear();
           $("#updateButton").text("Add");
           $("#localpathinput").attr("readonly", false);
           $("#localpathinput").focus();
         })
-        .withFailureHandler(function() { showAlert("Update Failed", true); })
+        .withFailureHandler(function() { 
+          // Removing the loading modal once the mapping has been updated
+          ScriptUtil.removeLoadingMessage();
+          ScriptUtil.showAlert("Update Failed", true); 
+        })
         .updateMapping($("#localpathinput").val(), $("#drivepathinput").val(),
                        $("#hiddenId").val(), $("#isfolder").is(':checked'));
   }
@@ -258,65 +299,61 @@ limitations under the License.
   /**
    * Build a new <table> row
    */
-  function pathBuildTableRow(localPath, drivePath, isFolder, id) {
-    var ret = "<tr>" +
-              "<td>" +
-              "<button type='button' " +
-              "id = 'rowbutton'" +
-              "onclick='pathDisplay(this);' " +
-              "class='btn btn-default' " +
-              "data-id='" + id + "'>" +
-              "<span class='glyphicon glyphicon-edit' />" +
-              "</button>" +
-              "</td>" +
-              "<td>" + localPath + "</td>" +
-              "<td>" + drivePath + "</td>" +
-              "<td>" + ((isFolder) ? "Folder" : "File") + "</td>" +
-              "<td>" +
-              "<button type='button' " +
-              "id = 'rowbutton'" +
-              "onclick='pathDelete(this);' " +
-              "class='btn btn-default' " +
-              "data-id='" + id + "'>" +
-              "<span class='glyphicon glyphicon-remove' />" +
-              "</button>" +
-              "</td>" +
+  function pathBuildTableRow(localPath, drivePath, isFolder, id, isDeleted) {
+    var rowtab = "<tr>";
+    if(isDeleted) {
+      var tooltipText = "Drive " + ((isFolder) ? "Folder" : "File") + " has been deleted or moved";
+      rowtab = "<tr class='danger' data-toggle='tooltip' data-placement='left' data-container='body' title='" + tooltipText + "'>";
+    }
+
+    var ret =  rowtab +
+                "<td>" +
+                  "<button type='button' " +
+                    "id = 'rowbutton'" +
+                    "onclick='pathDisplay(this);' " +
+                    "class='btn btn-default' " +
+                    "data-id='" + id + "'>" +
+                    "<span class='glyphicon glyphicon-edit' />" +
+                  "</button>" +
+                  "</td>" +
+                  "<td>" + localPath + "</td>" +
+                  "<td>" + drivePath + "</td>" +
+                  "<td>" + ((isFolder) ? "Folder" : "File") + "</td>" +
+                  "<td>" +
+                  "<button type='button' " +
+                    "id = 'rowbutton'" +
+                    "onclick='pathDelete(this);' " +
+                    "class='btn btn-default' " +
+                    "data-id='" + id + "'>" +
+                    "<span class='glyphicon glyphicon-remove' />" +
+                  "</button>" +
+                "</td>" +
               "</tr>"
 
     return ret;
   }
 
   /**
-   * Delete a row containing path mapping from
-   * the Html table and also from the config
+   * Delete a row containing path mapping from the Html table and also from the config
    * data on the server
    */
   function pathDelete(ctl) {
     var row = $(ctl).parents("tr");
     var cols = row.children("td");
 
-    google.script.run.withSuccessHandler().withFailureHandler().deleteMapping(
-        $(cols[ConfigColumns.LOCAL_PATH]).text());
+    // Display the loading message
+    ScriptUtil.displayLoadingMessage("Mapping Is Being Deleted...");
 
-    $(ctl).parents("tr").remove();
-    showAlert("Mapping Deleted Successfully.", false);
+    google.script.run
+        .withSuccessHandler( function() {
+            // Removing the loading modal once the mapping has been deleted
+            ScriptUtil.removeLoadingMessage();
+
+            $(ctl).parents("tr").remove();
+            ScriptUtil.showAlert("Mapping Deleted Successfully.", false);
+          }
+        ).withFailureHandler()
+        .deleteMapping($(cols[ConfigColumns.LOCAL_PATH]).text());
   }
 
-  /**
-   * Inserts a div that contains an alert message after a given element.
-   *
-   * @param {String} msg The error message to display.
-   * @param {boolean} error The element which tells if it is an error alert or
-   *     success alert.
-   */
-  function showAlert(msg, error) {
-    var type = (error) ? "alert-danger" : "alert-success";
-    var alert = $(
-        '<div class="alert ' + type +
-        ' alert-dismissible text-center" role="alert" id="alertdiv">' + msg +
-        '<a href="#" class="close" data-dismiss="alert" aria-label="Close" id="alertclose">&times;</a>' +
-        '</div>');
-    $("#alertdiv").remove();
-    $("#tablecontainer").after(alert);
-  }
 </script>

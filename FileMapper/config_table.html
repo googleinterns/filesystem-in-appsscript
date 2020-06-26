@@ -26,21 +26,20 @@ limitations under the License.
   <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons.css">
   <?!= getHtmlContentFromFile('config_css'); ?>
   <!-- styles -->
-
-  <!-- scripts -->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-  <script src="https://apis.google.com/js/api.js?onload=onApiLoad"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-  <?!= getHtmlContentFromFile('config_script'); ?>
-  <?!= getHtmlContentFromFile('config_scriptUtil'); ?>
-  <!-- scripts -->
 </head>
 
 <body>
-  <div class="container">
+
+  <div class="modal fade" id="loading-modal" tabindex="-1" role="dialog" aria-labelledby="loading-alert">
+    <div class="modal-dialog modal-sm" role="document">
+      <div class="modal-content alert text-center" id="loading-alert"></div>
+    </div>
+  </div>
+
+  <div class="container" style="z-index: 1000">
     <div class="row" id="tablecontainer">
       <div class="col-sm-12">
-        <table id="configTable" class="table table-bordered table-condensed table-striped table-sm">
+        <table id="configTable" class="table table-bordered table-condensed table-sm">
           <colgroup>
             <col class="col-md-1">
             <col class="col-md-4">
@@ -49,7 +48,7 @@ limitations under the License.
             <col class="col-md-1">
           </colgroup>
           <thead>
-            <tr>
+            <tr class="active">
               <th>Edit</th>
               <th>Local Path</th>
               <th>Drive Path</th>
@@ -123,6 +122,15 @@ limitations under the License.
       </div>
     </div>
   </div>
+
+  <!-- scripts -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="https://apis.google.com/js/api.js?onload=onApiLoad"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <?!= getHtmlContentFromFile('config_script'); ?>
+  <?!= getHtmlContentFromFile('config_scriptUtil'); ?>
+  <!-- scripts -->
+
 </body>
 
 </html>

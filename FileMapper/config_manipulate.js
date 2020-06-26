@@ -19,22 +19,27 @@
  * and drive path pairs.
  *
  * @return {Object} absPath The object containing local path, drive path pairs
- *                  and its type (whether folder or file).
+ *     and its type (whether folder or file).
  */
-function getConfigData() {
-  var documentProperties = PropertiesService.getDocumentProperties();
-  var properties = documentProperties.getProperties();
+function getConfigDataToBuildTable() {
+  var configData = CONFIG.getConfigData();
 
-  var configData = {};
-  for (var property in properties) {
-    var object = JSON.parse(properties[property]);
-    configData[property] = {
-      drivepath : object.drivepath,
-      isfolder : object.isfolder
+  var data = {};
+  for (var mapping in configData) {
+    var isDeleted = false;
+    if (ApiUtil.checkIfMarkedDeleted(mapping)) {
+      isDeleted = true;
+    } else if (ConfigUtil.checkIfDrivePathChanged(configData[mapping])) {
+      isDeleted = true;
+    }
+
+    data[mapping] = {
+      drivepath : configData[mapping].drivepath,
+      isfolder : configData[mapping].isfolder,
+      isdeleted : isDeleted
     }
   }
-
-  return configData;
+  return data;
 }
 
 /**
@@ -46,18 +51,18 @@ function getConfigData() {
  * @param {String} driveId The corresponding drive destination Id
  * @param {boolean} isFolder To signify whether its a file or folder
  * @return {boolean} True if mapping was added,
- *                   False otherwise
+ *     False otherwise
  */
 function addMapping(localPath, drivePath, driveId, isFolder) {
-  var documentProperties = PropertiesService.getDocumentProperties();
-
   if (ConfigUtil.checkIfMimeTypeMatches(localPath, driveId)) {
     var mappingObject = {
       id : driveId,
       drivepath : drivePath,
       isfolder : isFolder
     };
-    documentProperties.setProperty(localPath, JSON.stringify(mappingObject));
+
+    CONFIG.setMappingInConfigData(localPath, mappingObject);
+    CONFIG.flushConfigDataToFile();
     return true;
   } else {
     return false;
@@ -73,25 +78,26 @@ function addMapping(localPath, drivePath, driveId, isFolder) {
  * @param {String} driveId The corresponding drive destination Id
  * @param {boolean} isFolder To signify whether its a file or folder
  * @return {boolean} True if mapping was updated,
- *                   False otherwise
+ *     False otherwise
  */
 function updateMapping(localPath, drivePath, driveId, isFolder) {
-  var documentProperties = PropertiesService.getDocumentProperties();
+  var localPathInConfig = CONFIG.getLocalPathCaseMapping(localPath);
 
   // If only isFolder was updated
   if (!driveId) {
-    var property = documentProperties.getProperty(localPath);
-    driveId = JSON.parse(property).id;
+    var mapping = CONFIG.getMappingFromConfigData(localPathInConfig);
+    driveId = mapping.id;
   }
 
   if (ConfigUtil.checkIfMimeTypeMatches(localPath, driveId)) {
-    documentProperties.deleteProperty(localPath);
     var mappingObject = {
       id : driveId,
       drivepath : drivePath,
       isfolder : isFolder
     };
-    documentProperties.setProperty(localPath, JSON.stringify(mappingObject));
+
+    CONFIG.setMappingInConfigData(localPathInConfig, mappingObject);
+    CONFIG.flushConfigDataToFile();
     return true;
   } else {
     return false;
@@ -105,6 +111,8 @@ function updateMapping(localPath, drivePath, driveId, isFolder) {
  *     deleted
  */
 function deleteMapping(localPath) {
-  var documentProperties = PropertiesService.getDocumentProperties();
-  documentProperties.deleteProperty(localPath);
+  CONFIG.deleteMappingInConfigData(localPath);
+  CONFIG.deleteLocalPathCaseMapping(localPath);
+
+  CONFIG.flushConfigDataToFile();
 }
