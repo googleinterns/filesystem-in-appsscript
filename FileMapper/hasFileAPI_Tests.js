@@ -48,10 +48,15 @@ function has_file_api_tests() {
     "C:\\user\\Folder4\\Folder41\\Folder411\\Folder4111"
   ];
 
-  var errorFilePaths =
-      [ "C:\\Muskan\\File1.xls", "C:\\Muskan\\Folder2\\File23.docx" ];
+  var errorFilePaths = [ 
+    "C:\\Muskan\\File1.xls", 
+    "C:\\Muskan\\Folder2\\File23.docx"
+  ];
 
-  var errorFolderPaths = [ "C:\\Muskan", "C:\\Muskan\\Desktop" ];
+  var errorFolderPaths = [ 
+    "C:\\Muskan", 
+    "C:\\Muskan\\Desktop" 
+  ];
 
   // Tests for available files
   QUnit.test("Available file paths", availableFiles.length, function() {

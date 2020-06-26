@@ -26,12 +26,17 @@ function move_file_api_tests() {
   // Tests for moving files
   QUnit.test("Moving Files", function() {
     var sourceFile = [
-      "C:\\user\\Folder1\\File11.xls", "C:\\user\\Folder4\\Folder41\\File11.xls"
+      "C:\\user\\Folder1\\File11.xls", 
+      "C:\\user\\Folder4\\Folder41\\File11.xls"
     ];
     var newFile = [
-      "C:\\user\\Folder4\\Folder41\\File11.xls", "C:\\user\\Folder1\\File11.xls"
+      "C:\\user\\Folder4\\Folder41\\File11.xls", 
+      "C:\\user\\Folder1\\File11.xls"
     ];
-    var targetFolder = [ "C:\\user\\Folder4\\Folder41", "C:\\user\\Folder1" ];
+    var targetFolder = [ 
+      "C:\\user\\Folder4\\Folder41", 
+      "C:\\user\\Folder1" 
+    ];
 
     expect(4 * sourceFile.length);
 
@@ -47,11 +52,18 @@ function move_file_api_tests() {
   // @ts-ignore
   // Tests for moving folders
   QUnit.test("Moving Folders", function() {
-    var sourceFolder =
-        [ "C:\\user\\Folder2\\Folder22", "C:\\user\\Folder3\\Folder22" ];
-    var newFolder =
-        [ "C:\\user\\Folder3\\Folder22", "C:\\user\\Folder2\\Folder22" ];
-    var targetFolder = [ "C:\\user\\Folder3", "C:\\user\\Folder2" ];
+    var sourceFolder = [ 
+      "C:\\user\\Folder2\\Folder22", 
+      "C:\\user\\Folder3\\Folder22" 
+    ];
+    var newFolder = [ 
+      "C:\\user\\Folder3\\Folder22", 
+      "C:\\user\\Folder2\\Folder22" 
+    ];
+    var targetFolder = [ 
+      "C:\\user\\Folder3", 
+      "C:\\user\\Folder2" 
+    ];
 
     expect(4 * sourceFolder.length);
 

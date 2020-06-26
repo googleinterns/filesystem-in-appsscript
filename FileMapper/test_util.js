@@ -17,80 +17,64 @@
 /**
  * Test Utilities
  */
-var TestUtil = {
-  sampleMapings : {},
-  addTestDocumentProperties : addTestDocumentProperties,
-  printDocumentProperties : printDocumentProperties,
-  clearAllProperties : clearAllProperties,
-  setTestingEnvironment : setTestingEnvironment
-}
-
-var sampleMapings =
+var TestUtil =
     {
-      'C:\\Downloads\\MyProject\\file1.txt' : JSON.stringify({
-        id : "1Y56QbYd_VhILIByrqVZRASgQUdX3-7BEm9M2L5kKe6yzNv8oBbxhXdQ3",
-        drivepath : "My Drive/project/Check Config",
-        isfolder : false
-      }),
-      'C:\\Documents\\MyFolder' : JSON.stringify({
-        id : "1GF40damPMEBwrlsnapgoT5qZoTy9ooG_",
-        drivepath : "My Drive/test1",
-        isfolder : true
-      }),
-      'C:\\Documents\\DeletedFolder' : JSON.stringify({
-        id : "1yTF_j7Rxm6y0XvqnVSoykux0Jv32Ic1I",
-        drivepath : "My Drive/Untitled folder",
-        isfolder : true
-      })
+      setTestingEnvironment : setTestingEnvironment,
+      addTestMappingsToConfig : addTestMappingsToConfig,
+      printConfigData : printConfigData,
+      clearAllMappingsInConfig : clearAllMappingsInConfig
     }
 
 /**
  * To set the testing environment
  */
-function
-setTestingEnvironment() {
+function setTestingEnvironment() {
   // Mapping object containing mappings which are need to setup the test
   // environment
   var mappingObj = {
-    "C:\\user" : JSON.stringify({
+    "C:\\user" : {
       id : "16Dyjs72UkD2SFkVlUmUxxx03RW5dXx-F",
       drivepath : "My Drive/Root",
       isfolder : true
-    })
+    }
   };
 
   // Clear all the mappings
-  clearAllProperties();
+  clearAllMappingsInConfig();
   // Add the mappings needed to setup the test environment
-  addTestDocumentProperties(mappingObj);
+  addTestMappingsToConfig(mappingObj);
 }
 
 /**
- * Test adding document properties
+ * Adding Test Mappings to the config
  */
-function addTestDocumentProperties(mappings) {
-  var documentProperties = PropertiesService.getDocumentProperties();
-  documentProperties.setProperties(mappings);
+function addTestMappingsToConfig(mappings) {
+  for (var localPath in mappings) {
+    CONFIG.setMappingInConfigData(localPath, mappings[localPath]);
+  }
+  CONFIG.flushConfigDataToFile();
 }
 
 /**
- * Print all document properties
+ * Print all mappings in the config
  */
-function
-printDocumentProperties() {
-  var documentProperties = PropertiesService.getDocumentProperties();
-  var mappings = documentProperties.getProperties();
-
-  for (var mapping in mappings) {
-    Logger.log(' %s -> %s ', mapping, mappings[mapping]);
+function printConfigData() {
+  var configData = CONFIG.getConfigData();
+  for (var mapping in configData) {
+    Logger.log(' %s -> %s ', mapping, configData[mapping]);
   }
 }
 
 /**
- * Delete all document properties
+ * Delete all mappings in the config
  */
-function
-clearAllProperties() {
-  var documentProperties = PropertiesService.getDocumentProperties();
-  documentProperties.deleteAllProperties();
+function clearAllMappingsInConfig() {
+  var configData = CONFIG.getConfigData();
+  for (var mapping in configData) {
+    CONFIG.deleteMappingInConfigData(mapping);
+  }
+  for (var localpath in CONFIG.localPathMap) {
+    CONFIG.deleteLocalPathCaseMapping(localpath);
+  }
+  CONFIG.flushConfigDataToFile();
 }

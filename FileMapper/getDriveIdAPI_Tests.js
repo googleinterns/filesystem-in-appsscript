@@ -43,7 +43,7 @@ function get_drive_id_api_tests() {
 
   QUnit.test("indirect mapping at level-3", 1, function() {
     var localPath = "C:\\user\\Folder2\\Folder22\\Folder221";
-    var expectedId = "1A-JWyksT1BK-PU09SWpdyTbpNs_CFhgH";
+    var expectedId = "1pR-u6ptKzLIv428KJ7zh_xYMGURZvBf5";
     equal(getFolderId(localPath), expectedId, "Correct Id Found for level-3");
   });
 

@@ -26,11 +26,14 @@ function get_pattern_matches_api_tests() {
   // Tests for searching file patterns
   QUnit.test("Search for files using wildcard pattern testing", function() {
     var pattern = [
-      "C:\\user\\Folder2\\Folder22\\*.xls", "C:\\user\\Folder3\\File3?.docx"
+      "C:\\user\\Folder2\\Folder22\\*.xls", 
+      "C:\\user\\Folder3\\File3?.docx"
     ];
 
-    var expectedMatches =
-        [ [ "File221.xls", "File222.xls" ], [ "File31.docx", "File33.docx" ] ];
+    var expectedMatches = [ 
+      [ "File221.xls", "File222.xls" ], 
+      [ "File31.docx", "File33.docx" ] 
+    ];
 
     var fileMatches = [];
     for (var i = 0; i < pattern.length; i++) {
@@ -49,7 +52,10 @@ function get_pattern_matches_api_tests() {
   // @ts-ignore
   // Tests for searching folder patterns
   QUnit.test("Search for folders using wildcard pattern testing", function() {
-    var pattern = [ "C:\\user\\*", "C:\\user\\Folder2\\Folder2?" ];
+    var pattern = [ 
+      "C:\\user\\*", 
+      "C:\\user\\Folder2\\Folder2?" 
+    ];
 
     var expectedMatches = [
       [ "Folder1", "Folder2", "Folder3", "Folder4" ],

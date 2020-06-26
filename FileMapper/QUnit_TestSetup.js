@@ -36,10 +36,10 @@ QUnit.helpers(this);
  * @param {object} e The event parameter for a simple get trigger.
  */
 function doGet(e) {
-  // Ensures that QUnit-specific HTTP parameters are handled when you interact with the QUnit GUI	
+  // Ensures that QUnit-specific HTTP parameters are handled when you interact with the QUnit GUI 
   QUnit.urlParams(e.parameter);
   QUnit.config(myConfig);
-  QUnit.load(tests);
+  QUnit.load(tests_all_APIs);
 
   return QUnit.getHtml();
 };
@@ -78,12 +78,12 @@ function displayTestResults() {
  *                                      |-File222.xls
  */             
 function tests_all_APIs() {
+  add_mapping_api_tests();
+  get_pattern_matches_api_tests();
   get_drive_id_api_tests();
   has_file_api_tests();
   create_file_api_tests();
   delete_file_api_tests();
   move_file_api_tests();
   copy_file_api_tests();
-  get_pattern_matches_api_tests();
-  add_mapping_api_tests();
 }

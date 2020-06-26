@@ -28,7 +28,8 @@ function delete_file_api_tests() {
   ];
 
   var deleteFolders = [
-    "C:\\user\\Folder3\\Folder32", "C:\\user\\Folder4\\Folder42",
+    "C:\\user\\Folder3\\Folder32", 
+    "C:\\user\\Folder4\\Folder42",
     "C:\\user\\Folder3\\Folder31"
   ];
 
@@ -59,8 +60,8 @@ function delete_file_api_tests() {
                "FileDoesNotExistException caught for file.");
 
         var folder = "C:\\user\\MyFolder";
-        ok(createFile(folder), "Folder Created.");
-        ok(deleteFile(folder), "Folder Deleted.");
+        ok(createFolder(folder), "Folder Created.");
+        ok(deleteFolder(folder), "Folder Deleted.");
         throws(function() { deleteFolder(folder); }, FileDoesNotExistException,
                "FileDoesNotExistException caught for folder.");
       });

@@ -28,7 +28,8 @@ function create_file_api_tests() {
   ];
 
   var newFolders = [
-    "C:\\user\\Folder3\\Folder32\\Folder321", "C:\\user\\Folder4\\Folder42"
+    "C:\\user\\Folder3\\Folder32\\Folder321", 
+    "C:\\user\\Folder4\\Folder42"
   ];
 
   // Tests for creating new files

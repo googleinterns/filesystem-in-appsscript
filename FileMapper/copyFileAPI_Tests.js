@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+/**
+ * Copy File API Unit Tests
+ */
 function copy_file_api_tests() {
   QUnit.module("copyFile API");
 
@@ -30,7 +33,10 @@ function copy_file_api_tests() {
       "C:\\user\\Folder4\\Folder41\\File11.xls",
       "C:\\user\\Folder3\\File211.docx"
     ];
-    var targetFolder = [ "C:\\user\\Folder4\\Folder41", "C:\\user\\Folder3" ];
+    var targetFolder = [ 
+      "C:\\user\\Folder4\\Folder41", 
+      "C:\\user\\Folder3" 
+    ];
 
     expect(4 * sourceFile.length);
 
@@ -41,18 +47,25 @@ function copy_file_api_tests() {
       ok(hasFile(sourceFile[i]), "Source File Exists");
       ok(hasFile(newFile[i]), "Destination File Exists");
       deleteFile(newFile[i]);
-      ApiUtil.eraseMapping(newFile[i]);
+      deleteMapping(newFile[i]);
     }
   });
 
   // @ts-ignore
   // Tests for moving folders
   QUnit.test("Copying Folders", function() {
-    var sourceFolder = [ "C:\\user\\Folder2\\Folder22", "C:\\user\\Folder1" ];
-    var newFolder = [
-      "C:\\user\\Folder3\\Folder22", "C:\\user\\Folder4\\Folder41\\Folder1"
+    var sourceFolder = [ 
+      "C:\\user\\Folder2\\Folder22", 
+      "C:\\user\\Folder1" 
     ];
-    var targetFolder = [ "C:\\user\\Folder3", "C:\\user\\Folder4\\Folder41" ];
+    var newFolder = [
+      "C:\\user\\Folder3\\Folder22", 
+      "C:\\user\\Folder4\\Folder41\\Folder1"
+    ];
+    var targetFolder = [ 
+      "C:\\user\\Folder3", 
+      "C:\\user\\Folder4\\Folder41" 
+    ];
 
     expect(4 * sourceFolder.length);
 
@@ -63,7 +76,7 @@ function copy_file_api_tests() {
       ok(hasFolder(sourceFolder[i]), "Source Folder Exists");
       ok(hasFolder(newFolder[i]), "Destination Folder Exists");
       deleteFolder(newFolder[i]);
-      ApiUtil.eraseMapping(newFolder[i]);
+      deleteMapping(newFolder[i]);
     }
 
     // Tests for files and folders which are not available hence can't be copied
