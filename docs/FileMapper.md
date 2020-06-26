@@ -41,6 +41,10 @@ Prompts the user by throwing a `MappingNotFoundException`   :
 Throws a `FileDoesNotExistException` :
     >" **FileDoesNotExistException :** File Mapped to the local path provided has been deleted."
 
+1. If the file at the local path provided has been moved previously :
+Throws a `FileHasBeenMovedException` :
+    >" **FileHasBeenMovedException :** File Mapped to the local path provided has been moved to another location within the drive."
+
 
 ## Get Folder Id API
 
@@ -64,6 +68,11 @@ Prompts the user by throwing a `MappingNotFoundException`   :
 1. If the file at the local path provided has been deleted previously :
 Throws a `FileDoesNotExistException` :
     > **FileDoesNotExistException :** Folder Mapped to the local path provided has been deleted.
+
+1. If the folder at the local path provided has been moved previously :
+Throws a `FileHasBeenMovedException` :
+    >" **FileHasBeenMovedException :** Folder Mapped to the local path provided has been moved to another location within the drive."
+
 
 
 ## Create File API
@@ -355,6 +364,7 @@ Returns a number - `FAILURE`  to tell that the mapping has not been added to the
   * `INVALID_ABSOLUTE_PATH = 1` the local path provided may not be absolute, 
   * `INVALID_DRIVE_ID = 2` the drive id provided may be invalid or 
   * `DUPLICATE_MAPPING = 3` the local path provided has a mapping already present in the config. 
+  *  `INCOMPATIBLE_MIMETYPES = 4` the mimetype of of the local path and drive id provided do not match  
 
 ## Add Folder Mapping API
 Intended to add a new folder mapping to the config.
@@ -375,4 +385,4 @@ Returns a number - `FAILURE`  to tell that the mapping has not been added to the
   * `INVALID_ABSOLUTE_PATH = 1` the local path provided may not be absolute, 
   * `INVALID_DRIVE_ID = 2` the drive id provided may be invalid or 
   * `DUPLICATE_MAPPING = 3` the local path provided has a mapping already present in the config. 
-
+  * `INCOMPATIBLE_MIMETYPES = 4` the mimetype of of the local path and drive id provided do not match  
