@@ -25,26 +25,32 @@ function has_file_api_tests() {
   var availableFiles = [
     "C:\\user\\Folder1\\File12.docx",
     "C:\\user\\Folder2\\Folder22\\File222.xls",
-    "C:\\user\\Folder3\\File31.docx", "C:\\user\\Folder4\\File41.xls",
+    "C:\\user\\Folder3\\File31.docx", 
+    "C:\\user\\Folder4\\File41.xls",
     "C:\\user\\Folder2\\Folder21\\File211.docx"
   ];
 
   var availableFolders = [
-    "C:\\user\\Folder1\\Folder11", "C:\\user\\Folder2\\Folder22\\Folder221",
-    "C:\\user\\Folder2\\Folder23\\Folder231", "C:\\user\\Folder3",
+    "C:\\user\\Folder1\\Folder11", 
+    "C:\\user\\Folder2\\Folder22\\Folder221",
+    "C:\\user\\Folder2\\Folder23\\Folder231", 
+    "C:\\user\\Folder3",
     "C:\\user\\Folder4\\Folder41\\Folder411"
   ];
 
   var unavailableFiles = [
-    "C:\\user\\File7.docs", "C:\\user\\Folder1\\File12.xls",
+    "C:\\user\\File7.docs", 
+    "C:\\user\\Folder1\\File12.xls",
     "C:\\user\\Folder2\\Folder22\\File231.xls",
     "C:\\user\\Folder3\\Folder31\\File311.docx",
     "C:\\user\\Folder4\\Folder41\\Folder411\\File4111.docs"
   ];
 
   var unavailableFolders = [
-    "C:\\user\\Folder5", "C:\\user\\Folder3\\Folder38",
-    "C:\\user\\Folder1\\Folder1111", "C:\\user\\Folder2\\Folder22\\Folder222",
+    "C:\\user\\Folder5", 
+    "C:\\user\\Folder3\\Folder38",
+    "C:\\user\\Folder1\\Folder1111", 
+    "C:\\user\\Folder2\\Folder22\\Folder222",
     "C:\\user\\Folder4\\Folder41\\Folder411\\Folder4111"
   ];
 
