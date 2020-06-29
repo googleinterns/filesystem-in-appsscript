@@ -40,7 +40,6 @@ function createTestSidebar() {
   buildTestMetadata(getFileSystemTests().tests, tests);
   template.tests = JSON.stringify(tests);
   var htmlOutput = template.evaluate();
-  // SpreadsheetApp.getUi().showModalDialog(htmlOutput, 'Test System');
   SpreadsheetApp.getUi().showSidebar(htmlOutput);
 }
 
