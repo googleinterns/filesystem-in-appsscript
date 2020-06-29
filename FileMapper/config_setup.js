@@ -59,8 +59,7 @@ var CONFIG =
 /**
  * Get the entire config data object
  */
-function
-getConfigData() {
+function getConfigData() {
   CONFIG.checkIfConfigDataLoaded();
   return CONFIG.data;
 }
@@ -162,8 +161,7 @@ checkIfConfigDataLoaded() {
 /**
  * Initialize the config file if it does not exist already
  */
-function
-initConfigFile() {
+function initConfigFile() {
   // Getting the parent folder of the current spreadsheet
   var sheet = SpreadsheetApp.getActiveSpreadsheet();
   var file = DriveApp.getFileById(sheet.getId());
@@ -186,8 +184,7 @@ initConfigFile() {
 /**
  * Load Config data from the config file and store in the data object
  */
-function
-loadConfigData() {
+function loadConfigData() {
   if (CONFIG.driveId === null) {
     CONFIG.initConfigFile();
   }
@@ -206,8 +203,7 @@ loadConfigData() {
 /**
  * Create local path map using the config data object
  */
-function
-createLocalPathMap() {
+function createLocalPathMap() {
   for (var localpath in CONFIG.data) {
     CONFIG.localPathCaseMap[localpath.toLowerCase()] = localpath;
   }
@@ -216,8 +212,7 @@ createLocalPathMap() {
 /**
  * Flush the config data into the config file
  */
-function
-flushConfigDataToFile() {
+function flushConfigDataToFile() {
   var file = DriveApp.getFileById(CONFIG.driveId);
   file.setContent(JSON.stringify(CONFIG.data));
 }
