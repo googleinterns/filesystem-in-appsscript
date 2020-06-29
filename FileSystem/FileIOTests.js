@@ -72,8 +72,16 @@ function file_io_tests() {
     fileNumber = FileIO.getNextAvailableFile();
     FileIO.openFile('PRINT_TEST', fileNumber, OpenMode.INPUT);
     var content = FileIO.openFiles[fileNumber].content;
-    var actualContent =
-        'This is a test\r\n\r\nZone 1        Zone 2\r\nHello World\r\n     5 leading spaces \r\n         Hello\r\nFalse is a Boolean value\r\n12-02-1969  is a date\r\nNull is a null value\r\nError 32767 is an error value\r\n';
+    var actualContent = 'This is a test\r\n\r\n' +
+        'Zone 1        Zone 2\r\n' +
+        'Hello World\r\n' +
+        '     5 leading spaces \r\n' +
+        '         Hello\r\n' +
+        'False is a Boolean value\r\n' +
+        '12-02-1969  is a date\r\n' +
+        'Null is a null value\r\n' +
+        'Error 32767 is an error value\r\n';
+
     equal(content, actualContent, 'Test for exact print match');
     FileIO.closeFileList();
   });
@@ -113,8 +121,16 @@ function file_io_tests() {
 
     fileNumber = FileIO.getNextAvailableFile();
     FileIO.openFile('PRINT_TEST', fileNumber, OpenMode.INPUT);
-    var actualContent =
-        'This is a test\r\n\r\nZone 1        Zone 2\r\nHello World\r\n     5 leading spaces \r\n         Hello\r\nFalse is a Boolean value\r\n12-02-1969  is a date\r\nNull is a null value\r\nError 32767 is an error value\r\nThis is a test\r\n';
+    var actualContent = 'This is a test\r\n\r\n' +
+        'Zone 1        Zone 2\r\n' +
+        'Hello World\r\n' +
+        '     5 leading spaces \r\n' +
+        '         Hello\r\n' +
+        'False is a Boolean value\r\n' +
+        '12-02-1969  is a date\r\n' +
+        'Null is a null value\r\n' +
+        'Error 32767 is an error value\r\n' +
+        'This is a test\r\n';
     var content = FileIO.openFiles[fileNumber].content;
     equal(content, actualContent, 'Test for exact print match');
     FileIO.closeFileList();
@@ -134,14 +150,17 @@ function file_io_tests() {
     FileIO.writeToFile(fileNumber, [null, ' is a null value']);
     FileIO.writeToFile(fileNumber, [new Error(32767), ' is an error value']);
 
-    var actualContent =
-        '"Hello World",234\r\n\r\n#FALSE#," is a Boolean value"\r\n#1969-02-12#," is a date"\r\n#NULL#," is a null value"\r\n#ERROR 32767#," is an error value"\r\n';
+    var actualContent = '"Hello World",234\r\n\r\n' +
+        '#FALSE#," is a Boolean value"\r\n' +
+        '#1969-02-12#," is a date"\r\n' +
+        '#NULL#," is a null value"\r\n' +
+        '#ERROR 32767#," is an error value"\r\n';
     var content = FileIO.openFiles[fileNumber].content;
     equal(content, actualContent, 'Test for exact write match');
     FileIO.closeFileList();
   });
 
-  QUnit.test('File input testing', function () {
+  QUnit.test('File input testing', function() {
     var actualContent = [
       'Hello World',
       234,
@@ -307,7 +326,7 @@ function file_misc_tests() {
   });
 }
 
-function cleanup() {
+function file_io_cleanup() {
   deleteFileIfExists('TESTFILE');
   deleteFileIfExists('PRINT_TEST');
   deleteFileIfExists('WRITE_TEST');
