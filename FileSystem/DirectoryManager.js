@@ -56,7 +56,7 @@ function setCurrentDirectory(path) {
 /**
  * Function to get absolute path given relative path.
  * If the relative path is absolute, then the relative path is returned
- * @param {string} relativePath Relative or Absolute path
+ * @param {string} relativePath Relative path
  * @return {string} Absolute Path
  */
 function getAbsolutePath(relativePath) {
