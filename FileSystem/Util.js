@@ -120,16 +120,23 @@ function getFileSystemType(localPath) {
 }
 
 /**
- * Helper function to sanitize local filesystem localPath.
- * Remove trailing file separator
- * @todo Fix file separator depending on FileSystem type
- * @body sanitize "C:\Users/Desktop\" to "C:\Users\Desktop"
+ * Helper function to sanitize local filesystem localPath. Removes trailing file
+ * separator. Replaces forward slashes with backward slashes when using Windows
+ * File System. Replaces backward slashes with forward slashes when using Linux
+ * File System.
  * @param {string} localPath File or directory localPath
+ * @param {string} fileSystemType File System Type - Unix/Windows
  * @returns {string} Path with trailing file separator
  */
-function sanitizePath(localPath) {
-  var fileSystemType = getFileSystemType(localPath);
+function sanitizePath(localPath, fileSystemType) {
   var windowsPrefix = 'C:\\';
+  if (fileSystemType == FileSystemType.WINDOWS) {
+    // Replace any forward slashes with backward slashes
+    localPath = localPath.replace(/\//g, '\\');
+  } else if (fileSystemType == FileSystemType.UNIX) {
+    // Replace any backward slashes with forward slashes
+    localPath = localPath.replace(/\\/g, '/');
+  }
   // Remove trailing slash (file separator) from file localPaths
   if (fileSystemType == FileSystemType.WINDOWS) {
     // Remove trailing \ in C:\something\
@@ -157,10 +164,10 @@ function sanitizePath(localPath) {
  */
 function getAbsoluteLocalPath(currentDirectory, relativePath) {
   // Test if relativePath is actually an absolute path
-  if (isValidAbsolutePath(relativePath)) {
-    return sanitizePath(relativePath);
-  }
   var fileSystemType = getFileSystemType(currentDirectory);
+  if (isValidAbsolutePath(relativePath)) {
+    return sanitizePath(relativePath, fileSystemType);
+  }
   var fileSeparator = fileSystemType == FileSystemType.UNIX ? '/' : '\\';
   // First element of windows path split is drive letter ("C:") and
   // First element of unix path split is empty string ("")
@@ -187,7 +194,7 @@ function getAbsoluteLocalPath(currentDirectory, relativePath) {
   if (pathSplit.length == 1) {
     absolutePath += fileSeparator;
   }
-  return sanitizePath(absolutePath);
+  return sanitizePath(absolutePath, fileSystemType);
 }
 
 /**

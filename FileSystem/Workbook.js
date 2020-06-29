@@ -103,7 +103,8 @@ function setActiveWorkbookPath(path) {
   if (!isValidAbsolutePath(path)) {
     throw new Error(path + ' is not a valid');
   }
-  var path = sanitizePath(path);
+  var fileSystemType = getFileSystemType(path);
+  var path = sanitizePath(path, fileSystemType);
   this.activeWorkbookPath = path;
   var properties = PropertiesService.getDocumentProperties();
   properties.setProperty('ActiveWorkbookPath', path);
