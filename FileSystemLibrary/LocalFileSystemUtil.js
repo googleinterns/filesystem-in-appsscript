@@ -28,7 +28,7 @@ var unixPathRegExp = /^(\/[^<>\\/:"\|\?\*]+)*\/?$/;
 
 /**
  * Validates if path is a valid absolute Windows/Unix path
- * @param {string} path File or Directory path
+ * @param {string} localPath File or Directory path
  * @return {boolean} true if path is a valid Windows/Unix path
  */
 function isValidAbsolutePath(localPath) {
@@ -58,10 +58,10 @@ function getFileSystemType(localPath) {
  */
 function getAbsoluteLocalPath(currentDirectory, relativePath) {
   // Test if relativePath is actually an absolute path
-  if (isValidAbsolutePath(relativePath)) {
-    return sanitizePath(relativePath);
-  }
   var fileSystemType = getFileSystemType(currentDirectory);
+  if (isValidAbsolutePath(relativePath)) {
+    return sanitizePath(relativePath, fileSystemType);
+  }
   var fileSeparator = fileSystemType == FileSystemType.UNIX ? '/' : '\\';
   // First element of windows path split is drive letter ("C:") and
   // First element of unix path split is empty string ("")
@@ -88,7 +88,7 @@ function getAbsoluteLocalPath(currentDirectory, relativePath) {
   if (pathSplit.length == 1) {
     absolutePath += fileSeparator;
   }
-  return sanitizePath(absolutePath);
+  return sanitizePath(absolutePath, fileSystemType);
 }
 
 /**
