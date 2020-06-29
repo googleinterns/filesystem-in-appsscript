@@ -75,6 +75,7 @@ function file_io_tests() {
     var actualContent =
         'This is a test\r\n\r\nZone 1        Zone 2\r\nHello World\r\n     5 leading spaces \r\n         Hello\r\nFalse is a Boolean value\r\n12-02-1969  is a date\r\nNull is a null value\r\nError 32767 is an error value\r\n';
     equal(content, actualContent, 'Test for exact print match');
+    FileIO.closeFileList();
   });
 
   QUnit.test('File line input testing', function() {
@@ -137,6 +138,40 @@ function file_io_tests() {
         '"Hello World",234\r\n\r\n#FALSE#," is a Boolean value"\r\n#1969-02-12#," is a date"\r\n#NULL#," is a null value"\r\n#ERROR 32767#," is an error value"\r\n';
     var content = FileIO.openFiles[fileNumber].content;
     equal(content, actualContent, 'Test for exact write match');
+    FileIO.closeFileList();
+  });
+
+  QUnit.test('File input testing', function () {
+    var actualContent = [
+      'Hello World',
+      234,
+      '',
+      false,
+      ' is a Boolean value',
+      new VbaDate(new Date(1969, 2 - 1, 12)),
+      ' is a date',
+      null,
+      ' is a null value',
+      new Error('32767'),
+      ' is an error value',
+    ];
+
+    expect(actualContent.length + 1);
+    var fileNumber = FileIO.getNextAvailableFile();
+    FileIO.openFile('WRITE_TEST', fileNumber, OpenMode.INPUT);
+    for (var i = 0; i < actualContent.length; i++) {
+      var variable = new VbaBox('');
+      FileIO.inputFile(fileNumber, [variable]);
+      if (actualContent[i] instanceof VbaDate) {
+        equal(variable.referenceValue.toString(), actualContent[i].toString());
+      } else if (actualContent[i] instanceof Error) {
+        equal(variable.referenceValue.message, actualContent[i].message);
+      } else {
+        equal(variable.referenceValue, actualContent[i]);
+      }
+    }
+
+    ok(FileIO.isEOF(fileNumber));
     FileIO.closeFileList();
   });
 }
