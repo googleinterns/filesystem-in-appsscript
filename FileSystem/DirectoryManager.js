@@ -50,7 +50,7 @@ function setCurrentDirectory(path) {
   if (!isValidAbsolutePath(path)) {
     throw new Error(path + ' is an invalid path');
   }
-  this.currentDirectory = sanitizePath(path);
+  this.currentDirectory = sanitizePath(path, this.getFileSystemType());
 }
 
 /**
