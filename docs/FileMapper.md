@@ -71,7 +71,7 @@ Throws a `FileDoesNotExistException` :
 
 1. If the folder at the local path provided has been moved previously :
 Throws a `FileHasBeenMovedException` :
-    >" **FileHasBeenMovedException :** Folder Mapped to the local path provided has been moved to another location within the drive."
+    > **FileHasBeenMovedException :** Folder Mapped to the local path provided has been moved to another location within the drive.
 
 
 
@@ -92,11 +92,11 @@ Returns a drive file id corresponding to the new drive file created mapped to th
 
 1. If the file destination mapping (mapping to any folder in it's path) is not found in the config : 
 Prompts the user by throwing a `MappingNotFoundException`   : 
-   > "**MappingNotFoundException** : Mapping for the local path provided is not found. Provide a File to be Mapped to the `localPath`"
+   > **MappingNotFoundException** : Mapping for the local path provided is not found. Provide a File to be Mapped to the `localPath`
      
 1. If the file at the local path already exists :
 Throws a `FileAlreadyExistsException` :
-    >" **FileAlreadyExistsException :** File Mapped to the local path provided already exists."
+    > **FileAlreadyExistsException :** File Mapped to the local path provided already exists.
 
 
 ## Create Folder API
@@ -120,7 +120,7 @@ Prompts the user by throwing a `MappingNotFoundException`   :
      
 1. If the folder at the local path already exists :
 Throws a `FileAlreadyExistsException` :
-    >" **FileAlreadyExistsException :** Folder Mapped to the local path provided already exists."
+    > **FileAlreadyExistsException :** Folder Mapped to the local path provided already exists.
 
 
 ## File Exists API
@@ -213,100 +213,99 @@ Throws a `FileDoesNotExistException` :
 
 Intended to move a file from it's source location to a destination location.
 
-**Implementation:**  `moveFiles(sourceFilePaths,targetFolderPath)`
+**Implementation:**  `moveFiles(sourceFilePath,targetFolderPath)`
 
 **Parameters:**
-1. `sourceFilePaths` - String Array
-An array of Absolute local file paths in the Windows or Unix file system format of the files which are needed to be moved.
+1. `sourceFilePath` - String 
+Absolute local file path in the Windows or Unix file system format of the file which is needed to be moved.
 2. `targetFolderPath` -  String
  Absolute local folder path in the Windows or Unix file system format of the folder to which the files are needed to be moved to. 
 
 **Return Values:**
 1. If the file mapping is found in the config : 
-Moves all the files to the target folder. Doesn't return anything.
+Move the file to the target folder. Doesn't return anything.
 
 1. If the target or source path mapping is not found in the config : 
 Prompts the user by throwing a `MappingNotFoundException`   : 
    > **MappingNotFoundException** : Mapping for the local path provided is not found. Provide a mapping for the `localPath`
      
-1. If the target folder provided has been deleted previously :
+1. If the target folder or the source file provided has been deleted previously :
 Throws a `FileDoesNotExistException` :
-    >" **FileDoesNotExistException :** Folder Mapped to the target path provided has been deleted."
-
+    >" **FileDoesNotExistException :** Folder/File Mapped to the target path/ source path provided has been deleted.
 
 ## Move Folder API
 
 Intended to move a folder from it's source location to a destination location.
 
-**Implementation:**  `moveFolders(sourceFolderPaths,targetFolderPath)`
+**Implementation:**  `moveFolders(sourceFolderPath,targetFolderPath)`
 
 **Parameters:**
-1. `sourceFolderPaths` - String Array
-An array of Absolute local folder paths in the Windows or Unix file system format of the folders which are needed to be moved.
+1. `sourceFolderPath` - String 
+Absolute local folder path in the Windows or Unix file system format of the folder which is needed to be moved.
 2. `targetFolderPath` -  String
  Absolute local folder path in the Windows or Unix file system format of the folder to which the folders are needed to be moved to. 
 
 **Return Values:**
 1. If the folder mapping is found in the config : 
-Moves all the folders to the target folder. Doesn't return anything.
+Move the folder to the target folder. Doesn't return anything.
 
 1. If the target or source path mapping is not found in the config : 
 Prompts the user by throwing a `MappingNotFoundException`   : 
    > **MappingNotFoundException** : Mapping for the local path provided is not found. Provide a mapping for the `localPath`
      
-1. If the target folder provided has been deleted previously :
+1. If the target folder or source folder provided has been deleted previously :
 Throws a `FileDoesNotExistException` :
-    >" **FileDoesNotExistException :** Folder Mapped to the target path provided has been deleted."
+    > **FileDoesNotExistException :** Folder Mapped to the target path or the source provided has been deleted.
 
 
 ## Copy File API
 
 Intended to copy a file from it's source location to a destination location.
 
-**Implementation:**  `copyFiles(sourceFilePaths,targetFolderPath)`
+**Implementation:**  `copyFiles(sourceFilePath,targetFolderPath)`
 
 **Parameters:**
-1. `sourceFilePaths` - String Array
-An array of Absolute local file paths in the Windows or Unix file system format of the files which are needed to be copied.
+1. `sourceFilePath` - String 
+Absolute local file path in the Windows or Unix file system format of the file which is needed to be copied.
 2. `targetFolderPath` -  String
  Absolute local folder path in the Windows or Unix file system format of the folder to which the files are needed to be copied to. 
 
 **Return Values:**
 1. If the file mapping is found in the config : 
-Copies all the files to the target folder. Doesn't return anything.
+Copies the file to the target folder. Doesn't return anything.
 
 1. If the target or source path mapping is not found in the config : 
 Prompts the user by throwing a `MappingNotFoundException`   : 
    > **MappingNotFoundException** : Mapping for the local path provided is not found. Provide a mapping for the `localPath`
      
-1. If the target folder provided has been deleted previously :
+1. If the target folder or the source file provided has been deleted previously :
 Throws a `FileDoesNotExistException` :
-    >" **FileDoesNotExistException :** Folder Mapped to the target path provided has been deleted."
+    > **FileDoesNotExistException :** Folder/File Mapped to the target path/ source path provided has been deleted.
 
 
 ## Copy Folder API
 
 Intended to copy a folder from it's source location to a destination location.
 
-**Implementation:**  `copyFolders(sourceFolderPaths,targetFolderPath)`
+**Implementation:**  `copyFolders(sourceFolderPath,targetFolderPath)`
 
 **Parameters:**
-1. `sourceFolderPaths` - String Array
-An array of Absolute local folder paths in the Windows or Unix file system format of the folders which are needed to be copied.
+1. `sourceFolderPath` - String 
+Absolute local folder path in the Windows or Unix file system format of the folder which is needed to be copied.
 2. `targetFolderPath` -  String
  Absolute local folder path in the Windows or Unix file system format of the folder to which the folders are needed to be copied to. 
 
 **Return Values:**
 1. If the folder mapping is found in the config : 
-Copies all the folders to the target folder. Doesn't return anything.
+Copies the folder to the target folder. Doesn't return anything.
 
 1. If the target or source path mapping is not found in the config : 
 Prompts the user by throwing a `MappingNotFoundException`   : 
    > **MappingNotFoundException** : Mapping for the local path provided is not found. Provide a mapping for the `localPath`
      
-1. If the target folder provided has been deleted previously :
+1. If the target folder or the source folder provided has been deleted previously :
 Throws a `FileDoesNotExistException` :
-    >" **FileDoesNotExistException :** Folder Mapped to the target path provided has been deleted."
+    > **FileDoesNotExistException :** Folder Mapped to the target path or the source provided has been deleted.
 
 
 ## Find Files By Pattern API
@@ -386,3 +385,4 @@ Returns a number - `FAILURE`  to tell that the mapping has not been added to the
   * `INVALID_DRIVE_ID = 2` the drive id provided may be invalid or 
   * `DUPLICATE_MAPPING = 3` the local path provided has a mapping already present in the config. 
   * `INCOMPATIBLE_MIMETYPES = 4` the mimetype of of the local path and drive id provided do not match  
+
