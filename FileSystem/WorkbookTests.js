@@ -50,13 +50,6 @@ function workbook_run_all_tests() {
       });
 
   QUnit.test(
-      'single call to workbook.open() when file is not present', function() {
-        expect(0);
-        var fileName1 = 'FileNotExist.xlsx';
-        Workbook.openWorkbook(fileName1);
-      });
-
-  QUnit.test(
       'ActiveWorkbook call when active workbook path is not set', function() {
         Workbook.resetActiveWorkbookPath();
         throws(function() {
