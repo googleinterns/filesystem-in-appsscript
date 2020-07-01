@@ -82,7 +82,7 @@ function curDir(drive) {
     }
     var newPath = drive + ':\\';
     if (!isValidAbsolutePath(newPath)) {
-      throw new Error(drive + 'is an invalid drive');
+      throw new Error(drive + ' is an invalid drive letter');
     }
     return newPath;
   } else {
