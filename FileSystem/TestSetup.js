@@ -71,22 +71,22 @@ function testFunctions() {
 }
 
 function setupTestEnvironment() {
+  var folder1 = 'c:\\User\\Desktop\\folder1';
+  var folder2 = 'c:\\User\\Desktop\\folder2';
   try {
-    FileMapper.deleteFolder('c:\\User\\Desktop\\folder1');
+    FileMapper.deleteFolder(folder1);
   } catch (e) {
     // Do Nothing
   }
   try {
-    FileMapper.deleteFolder('c:\\User\\Desktop\\folder2');
+    FileMapper.deleteFolder(folder2);
   } catch (e) {
     // Do Nothing
   }
-  FileMapper.copyFolder(
-      [
-        'c:\\User\\Desktop\\original\\folder1',
-        'c:\\User\\Desktop\\original\\folder2'
-      ],
-      'c:\\User\\Desktop');
+  var originalFolder1 = 'c:\\User\\Desktop\\original\\folder1';
+  var originalFolder2 = 'c:\\User\\Desktop\\original\\folder2';
+  FileMapper.copyFolder(originalFolder1, 'c:\\User\\Desktop');
+  FileMapper.copyFolder(originalFolder2, 'c:\\User\\Desktop');
 }
 
 // Callback when module starts
