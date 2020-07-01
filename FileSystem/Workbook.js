@@ -80,7 +80,7 @@ function promptActiveWorkbookPath(error) {
  * and the user is prompted if the active workbook path is not available.
  * @return {string} The active workbook path
  */
-function getActiveWorkbookPath() {
+function getActiveWorkbookPath(showPrompt) {
   if (!this.activeWorkbookPath) {
     var properties = PropertiesService.getDocumentProperties();
     this.activeWorkbookPath = properties.getProperty('ActiveWorkbookPath');
@@ -89,9 +89,13 @@ function getActiveWorkbookPath() {
     return this.activeWorkbookPath;
   }
   // path not found, prompt and throw error
-  promptActiveWorkbookPath(true);
+  if (showPrompt) {
+    promptActiveWorkbookPath(true);
+  }
   throw new Error('ActiveWorkbookPath not defined');
 }
+
+Workbook.getActiveWorkbookPath = blockFunctionDecorator(Workbook.getActiveWorkbookPath);
 
 /**
  * @todo Register directory mapping with File Mapper
