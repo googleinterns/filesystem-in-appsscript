@@ -46,7 +46,9 @@ var VBAFileMapperMocker = {
   findFilesByPattern: findFilesByPattern,
   findFoldersByPattern: findFoldersByPattern,
   getRelativePathSplit: getRelativePathSplit,
-  getBaseDriveFolder: getBaseDriveFolder
+  getBaseDriveFolder: getBaseDriveFolder,
+  addFileMapping: addFileMapping,
+  addFolderMapping: addFolderMapping
 };
 
 var FileMapper = USE_FILEMAPPER_MOCKER ? VBAFileMapperMocker : VBAFileMapper;
@@ -156,48 +158,48 @@ function createFolder(localPath) {
 
 /**
  * Move file API
- * API moves all files to the target folder. Apps Script does
+ * API moves file to the target folder. Apps Script does
  * not have a move API. Move is implemented by making a copy
  * and deleting the original file.
- * @param {Array} sourceFilePaths List of local files to be moved
+ * @param {string} sourceFilePath Local file to be moved
  * @param {string} targetFolderPath Destination folder path
  */
-function moveFile(sourceFilePaths, targetFolderPath) {
-  cloneFiles(sourceFilePaths, targetFolderPath, true);
+function moveFile(sourceFilePath, targetFolderPath) {
+  cloneFile(sourceFilePath, targetFolderPath, true);
 }
 
 /**
  * Copy file API
- * API copies all files to the target folder.
- * @param {Array} sourceFilePaths List of local files to be copied
+ * API copies file to the target folder.
+ * @param {string} sourceFilePath Local file to be copied
  * @param {string} targetFolderPath Destination folder path
  */
-function copyFile(sourceFilePaths, targetFolderPath) {
-  cloneFiles(sourceFilePaths, targetFolderPath, false);
+function copyFile(sourceFilePath, targetFolderPath) {
+  cloneFile(sourceFilePath, targetFolderPath, false);
 }
 
 /**
  * Move folder API
- * API moves all folders to the target folder. Apps Script does
+ * API moves folder to the target folder. Apps Script does
  * not have a move API. Move is implemented by making a copy
  * and deleting the original folder. Apps Script does not have a
  * direct copy folder API as well, a copy is done recursively
- * @param {Array} sourceFilePaths List of local folders to be moved
+ * @param {string} sourceFilePath Local folder to be moved
  * @param {string} targetFolderPath Destination folder path
  */
-function moveFolder(sourceFilePaths, targetFolderPath) {
-  cloneFolder(sourceFilePaths, targetFolderPath, true);
+function moveFolder(sourceFilePath, targetFolderPath) {
+  cloneFolder(sourceFilePath, targetFolderPath, true);
 }
 
 /**
  * Copy folder API
- * API copies all folders to the target folder. Apps Script does not have a
+ * API copies folder to the target folder. Apps Script does not have a
  * direct copy folder API, folder copy is done recursively
- * @param {Array} sourceFilePaths List of local folders to be copied
+ * @param {string} sourceFilePath Local folder to be copied
  * @param {string} targetFolderPath Destination folder path
  */
-function copyFolder(sourceFilePaths, targetFolderPath) {
-  cloneFolder(sourceFilePaths, targetFolderPath, false);
+function copyFolder(sourceFilePath, targetFolderPath) {
+  cloneFolder(sourceFilePath, targetFolderPath, false);
 }
 
 /**
@@ -257,4 +259,20 @@ function getBaseDriveFolder() {
   var id = SpreadsheetApp.getActive().getId();
   var file = DriveApp.getFileById(id);
   return file.getParents().next();
+}
+
+/**
+ * @param {string} localPath Local file path of the file to be mapped
+ * @param {string} driveId Drive Id of the file
+ */
+function addFileMapping(localPath, driveId) {
+  // Do nothing in mocker
+}
+
+/**
+ * @param {string} localPath Local file path of the folder to be mapped
+ * @param {string} driveId Drive Id of the folder
+ */
+function addFolderMapping(localPath, driveId) {
+  // Do nothing in mocker
 }
