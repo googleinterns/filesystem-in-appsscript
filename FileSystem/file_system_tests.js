@@ -37,6 +37,7 @@ function file_system_run_all_tests() {
   file_system_name_tests();
   file_system_parent_folder_tests();
   file_system_base_names_test();
+  file_system_file_handling_tests();
 }
 
 function file_system_tests_setup() {
@@ -183,5 +184,200 @@ function file_system_base_names_test() {
       var message = localPath + ' -> ' + expectedBaseName;
       equal(result, expectedBaseName, message);
     }
+  });
+}
+
+var fileSystemHandlingTests = {
+  setup: file_system_file_handling_tests_setup,
+  tests: {
+    exists: file_system_exists_testing,
+    delete_tests: file_system_delete_testing,
+    copy: file_system_copy_testing,
+    move: file_system_move_testing,
+  }
+};
+
+function file_system_file_handling_all_tests() {
+  file_system_file_handling_tests_setup();
+  file_system_exists_testing();
+  file_system_delete_testing();
+  file_system_copy_testing();
+  file_system_move_testing();
+}
+
+function file_system_file_handling_tests_setup() {
+  var moduleName = 'FileSystem - File Handling';
+  QUnit.module('FileSystem - File Handling', {
+    setup: function() {
+      DirectoryManager.setCurrentDirectory('c:\\user\\desktop');
+      if (currentRunningTestModule != moduleName) {
+        deleteFolderIfExists('c:\\user\\desktop\\filesystem_temp');
+        var sourceFolder = 'c:\\user\\desktop\\original\\filesystem_temp';
+        FileMapper.copyFolder(sourceFolder, 'c:\\user\\desktop');
+      }
+    }
+  });
+}
+
+function file_system_exists_testing() {
+  QUnit.test('Has File testing', 2, function() {
+    var file1 = 'c:\\User\\Desktop\\filesystem\\file1.txt';
+    var file2 = 'c:\\User\\Desktop\\filesystem\\doesnotexist.txt';
+    var response1 = FileSystem.fileExists(file1);
+    var response2 = FileSystem.fileExists(file2);
+    ok(response1, 'File exists');
+    ok(!response2, 'File does not exist');
+  });
+
+  QUnit.test('Has Folder testing', 2, function() {
+    var folder1 = 'c:\\User\\Desktop\\filesystem\\folder1';
+    var folder2 = 'c:\\User\\Desktop\\filesystem\\doesnotexist';
+    var response1 = FileSystem.folderExists(folder1);
+    var response2 = FileSystem.folderExists(folder2);
+    ok(response1, 'Folder exists');
+    ok(!response2, 'Folder does not exist');
+  });
+}
+
+function file_system_delete_testing() {
+  QUnit.test('Folder delete testing', 4, function() {
+    var folder1 = 'filesystem_temp\\folder1';
+    var folder2 = 'filesystem_temp\\folder2';
+    var response1 = FileSystem.folderExists(folder1);
+    var response2 = FileSystem.folderExists(folder2);
+    ok(response1, 'Folder exists');
+    ok(response2, 'Folder exists');
+    FileSystem.deleteFolders('filesystem_temp\\folder?');
+    var response3 = FileSystem.folderExists(folder1);
+    var response4 = FileSystem.folderExists(folder2);
+    ok(!response3, 'Folder does not exist');
+    ok(!response4, 'Folder does not exist');
+  });
+}
+
+function file_system_copy_testing() {
+  QUnit.test('File copy file testing - 1', 5, function() {
+    emptyFolder('temp');
+    var file1 = 'filesystem/file1.txt';
+    var file2 = 'filesystem/folder1/file1.txt';
+    var target = 'temp/';
+    // Check if file does not exist
+    var response1 = FileSystem.fileExists('temp/file1.txt');
+    ok(!response1, 'File does not exist');
+    // Copy file
+    FileSystem.copyFile(file1, target, false);
+    var response2 = FileSystem.fileExists('temp/file1.txt');
+    ok(response2, 'File exists');
+    var file = FileSystem.getFile('temp/file1.txt');
+    var data1 = file.driveEntity.getBlob().getDataAsString();
+    var actualContent1 = 'Hello World.\r\nIt is a bright new world.\r\n';
+    equal(data1, actualContent1, 'Data copied correctly');
+    // Copy file with same name but overwrite
+    FileSystem.copyFile(file2, target, true);
+    var response3 = FileSystem.fileExists('temp/file1.txt');
+    ok(response3, 'File exists');
+    file = FileSystem.getFile('temp/file1.txt');
+    var data2 = file.driveEntity.getBlob().getDataAsString();
+    var actualContent2 = 'It is a bright new world.\r\n';
+    equal(data2, actualContent2, 'Data copied correctly');
+  });
+
+  QUnit.test('File copy file testing - 2', 5, function() {
+    emptyFolder('temp');
+    var file1 = 'filesystem/file1.txt';
+    var file2 = 'filesystem/folder1/file1.txt';
+    var target = 'temp/file2.txt';
+    // Check if file does not exist
+    var response1 = FileSystem.fileExists(target);
+    ok(!response1, 'File does not exist');
+    // Copy file
+    FileSystem.copyFile(file1, target, false);
+    var response2 = FileSystem.fileExists(target);
+    ok(response2, 'File exists');
+    var file = FileSystem.getFile(target);
+    var data1 = file.driveEntity.getBlob().getDataAsString();
+    var actualContent1 = 'Hello World.\r\nIt is a bright new world.\r\n';
+    equal(data1, actualContent1, 'Data copied correctly');
+    // Copy file with same name but overwrite
+    FileSystem.copyFile(file2, target, true);
+    var response3 = FileSystem.fileExists(target);
+    ok(response3, 'File exists');
+    file = FileSystem.getFile(target);
+    var data2 = file.driveEntity.getBlob().getDataAsString();
+    var actualContent2 = 'It is a bright new world.\r\n';
+    equal(data2, actualContent2, 'Data copied correctly');
+  });
+
+  QUnit.test('File copy folder testing', 5, function() {
+    emptyFolder('temp');
+    var folder1 = 'filesystem/copythis';
+    var target = 'temp/new_folder';
+    var targetFile = 'temp/new_folder/file.txt';
+    // Check if file does not exist
+    var response1 = FileSystem.folderExists(target);
+    var response2 = FileSystem.folderExists(folder1);
+    ok(!response1, 'Folder does not exist');
+    ok(response2, 'Folder exists');
+    // Copy folder
+    FileSystem.copyFolder(folder1, target, false);
+    var response3 = FileSystem.folderExists(target);
+    var response4 = FileSystem.folderExists(folder1);
+    var response5 = FileSystem.fileExists(targetFile);
+    ok(response3, 'Folder exists');
+    ok(response4, 'Folder exists');
+    ok(response5, 'File exists');
+  });
+}
+
+function file_system_move_testing() {
+  QUnit.test('File move file testing - 1', 4, function() {
+    emptyFolder('temp');
+    var file1 = 'filesystem_temp/movethis.txt';
+    var target = 'temp/';
+    // Check if file does not exist
+    var response1 = FileSystem.fileExists('temp/movethis.txt');
+    var response2 = FileSystem.fileExists(file1);
+    ok(!response1, 'File does not exist');
+    ok(response2, 'Source File exists');
+    // Move file
+    FileSystem.moveFile(file1, target);
+    var response3 = FileSystem.fileExists('temp/movethis.txt');
+    ok(response3, 'File exists');
+    var response4 = FileSystem.fileExists(file1);
+    ok(!response4, 'File does not exist');
+  });
+
+  QUnit.test('File move file testing - 2', 4, function() {
+    emptyFolder('temp');
+    var file1 = 'filesystem_temp/movethis1.txt';
+    var target = 'temp/some_new_name.txt';
+    // Check if file does not exist
+    var response1 = FileSystem.fileExists(target);
+    var response2 = FileSystem.fileExists(file1);
+    ok(!response1, 'File does not exist');
+    ok(response2, 'Source File exists');
+    // Move file
+    FileSystem.moveFile(file1, target);
+    var response3 = FileSystem.fileExists(target);
+    ok(response3, 'File exists');
+    var response4 = FileSystem.fileExists(file1);
+    ok(!response4, 'File does not exist');
+  });
+
+  QUnit.test('File move folder testing', 4, function() {
+    emptyFolder('temp');
+    var folder1 = 'filesystem_temp/movethis';
+    var target = 'temp/new_folder';
+    // Check if file does not exist
+    var response1 = FileSystem.folderExists(target);
+    var response2 = FileSystem.folderExists(folder1);
+    ok(!response1, 'Folder does not exist');
+    ok(response2, 'Folder exists');
+    // Copy folder
+    FileSystem.moveFolder(folder1, target, false);
+    var response3 = FileSystem.folderExists(target);
+    var response4 = FileSystem.folderExists(folder1);
+    ok(response3, 'Folder exists');
+    ok(!response4, 'Folder does not exist');
   });
 }

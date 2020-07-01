@@ -51,6 +51,7 @@ function installLibrary(thisObj) {
   thisObj.OpenMode = OpenMode;
   thisObj.LockMode = LockMode;
   thisObj.AccessMode = AccessMode;
+  thisObj.FileSystemObject = FileSystem;
 }
 
 function resetConfig() {

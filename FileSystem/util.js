@@ -85,8 +85,14 @@ var FileSystemType = {
 var windowsPathRegExp = /^[\w]\:(\\|(\\[^<>\\/:"\|\?\*]+)+)\\?$/;
 var unixPathRegExp = /^(\/[^<>\\/:"\|\?\*]+)*\/?$/;
 
+// Regex Expression to test if path is absolute
+var absolutePathRegExp = /^(\/|\w:)/
+
 // Regex Expression to match file separator - / or \
 var fileSeparatorRegExp = /\\|\//;
+
+// Regex Expression to test for wild cards
+var wildCardRegExp = /[\*?]/;
 
 /**
  * Validates if path is a valid absolute Windows/Unix path
@@ -101,15 +107,15 @@ function isValidAbsolutePath(path) {
  * Checks if path is an absolute path. Does not check for validity.
  * Required when path is not sanitized and when path contains wildcards.
  * @param {string} path File or Directory path
- * @return {boolean} true if path is a absolute Windows/Unix path
+ * @return {boolean} true if path is an absolute path
  */
 function isAbsolutePath(path) {
-  return /^\w:\\/.test(path) || /^\//.test(path);
+  return absolutePathRegExp.test(path);
 }
 
 /**
- * Helper function to obtain path type
- * @param {string} localPath File or directory path
+ * Helper function to obtain localPath type
+ * @param {string} localPath File or directory localPath
  * @return {string} File System type enumeration
  */
 function getFileSystemType(localPath) {
@@ -214,6 +220,20 @@ function deleteFileIfExists(localPath) {
 }
 
 /**
+ * Helper function to delete a folder if it exists.
+ * This is intended to be used for cleanup in testing
+ * @param {string} localPath Local file path of the folder to be deleted
+ */
+function deleteFolderIfExists(localPath) {
+  localPath = DirectoryManager.getAbsolutePath(localPath);
+  try {
+    FileMapper.deleteFolder(localPath);
+  } catch (e) {
+    // Folder doesn't exist, do nothing
+  }
+};
+
+/**
  * Get parent directory file path. This method returns a path that
  * is one directory above localPath
  * @param {string} localPath Local file path
@@ -221,4 +241,15 @@ function deleteFileIfExists(localPath) {
  */
 function getParentFolderPath(localPath) {
   return getAbsoluteLocalPath(localPath, '..');
+};
+
+/**
+ * Helper function to empty a folder if it exists. Create a new empty folder if
+ * it doesn't This is intended to be used for cleanup in testing
+ * @param {string} localPath Local file path of the folder to be deleted
+ */
+function emptyFolder(localPath) {
+  localPath = DirectoryManager.getAbsolutePath(localPath);
+  deleteFolderIfExists(localPath);
+  FileMapper.createFolder(localPath);
 };

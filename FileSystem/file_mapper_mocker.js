@@ -50,6 +50,7 @@ var VBAFileMapperMocker = {
   addFileMapping: addFileMapping,
   addFolderMapping: addFolderMapping,
   clearAllMappingsInConfig: clearAllMappingsInConfig,
+  deleteMapping: deleteMapping,
 };
 
 var FileMapper = USE_FILEMAPPER_MOCKER ? VBAFileMapperMocker : VBAFileMapper;
@@ -280,4 +281,12 @@ function addFolderMapping(localPath, driveId) {
  */
 function clearAllMappingsInConfig() {
   // Do nothing in mocker
+}
+
+/**
+ * Helper function to delete a mapping in config.
+ * @param {string} localPath Local file path mapping to be deleted
+ */
+function deleteMapping(localPath) {
+   // Do nothing in mocker
 }

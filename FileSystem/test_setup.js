@@ -77,16 +77,8 @@ function testFunctions() {
 function setupTestEnvironment() {
   var folder1 = 'c:\\user\\desktop\\folder1';
   var folder2 = 'c:\\user\\desktop\\folder2';
-  try {
-    FileMapper.deleteFolder(folder1);
-  } catch (e) {
-    // Do Nothing
-  }
-  try {
-    FileMapper.deleteFolder(folder2);
-  } catch (e) {
-    // Do Nothing
-  }
+  deleteFolderIfExists(folder1);
+  deleteFolderIfExists(folder2);
   var originalFolder1 = 'c:\\user\\desktop\\original\\folder1';
   var originalFolder2 = 'c:\\user\\desktop\\original\\folder2';
   FileMapper.copyFolder(originalFolder1, 'c:\\user\\desktop');
@@ -191,6 +183,7 @@ function getFileSystemTests() {
       'VBA Folder': vbaFolderTests,
       'File System': fileSystemApiTests,
       'Text Stream': vbaTextStreamTests,
+      'File Handling': fileSystemHandlingTests,
     }
   };
   return FileSystemTests;
