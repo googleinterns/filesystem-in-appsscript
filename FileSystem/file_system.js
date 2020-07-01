@@ -187,3 +187,117 @@ FileSystem.openTextFile = function(localPath, ioMode, createIfNotExists) {
   }
   return new VbaTextStream(localPath, ioMode);
 };
+
+/**
+ * Emulates VBA FileSystemObject.FileExists API
+ * Function to check if file exists given relative path or absolute path
+ * @param {string} localPath Local file path of the file
+ * @return {boolean} True if file exists
+ */
+FileSystem.fileExists = function(localPath) {
+  localPath = DirectoryManager.getAbsolutePath(localPath);
+  return FileMapper.hasFile(localPath);
+};
+
+/**
+ * Emulates VBA FileSystemObject.FolderExists API
+ * Function to check if a folder exists given relative path or absolute path
+ * @param {string} localPath Local file path of the folder
+ * @return {boolean} True if the folder exists
+ */
+FileSystem.folderExists = function(localPath) {
+  localPath = DirectoryManager.getAbsolutePath(localPath);
+  return FileMapper.hasFolder(localPath);
+};
+
+/**
+ * Emulates VBA FileSystemObject.DeleteFile API
+ * Function to delete a file given file name. Name can contain wildcard
+ * characters '*' and '?' to match multiple files.
+ * @param {string} filePathPattern File name specification which can
+ *     include wildcard characters, for one or more files to be deleted
+ */
+FileSystem.deleteFiles = function(filePathPattern) {
+  deleteEntity(filePathPattern, true);
+};
+
+/**
+ * Emulates VBA FileSystemObject.DeleteFolder API
+ * Function to delete a folder given file folder. Name can contain wildcard
+ * characters '*' and '?' to match multiple folders.
+ * @param {string} folderPathPattern Folder name specification which can
+ *     include wildcard characters, for one or more folders to be deleted
+ */
+FileSystem.deleteFolders = function(folderPathPattern) {
+  deleteEntity(folderPathPattern, false);
+};
+
+/**
+ * Emulates VBA FileSystemObject.CopyFile API
+ * Copies one or more files from one location to another. Source path can
+ * contain wild characters '*' and '?' in the last component. Optionally
+ * overwrite existing files. If sourcePath is a wildcard pattern, then
+ * destinationPath is the destination folder. If sourcePath contains a trailing
+ * file separator, then destinationPath is a destination folder. Otherwise,
+ * destinationPath is the new file.
+ * @param {string} sourcePath File path specification, which can include
+ *     wildcard characters, for one or more files to be copied.
+ * @param {string} destinationPath File path for the destination file
+ * @param {boolean} overwrite Flag indicating to overwrite existing files
+ */
+FileSystem.copyFile = function(sourcePath, destinationPath, overwrite) {
+  if (overwrite === undefined) {
+    overwrite = true;
+  }
+  return cloneEntity(sourcePath, destinationPath, overwrite, false, true);
+};
+
+/**
+ * Emulates VBA FileSystemObject.MoveFile API
+ * Moves one or more files from one location to another. Source path can
+ * contain wild characters '*' and '?' in the last component.  If sourcePath is
+ * a wildcard pattern, then destinationPath is the destination folder. If
+ * sourcePath contains a trailing file separator, then destinationPath is a
+ * destination folder. Otherwise, destinationPath is the renamed file.
+ * @param {string} sourcePath File path specification, which can include
+ *     wildcard characters, for one or more files to be copied.
+ * @param {string} destinationPath File path for the destination file
+ */
+FileSystem.moveFile = function(sourcePath, destinationPath) {
+  return cloneEntity(sourcePath, destinationPath, false, true, true);
+};
+
+/**
+ * Emulates VBA FolderSystemObject.CopyFolder API
+ * Copies one or more folders from one location to another. Source path can
+ * contain wild characters '*' and '?' in the last component. Optionally
+ * overwrite existing folders. If sourcePath is a wildcard pattern, then
+ * destinationPath is the destination folder. If sourcePath contains a trailing
+ * folder separator, then destinationPath is a destination folder. Otherwise,
+ * destinationPath is the new folder.
+ * @param {string} sourcePath Folder path specification, which can include
+ *     wildcard characters, for one or more folders to be copied.
+ * @param {string} destinationPath Folder path for the destination folder
+ * @param {boolean} overwrite Flag indicating to overwrite existing folders
+ */
+FileSystem.copyFolder = function(sourcePath, destinationPath, overwrite) {
+  if (overwrite === undefined) {
+    overwrite = true;
+  }
+  return cloneEntity(sourcePath, destinationPath, overwrite, false, false);
+};
+
+/**
+ * Emulates VBA FolderSystemObject.MoveFolder API
+ * Moves one or more folders from one location to another. Source path can
+ * contain wild characters '*' and '?' in the last component.  If sourcePath is
+ * a wildcard pattern, then destinationPath is the destination folder. If
+ * sourcePath contains a trailing folder separator, then destinationPath is a
+ * destination folder. Otherwise, destinationPath is the renamed folder.
+ * @param {string} sourcePath Folder path specification, which can include
+ *     wildcard characters, for one or more folders to be copied.
+ * @param {string} destinationPath Folder path for the destination folder
+ */
+FileSystem.moveFolder = function(sourcePath, destinationPath) {
+  return cloneEntity(sourcePath, destinationPath, false, true, false);
+};

@@ -34,6 +34,7 @@ var DirectoryManager = {
   deleteFiles: deleteFiles,
   deleteDirectory: deleteDirectory,
   createDirectory: createDirectory,
+  rename: rename,
 };
 
 /**
@@ -275,4 +276,23 @@ function deleteDirectory(localPath) {
 function createDirectory(localPath) {
   localPath = this.getAbsolutePath(localPath);
   FileMapper.createFolder(localPath);
+}
+
+/**
+ * Emulates VBA Name API
+ * Renames a file and moves it to a different directory or folder, if necessary
+ * @param {string} sourcePath File path specification
+ * @param {string} destinationPath File path for the destination file
+ */
+function rename(sourcePath, destinationPath) {
+  sourcePath = DirectoryManager.getAbsolutePath(sourcePath);
+  if(FileMapper.hasFile(sourcePath)) {
+    return cloneEntity(sourcePath, destinationPath, false, true, true);
+  }
+  else if(FileMapper.hasFolder(sourcePath)) {
+    return cloneEntity(sourcePath, destinationPath, false, true, false);
+  }
+  else {
+    throw new Error(sourcePath + ' is not an existing file or folder.');
+  }
 }

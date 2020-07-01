@@ -293,4 +293,16 @@ Deletes an empty directory at pathname. If directory is not empty an error is th
 
 App Script Implementation: `DirectoryManager.deleteDirectory(localPath)`
 
-## @todo Document NAME API
+## API - `Name()`
+
+Official Documentation - https://docs.microsoft.com/en-us/office/vba/language/reference/user-interface-help/name-statement
+
+### VBA Name Behavior and Usage
+
+**VBA API Usage:** `Name oldpathname As newpathname`
+
+Renames a disk file, directory, or folder.
+
+### AppScript Name Implementation Design
+
+App Script Implementation: `DirectoryManager.rename(sourcePath, destinationPath)`
