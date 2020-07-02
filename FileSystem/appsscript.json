@@ -1,13 +1,15 @@
 {
   "timeZone": "Asia/Kolkata",
   "dependencies": {
-    "libraries": [
-      {
-        "userSymbol": "QUnit",
-        "libraryId": "13agWuzcPH32W4JJvOqOEYqeNHGihS63P2V-a-Vxz-c9WPIzZYBvIhs3m",
-        "version": "4"
-      }
-    ]
+    "libraries": [{
+      "userSymbol": "VBAFileMapper",
+      "libraryId": "1mv6EhAjuJ04D3nns3LCmIZCM5qqWpYFAVqae5bV8K7HqNYH2mFXY_xMj",
+      "version": "3"
+    }, {
+      "userSymbol": "QUnit",
+      "libraryId": "13agWuzcPH32W4JJvOqOEYqeNHGihS63P2V-a-Vxz-c9WPIzZYBvIhs3m",
+      "version": "4"
+    }]
   },
   "webapp": {
     "access": "DOMAIN",

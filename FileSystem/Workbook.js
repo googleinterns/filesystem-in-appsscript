@@ -94,15 +94,20 @@ function getActiveWorkbookPath() {
 }
 
 /**
- * @todo Register directory mapping with File Mapper
- * @body This mapping is very useful as in most cases this will handle most
- * scenarios Set the active workbook path in PropertyService
+ * Set active workbook path. The active workbook path is the path of the folder
+ * containing the current spreadsheet document. This function also registers a
+ * file mapping with the File Mapper. This mapping is very useful as in most
+ * cases this will handle most scenarios. The active workbook path is stored in
+ * DocumentProperties.
  * @param {string} path The active workbook path
  */
 function setActiveWorkbookPath(path) {
   if (!isValidAbsolutePath(path)) {
     throw new Error(path + ' is not a valid');
   }
+  var id = SpreadsheetApp.getActive().getId();
+  var file = DriveApp.getFileById(id);
+  FileMapper.addFileMapping(path, file.getParents().next().getId());
   var fileSystemType = getFileSystemType(path);
   var path = sanitizePath(path, fileSystemType);
   this.activeWorkbookPath = path;
