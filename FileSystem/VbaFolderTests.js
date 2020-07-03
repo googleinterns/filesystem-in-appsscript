@@ -31,11 +31,8 @@ function vba_folder_run_all_tests() {
 
   QUnit.test('Folder create testing', 2, function() {
     var vbaFolder = FileSystem.getFolder(folderPath);
-    equal(
-        folderId, vbaFolder.driveId, 'Folder created correctly - Id Check');
-    equal(
-        fullPath, vbaFolder.localPath,
-        'Folder created correctly - Id Check');
+    equal(folderId, vbaFolder.driveId, 'Folder created correctly - Id Check');
+    equal(fullPath, vbaFolder.localPath, 'Folder created correctly - Id Check');
   });
 
   QUnit.test('Folder date property testing', 3, function() {
@@ -76,10 +73,13 @@ function vba_folder_run_all_tests() {
 
   QUnit.test('Folder get files testing', 1, function() {
     var vbaFolder = FileSystem.getFolder('folder1\\files');
-    var vbaFiles = vbaFolder.getFiles();
+    var vbaFileCollection = vbaFolder.getFiles();
     var fileNames = [];
-    for (var i = 0; i < vbaFiles.length; i++) {
-      fileNames.push(vbaFiles[i].name());
+    var Item;
+    for (__iter1 = new ValueIterator(vbaFileCollection),
+        Item = __iter1.getNext();
+         !isValueIteratorEnd(Item); Item = __iter1.getNext()) {
+      fileNames.push(Item.name());
     }
     var actualFileNames = ['file1.txt', 'file2.txt', 'somefile.txt'];
     fileNames.sort();
@@ -89,10 +89,13 @@ function vba_folder_run_all_tests() {
 
   QUnit.test('Folder get sub folders testing', 1, function() {
     var vbaFolder = FileSystem.getFolder(DirectoryManager.curDir());
-    var vbaFolders = vbaFolder.getSubFolders();
+    var vbaFolderCollection = vbaFolder.getSubFolders();
     var folderNames = [];
-    for (var i = 0; i < vbaFolders.length; i++) {
-      folderNames.push(vbaFolders[i].name());
+    var Item;
+    for (__iter1 = new ValueIterator(vbaFolderCollection),
+        Item = __iter1.getNext();
+         !isValueIteratorEnd(Item); Item = __iter1.getNext()) {
+      folderNames.push(Item.name());
     }
     var actualFolderNames = ['folder1', 'folder2', 'original'];
     folderNames.sort();
