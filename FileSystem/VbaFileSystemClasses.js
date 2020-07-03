@@ -189,14 +189,14 @@ VbaFolder.prototype.constructor = VbaFolder;
  * @return {Array} Array of VbaFile objects
  */
 VbaFolder.prototype.getFiles = function() {
-  var files = [];
+  var fileCollection = new VbaFileCollection(this);
   var fileIterator = this.driveEntity.getFiles();
   while (fileIterator.hasNext()) {
     var fileName = fileIterator.next().getName();
     var filePath = getAbsoluteLocalPath(this.localPath, fileName);
-    files.push(new VbaFile(filePath));
+    addToCollection(fileCollection, new VbaFile(filePath));
   }
-  return files;
+  return fileCollection;
 };
 
 /**
@@ -206,14 +206,14 @@ VbaFolder.prototype.getFiles = function() {
  * @return {Array} Array of VbaFolder objects
  */
 VbaFolder.prototype.getSubFolders = function() {
-  var folders = [];
+  var folderCollection = new VbaFolderCollection(this);
   var folderIterator = this.driveEntity.getFolders();
   while (folderIterator.hasNext()) {
     var folderName = folderIterator.next().getName();
     var folderPath = getAbsoluteLocalPath(this.localPath, folderName);
-    folders.push(new VbaFolder(folderPath));
+    addToCollection(folderCollection, new VbaFolder(folderPath));
   }
-  return folders;
+  return folderCollection;
 };
 
 /**
