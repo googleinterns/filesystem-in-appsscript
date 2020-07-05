@@ -1,0 +1,256 @@
+<!--
+Copyright 2020 Google LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   https://www.apache.org/licenses/LICENSE-2.0
+   
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<script>
+  // The Browser API key obtained from the Google API Console.
+  var DEVELOPER_KEY = 'AIzaSyCf4hWM9jnBKy7euPa2Frdi1i_lhnHDDSE';
+
+  // Google File Picker
+  var DIALOG_DIMENSIONS = {width : 600, height : 425};
+  var pickerApiLoaded = false;
+
+  var localPathValue = document.getElementById("localpathinput").value;
+
+  /**
+   * Loads the Google Picker API.
+   */
+  function callPicker() {
+    gapi.load('picker', {'callback' : function() { pickerApiLoaded = true; }});
+    getOAuthToken();
+  }
+
+  /**
+   * Gets the user's OAuth 2.0 access token from the server-side script so that
+   * it can be passed to Picker. This technique keeps Picker from needing to
+   * show its own authorization dialog, but is only possible if the OAuth scope
+   * that Picker needs is available in Apps Script.
+   */
+  function getOAuthToken() {
+    google.script.run
+        .withSuccessHandler(createPicker)
+        .withFailureHandler()
+        .getOAuthToken();
+  }
+
+  /**
+   * Creates a Picker that can access the user's spreadsheets.
+   *
+   * @param {String} token An OAuth 2.0 access token that lets
+   *     Picker access the file type
+   */
+  function createPicker(token) {
+    if (pickerApiLoaded && token) {
+      // Setting the picker view to display folders
+      var docsView = new google.picker.DocsView()
+                         .setIncludeFolders(true)
+                         .setMimeTypes('application/vnd.google-apps.folder')
+                         .setSelectFolderEnabled(true);
+
+      var picker =
+          new google.picker.PickerBuilder()
+              .addView(docsView)
+              .enableFeature(google.picker.Feature.NAV_HIDDEN)
+              .hideTitleBar()
+              .setOAuthToken(token)
+              .setDeveloperKey(DEVELOPER_KEY)
+              .setCallback(pickerCallback)
+              .setSize(DIALOG_DIMENSIONS.width - 2, DIALOG_DIMENSIONS.height - 2)
+              .setOrigin(google.script.host.origin)
+              .build();
+      picker.setVisible(true);
+    } else {
+      showMessage(
+          'Unable to load the file picker. <br><strong> Please try again after sometime.</strong>');
+    }
+  }
+
+  /**
+   * A callback function that extracts the chosen document's metadata from the
+   * response object.
+   *
+   * @param {object} data The response object.
+   */
+  function pickerCallback(data) {
+    var action = data[google.picker.Response.ACTION];
+    if (action == google.picker.Action.PICKED) {
+      var doc = data[google.picker.Response.DOCUMENTS][0];
+      var id = doc[google.picker.Document.ID];
+      var mime = doc[google.picker.Document.MIME_TYPE];
+
+      document.getElementById("hiddenId").innerHTML = id;
+
+      google.script.run
+          .withSuccessHandler(function(fullpath) { 
+            $("#destinationfolder").val(fullpath); 
+          })
+          .withFailureHandler()
+          .getFullDrivePath(id, true);
+    } else if (action == google.picker.Action.CANCEL) {
+      showMessage("No File selected using the file picker.");
+    }
+  }
+
+  /**
+   * Function to Prevent forms from submitting.
+   */
+  function preventFormSubmit() {
+    var forms = document.querySelectorAll('form');
+    for (var i = 0; i < forms.length; i++) {
+      forms[i].addEventListener('submit',
+                                function(event) { event.preventDefault(); });
+    }
+  }
+  window.addEventListener('load', preventFormSubmit);
+
+  /**
+   * Executed when the submit button is clicked
+   */
+  function handleFormSubmit(formObject) {
+    // If the file input is empty
+    if (document.getElementById('fileInput').value === "") {
+      showMessage(
+          "<strong> No File Selected.</strong> <br> Please provide a file to map to the local path below and try again.");
+      return;
+    }
+
+    // If the file input has an incompatible file
+    if (document.getElementById('extensionError').style.color === 'red') {
+      showMessage(
+          "<strong> Incompatible File Type </strong> <br> Please provide a file compatible to the local path below.");
+      return;
+    }
+
+    document.getElementById('submitButton').value = "Uploading...";
+
+    var file = formObject.uploadedFile.files[0];
+    var fr = new FileReader();
+    fr.fileName = file.name;
+
+    // Event handler executed when the file load event is fired
+    fr.onload = function(e) {
+      var data = e.target.result.replace(/^.*,/, '');
+      var mimetype = e.target.result.match(/^.*(?=;)/)[0];
+      var filename = e.target.fileName;
+
+      // Call the appscript function to create a file in the drive
+      // and on success of that function executes the updateUrl function
+      google.script.run
+          .withSuccessHandler(function(url) {
+            document.getElementById('submitButton').value = "Submit";
+            showMessage(
+                "<strong>Successfully</strong> uploaded the file <strong> " +
+                filename +
+                "</strong> to Google Drive and mapped it to the local path <strong>" +
+                localPathValue +
+                "</strong>. <br> To check it out visit this <strong><a href='" +
+                url + "' style='color: inherit;'>Drive Link</a></strong> !!");
+          })
+          .withFailureHandler(function() {
+            document.getElementById('submitButton').value = "Submit";
+            showMessage(
+                "Failed to upload the file to Google Drive and map it to the local path <strong>" +
+                localPathValue + "</strong>.<br> Please try again.");
+          })
+          .processForm(data, mimetype, filename, localPathValue,
+                       document.getElementById('hiddenId').innerHTML);
+    } fr.readAsDataURL(file);
+  }
+
+  /**
+   * Get the extension from the file path
+   *
+   * @param {String} path The local path
+   * @return {String} extension The extension of the local path
+   */
+  function getExtensionFromLocalPath(path) {
+    var index = path.lastIndexOf(".");
+    var extension = "";
+    if (index != -1) {
+      extension = path.substr(index + 1);
+    }
+
+    // To emulate Windows behavior
+    // In windows, files without extension are text files
+    return (extension === "") ? "txt" : extension;
+  }
+
+  /**
+   * Function to return the MimeType based on the file extension
+   *
+   * @param {String} extension The extension of the local path
+   * @return {String} MimeType of the file based on it's extension
+   */
+  function getMimetypeFromExtension(extension) {
+    if (extension === "xls" || extension === "xlsx" || extension === "csv")
+      return 'GOOGLE_SHEETS';
+
+    if (extension === "doc" || extension === "docx" || extension === "pdf" ||
+        extension === "txt")
+      return 'GOOGLE_DOCS';
+
+    if (extension === "ppt" || extension === "pptx")
+      return 'GOOGLE_SLIDES';
+
+    return 'UNKNOWN';
+  }
+
+  /**
+   * Function to check if the mimetype of the local path file and the uploaded
+   * file matches or not
+   *
+   * @param {String} uploadedFile File name of the uploaded file
+   */
+  function checkIfExtensionMatches(uploadedFile) {
+    var localPath = document.getElementById("localpathinput").value;
+
+    var uploadedFileExtension = getExtensionFromLocalPath(uploadedFile);
+    var localPathExtension = getExtensionFromLocalPath(localPath);
+
+    if (getMimetypeFromExtension(localPathExtension) ===
+        getMimetypeFromExtension(uploadedFileExtension)) {
+      showUploadedFileMessage("File type matches to the local file type", true);
+    } else {
+      showUploadedFileMessage("File type doesn't match to the local file type",
+                              false);
+    }
+  }
+
+  /**
+   * Update the message below the upload file input to tell whether
+   * the uploaded file is valid or not
+   *
+   * @param {String} message Html text to be displayed
+   * @param {Boolean} valid Whether the uploaded file is valid or not
+   *    based on which the text color is decided
+   */
+  function showUploadedFileMessage(message, valid) {
+    var errorDiv = document.getElementById('extensionError');
+    errorDiv.innerHTML = message;
+    var color = (valid) ? 'green' : "red";
+    errorDiv.style.color = color;
+  }
+
+  /**
+   * Displays an error message within the #result element.
+   *
+   * @param {string} message The error message to display.
+   */
+  function showMessage(message) {
+    document.getElementById('errorDiv').style.display = "block";
+    document.getElementById('error').innerHTML = message;
+    document.getElementsByTagName("BODY")[0].style.marginTop = '5px';
+  }
+</script>
