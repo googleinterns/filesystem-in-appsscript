@@ -151,8 +151,7 @@ function deleteLocalPathCaseMapping(localpath) {
 /**
  * Check if the config data has been loaded from the config file or not
  */
-function
-checkIfConfigDataLoaded() {
+function checkIfConfigDataLoaded() {
   if (!CONFIG.dataLoaded) {
     CONFIG.loadConfigData();
   }
