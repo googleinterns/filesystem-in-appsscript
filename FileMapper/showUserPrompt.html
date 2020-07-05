@@ -1,0 +1,126 @@
+<!--
+Copyright 2020 Google LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   https://www.apache.org/licenses/LICENSE-2.0
+   
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <title>Choose Upload Type</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+    <style>
+      .container {
+        color: red
+      }
+
+      .list-group {
+        margin-bottom: 0px; 
+        text-align: center;
+      }
+
+      #localFileUploadButton {
+        outline-color: #ddd;
+        text-align: center;
+      }
+
+      .prompt {
+        margin: 0px;
+      }
+
+      .prompt-description {
+        margin: 0px; 
+        font-size: 12px; 
+        color: gray;
+      }
+
+      #filePickerButton {
+        outline-color: #ddd;
+        text-align: center;
+      }
+    </style>
+  </head>
+
+  <body onload="checkIfFolder()">
+    <!-- Error Announcement -->
+    <div class="container">
+      No mapping has been found for the local path 
+        <strong><?= localPathValue ?></strong> 
+      in the config, so please provide a file to map to 
+        <strong><?= localPathValue ?></strong> 
+    </div>
+    <br>
+
+    <!-- Prompt Choice list -->
+    <div class="list-group">
+      <!-- list header -->
+      <div class="list-group-item active">
+        Select a way to provide mapping for <strong><?= localPathValue ?></strong>
+      </div>
+
+      <!-- local file uploader selection button -->
+      <button id="localFileUploadButton" type="button" class="list-group-item" onclick="callLocalFileUploader()">
+        <p class='prompt'> Upload from local system </p>
+        <p class='prompt-description' id="ptag"> 
+          if you have a file in your local system which you want to map to the local path
+        </p>
+      </button>
+
+      <!-- google file picker selection button -->
+      <button id="filePickerButton" type="button" class="list-group-item" onclick="callGoogleDriveFilePicker()">
+        <p class='prompt'> Select from Google Drive </p>
+        <p class='prompt-description'> 
+          if you have a file/folder already uploaded to google drive which you want to map to the local path
+        </p>
+      </button>
+    </div>
+
+    <script>
+      var localPathValue = '<?= localPathValue ?>';
+      var isFile = '<?= isFile ?>';
+        
+      /**
+       * Function to be executed if the mapping is needed for a folder
+       */   
+      function checkIfFolder() {
+        if (isFile === 'false') {
+          document.getElementById("localFileUploadButton").disabled = true;
+          var error = "<p style='margin: 0px; font-size: 12px; color: red'>Can't use as mapping needed for a folder</p>";
+          document.getElementById("ptag").insertAdjacentHTML('afterend', error);
+        }
+      }
+
+      /**
+       * Function executed when local file uploader is called
+       */ 
+      function callLocalFileUploader() {
+        google.script.run
+            .withSuccessHandler(() => google.script.host.close())
+            .displayFileUploadForm(localPathValue);
+      }
+
+      /**
+       * Function executed when google file picker is called
+       */ 
+      function callGoogleDriveFilePicker() {
+        console.log();
+        google.script.run
+            .withSuccessHandler(() => google.script.host.close())
+            .showPicker(localPathValue);
+      }
+    </script>
+  </body>
+</html>
