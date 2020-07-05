@@ -15,12 +15,10 @@
  */
 
 /**
- * Copy File API Unit Tests
+ * Copy File API Unit Tests for Windows File System
  */
-function copy_file_api_tests() {
-  QUnit.module("copyFile API");
-
-  TestUtil.setTestingEnvironment();
+function copy_file_api_windows_tests() {
+  QUnit.module("WINDOWS - copyFile API");
 
   // @ts-ignore
   // Tests for moving files
@@ -104,6 +102,101 @@ function copy_file_api_tests() {
                         "FileDoesNotExistException caught for target folder.");
 
                  targetFolder = "C:\\user";
+                 throws(function() { copyFile(folder, targetFolder); },
+                        FileDoesNotExistException,
+                        "FileDoesNotExistException caught for source folder.");
+               });
+  });
+}
+
+/**
+ * Copy File API Unit Tests for Unix File System
+ */
+function copy_file_api_unix_tests() {
+  QUnit.module("UNIX - copyFile API");
+  
+  // @ts-ignore
+  // Tests for moving files
+  QUnit.test("Copying Files", function() {
+    var sourceFile = [
+      "/home/Folder1/File11.xls",
+      "/home/Folder2/Folder21/File211.docx"
+    ];
+    var newFile = [
+      "/home/Folder4/Folder41/File11.xls",
+      "/home/Folder3/File211.docx"
+    ];
+    var targetFolder = [ 
+      "/home/Folder4/Folder41", 
+      "/home/Folder3" 
+    ];
+
+    expect(4 * sourceFile.length);
+
+    for (var i = 0; i < sourceFile.length; i++) {
+      ok(hasFile(sourceFile[i]), "Source File Exists");
+      ok(!hasFile(newFile[i]), "Destination File doesnot Exist");
+      copyFile(sourceFile[i], targetFolder[i]);
+      ok(hasFile(sourceFile[i]), "Source File Exists");
+      ok(hasFile(newFile[i]), "Destination File Exists");
+      deleteFile(newFile[i]);
+      deleteMapping(newFile[i]);
+    }
+  });
+
+  // @ts-ignore
+  // Tests for moving folders
+  QUnit.test("Copying Folders", function() {
+    var sourceFolder = [ 
+      "/home/Folder2/Folder22", 
+      "/home/Folder1" 
+    ];
+    var newFolder = [
+      "/home/Folder3/Folder22", 
+      "/home/Folder4/Folder41/Folder1"
+    ];
+    var targetFolder = [ 
+      "/home/Folder3", 
+      "/home/Folder4/Folder41" 
+    ];
+
+    expect(4 * sourceFolder.length);
+
+    for (var i = 0; i < sourceFolder.length; i++) {
+      ok(hasFolder(sourceFolder[i]), "Source Folder Exists");
+      ok(!hasFolder(newFolder[i]), "Destination Folder doesnot Exist");
+      copyFolder(sourceFolder[i], targetFolder[i]);
+      ok(hasFolder(sourceFolder[i]), "Source Folder Exists");
+      ok(hasFolder(newFolder[i]), "Destination Folder Exists");
+      deleteFolder(newFolder[i]);
+      deleteMapping(newFolder[i]);
+    }
+
+    // Tests for files and folders which are not available hence can't be copied
+    QUnit.test("FileDoesNotExistException - caught in copyFile function", 2,
+               function() {
+                 var targetFolder = "/home/MyFolder";
+                 var file = "/home/Folder1/Folder11/MyFile.txt";
+                 throws(function() { copyFile(file, targetFolder); },
+                        FileDoesNotExistException,
+                        "FileDoesNotExistException caught for target folder.");
+
+                 targetFolder = "/home";
+                 throws(function() { copyFile(file, targetFolder); },
+                        FileDoesNotExistException,
+                        "FileDoesNotExistException caught for source file.");
+               });
+
+    // Tests for folders which are not available hence can't be copied
+    QUnit.test("FileDoesNotExistException - caught in copyFolder function", 2,
+               function() {
+                 var targetFolder = "/home/MyFolder";
+                 var folder = "/home/Folder1/Folder11/MyFolder";
+                 throws(function() { copyFolder(folder, targetFolder); },
+                        FileDoesNotExistException,
+                        "FileDoesNotExistException caught for target folder.");
+
+                 targetFolder = "/home";
                  throws(function() { copyFile(folder, targetFolder); },
                         FileDoesNotExistException,
                         "FileDoesNotExistException caught for source folder.");

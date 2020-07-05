@@ -51,7 +51,7 @@ function displayTestResults() {
   // Setup the tests
   QUnit.urlParams({});
   QUnit.config(myConfig);
-  QUnit.load(tests_all_APIs);
+  QUnit.load(run_all_tests);
 
   // Run the tests
   var html = QUnit.getHtml().setWidth(1000).setHeight(600);
@@ -76,14 +76,42 @@ function displayTestResults() {
  *          File211.docx     |          |          Folder231
  *                       Folder221      |-File221.xls
  *                                      |-File222.xls
- */             
-function tests_all_APIs() {
-  add_mapping_api_tests();
-  get_pattern_matches_api_tests();
-  get_drive_id_api_tests();
-  has_file_api_tests();
-  create_file_api_tests();
-  delete_file_api_tests();
-  move_file_api_tests();
-  copy_file_api_tests();
+ */  
+function run_all_tests() {
+  TestUtil.clearAllMappingsInConfig();
+
+  tests_all_APIs_for_windows();
+  tests_all_APIs_for_unix();
+}
+
+/**
+ * Function containing all the Windows File System tests
+ */
+function tests_all_APIs_for_windows() {
+  TestUtil.setWindowsTestingEnvironment();
+
+  add_mapping_api_windows_tests();
+  get_pattern_matches_api_windows_tests();
+  get_drive_id_api_windows_tests();
+  has_file_api_windows_tests();
+  create_file_api_windows_tests();
+  delete_file_api_windows_tests();
+  move_file_api_windows_tests();
+  copy_file_api_windows_tests();
+}
+
+/**
+ * Function containing all the Unix File System tests
+ */
+function tests_all_APIs_for_unix() {
+  TestUtil.setUnixTestingEnvironment();
+
+  add_mapping_api_unix_tests();
+  get_pattern_matches_api_unix_tests();
+  get_drive_id_api_unix_tests();
+  has_file_api_unix_tests();
+  create_file_api_unix_tests();
+  delete_file_api_unix_tests();
+  move_file_api_unix_tests();
+  copy_file_api_unix_tests();
 }

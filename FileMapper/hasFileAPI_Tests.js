@@ -15,12 +15,10 @@
  */
 
 /**
- * File Exists API Unit Tests
+ * File Exists API Unit Tests for Windows File System
  */
-function has_file_api_tests() {
-  QUnit.module("hasFile API");
-
-  TestUtil.setTestingEnvironment();
+function has_file_api_windows_tests() {
+  QUnit.module("WINDOWS - hasFile API");
 
   var availableFiles = [
     "C:\\user\\Folder1\\File12.docx",
@@ -62,6 +60,108 @@ function has_file_api_tests() {
   var errorFolderPaths = [ 
     "C:\\Muskan", 
     "C:\\Muskan\\Desktop" 
+  ];
+
+  // Tests for available files
+  QUnit.test("Available file paths", availableFiles.length, function() {
+    for (var i = 0; i < availableFiles.length; i++) {
+      var message = "File found at " + availableFiles[i];
+      ok(hasFile(availableFiles[i]), message);
+    }
+  });
+
+  // Tests for available folders
+  QUnit.test("Available folder paths", availableFolders.length, function() {
+    for (var i = 0; i < availableFolders.length; i++) {
+      var message = "Folder found at " + availableFolders[i];
+      ok(hasFolder(availableFolders[i]), message);
+    }
+  });
+
+  // Tests for unavailable files
+  QUnit.test("Not Available file paths", unavailableFiles.length, function() {
+    for (var i = 0; i < unavailableFiles.length; i++) {
+      var message = "No File found at " + unavailableFiles[i];
+      ok(!hasFile(unavailableFiles[i]), message);
+    }
+  });
+
+  // Tests for unavailable folders
+  QUnit.test("Not Available folder paths", unavailableFolders.length,
+             function() {
+               for (var i = 0; i < unavailableFolders.length; i++) {
+                 var message = "No Folder found at " + unavailableFolders[i];
+                 ok(!hasFolder(unavailableFolders[i]), "Folder not found.");
+               }
+             });
+
+  // Tests for files whose mapping is not present in the config
+  QUnit.test("MappingNotFoundException - File Paths Mapping Not Found Error",
+             errorFilePaths.length, function() {
+               for (var i = 0; i < errorFilePaths.length; i++) {
+                 throws(function() { hasFile(errorFilePaths[i]); },
+                        MappingNotFoundException,
+                        "MappingNotFoundException caught.");
+               }
+             });
+
+  // Tests for folders whose mapping is not present in the config
+  QUnit.test("MappingNotFoundException - Folder Paths Mapping Not Found Error",
+             errorFolderPaths.length, function() {
+               for (var i = 0; i < errorFolderPaths.length; i++) {
+                 throws(function() { hasFolder(errorFolderPaths[i]); },
+                        MappingNotFoundException,
+                        "MappingNotFoundException caught");
+               }
+             });
+}
+
+/**
+ * File Exists API Unit Tests for Unix File System
+ */
+function has_file_api_unix_tests() {
+  QUnit.module("UNIX - hasFile API");
+
+  var availableFiles = [
+    "/home/Folder1/File12.docx",
+    "/home/Folder2/Folder22/File222.xls",
+    "/home/Folder3/File31.docx", 
+    "/home/Folder4/File41.xls",
+    "/home/Folder2/Folder21/File211.docx"
+  ];
+
+  var availableFolders = [
+    "/home/Folder1/Folder11", 
+    "/home/Folder2/Folder22/Folder221",
+    "/home/Folder2/Folder23/Folder231", 
+    "/home/Folder3",
+    "/home/Folder4/Folder41/Folder411"
+  ];
+
+  var unavailableFiles = [
+    "/home/File7.docs", 
+    "/home/Folder1/File12.xls",
+    "/home/Folder2/Folder22/File231.xls",
+    "/home/Folder3/Folder31/File311.docx",
+    "/home/Folder4/Folder41/Folder411/File4111.docs"
+  ];
+
+  var unavailableFolders = [
+    "/home/Folder5", 
+    "/home/Folder3/Folder38",
+    "/home/Folder1/Folder1111", 
+    "/home/Folder2/Folder22/Folder222",
+    "/home/Folder4/Folder41/Folder411/Folder4111"
+  ];
+
+  var errorFilePaths = [ 
+    "/Muskan/File1.xls", 
+    "/Muskan/Folder2/File23.docx"
+  ];
+
+  var errorFolderPaths = [ 
+    "/Muskan", 
+    "/Muskan/Desktop" 
   ];
 
   // Tests for available files

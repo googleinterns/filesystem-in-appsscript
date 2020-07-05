@@ -15,12 +15,10 @@
  */
 
 /**
- * Create File API Unit Tests
+ * Create File API Unit Tests for Windows File System
  */
-function create_file_api_tests() {
-  QUnit.module("createFile API");
-
-  TestUtil.setTestingEnvironment();
+function create_file_api_windows_tests() {
+  QUnit.module("WINDOWS - createFile API");
 
   var newFiles = [
     "C:\\user\\Folder1\\File13.docx",
@@ -37,6 +35,7 @@ function create_file_api_tests() {
     for (var i = 0; i < newFiles.length; i++) {
       var message = "File created at " + newFiles[i];
       ok(createFile(newFiles[i]), message);
+      deleteMapping(newFiles[i]); 
     }
   });
 
@@ -45,6 +44,7 @@ function create_file_api_tests() {
     for (var i = 0; i < newFolders.length; i++) {
       var message = "Folder created at " + newFolders[i];
       ok(createFolder(newFolders[i]), message);
+      deleteMapping(newFolders[i]); 
     }
   });
 
@@ -55,6 +55,7 @@ function create_file_api_tests() {
     ok(deleteFile(localPath), "File Deleted.");
     ok(createFile(localPath), "Deleted File Created.");
     deleteFile(localPath);
+    deleteMapping(localPath); 
   });
 
   // Tests for files and folders which are already available hence can't be
@@ -64,7 +65,7 @@ function create_file_api_tests() {
       function() {
         var file = "C:\\user\\Folder1\\File11.xls";
         throws(function() { createFile(file); }, FileAlreadyExistsException,
-               "FileAlreadyExistsException caught for file.");
+               "FileAlreadyExistsException caught for file.");       
 
         var folder = "C:\\user\\Folder4\\Folder41\\Folder411";
         throws(function() { createFolder(folder); }, FileAlreadyExistsException,
@@ -80,6 +81,78 @@ function create_file_api_tests() {
                "MappingNotFoundException caught for file.");
 
         var folder = "C:\\Folder4\\Folder41\\Folder411";
+        throws(function() { createFolder(folder); }, MappingNotFoundException,
+               "MappingNotFoundException caught for folder.");
+      });
+}
+
+/**
+ * Create File API Unit Tests for Unix File System
+ */
+function create_file_api_unix_tests() {
+  QUnit.module("UNIX - createFile API");
+
+  var newFiles = [
+    "/home/Folder1/File13.docx",
+    "/home/Folder3/Folder31/File311.xls",
+  ];
+
+  var newFolders = [
+    "/home/Folder3/Folder32/Folder321", 
+    "/home/Folder4/Folder42"
+  ];
+
+  // Tests for creating new files
+  QUnit.test("Creating new files", newFiles.length, function() {
+    for (var i = 0; i < newFiles.length; i++) {
+      var message = "File created at " + newFiles[i];
+      ok(createFile(newFiles[i]), message);
+      deleteMapping(newFiles[i]); 
+    }
+  });
+
+  // Tests for creating new folders
+  QUnit.test("Creating new folders", newFolders.length, function() {
+    for (var i = 0; i < newFolders.length; i++) {
+      var message = "Folder created at " + newFolders[i];
+      ok(createFolder(newFolders[i]), message);
+      deleteMapping(newFolders[i]); 
+    }
+  });
+
+  // Tests for creating a deleted file
+  QUnit.test("Create a deleted file", 3, function() {
+    var localPath = "/home/MyFile.txt";
+    ok(createFile(localPath), "File Created.");
+    ok(deleteFile(localPath), "File Deleted.");
+    ok(createFile(localPath), "Deleted File Created.");
+    deleteFile(localPath);
+    deleteMapping(localPath); 
+  });
+
+  // Tests for files and folders which are already available hence can't be
+  // created
+  QUnit.test(
+      "FileAlreadyExistsException - Cannot create existing file/folder", 2,
+      function() {
+        var file = "/home/Folder1/File11.xls";
+        throws(function() { createFile(file); }, FileAlreadyExistsException,
+               "FileAlreadyExistsException caught for file.");
+
+        var folder = "/home/Folder4/Folder41/Folder411";
+        throws(function() { createFolder(folder); }, FileAlreadyExistsException,
+               "FileAlreadyExistsException caught for folder.");
+      });
+
+  // Tests for files and folders whose mapping is not present in the config
+  QUnit.test(
+      "MappingNotFoundException - Error to prompt the user for mapping", 2,
+      function() {
+        var file = "/Folder1/File11.xls";
+        throws(function() { createFile(file); }, MappingNotFoundException,
+               "MappingNotFoundException caught for file.");
+
+        var folder = "/Folder4/Folder41/Folder411";
         throws(function() { createFolder(folder); }, MappingNotFoundException,
                "MappingNotFoundException caught for folder.");
       });

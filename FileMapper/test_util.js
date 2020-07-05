@@ -19,7 +19,8 @@
  */
 var TestUtil =
     {
-      setTestingEnvironment : setTestingEnvironment,
+      setWindowsTestingEnvironment : setWindowsTestingEnvironment,
+      setUnixTestingEnvironment : setUnixTestingEnvironment,
       addTestMappingsToConfig : addTestMappingsToConfig,
       printConfigData : printConfigData,
       clearAllMappingsInConfig : clearAllMappingsInConfig
@@ -28,7 +29,7 @@ var TestUtil =
 /**
  * To set the testing environment
  */
-function setTestingEnvironment() {
+function setWindowsTestingEnvironment() {
   // Mapping object containing mappings which are need to setup the test
   // environment
   var mappingObj = {
@@ -39,8 +40,24 @@ function setTestingEnvironment() {
     }
   };
 
-  // Clear all the mappings
-  clearAllMappingsInConfig();
+  // Add the mappings needed to setup the test environment
+  addTestMappingsToConfig(mappingObj);
+}
+
+/**
+ * To set the testing environment for Unix file system
+ */
+function setUnixTestingEnvironment() {
+  // Mapping object containing mappings which are need to setup the test
+  // environment
+  var mappingObj = {
+    "/home" : {
+      id : "16Dyjs72UkD2SFkVlUmUxxx03RW5dXx-F",
+      drivepath : "My Drive/Root",
+      isfolder : true
+    }
+  };
+
   // Add the mappings needed to setup the test environment
   addTestMappingsToConfig(mappingObj);
 }
