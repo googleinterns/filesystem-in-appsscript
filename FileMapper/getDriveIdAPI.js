@@ -21,6 +21,7 @@
  * @return {String} driveMapping The Drive id of the mapped file
  */
 function getFileId(localPath) { 
+  getDriveIdUtil = blockerFunction(getDriveIdUtil);
   return getDriveIdUtil(localPath, true); 
 }
 
@@ -31,6 +32,7 @@ function getFileId(localPath) {
  * @return {String} driveMapping The Drive id of the mapped folder
  */
 function getFolderId(localPath) { 
+  getDriveIdUtil = blockerFunction(getDriveIdUtil);
   return getDriveIdUtil(localPath, false); 
 }
 
@@ -41,7 +43,7 @@ function getFolderId(localPath) {
  * @param {boolean} isFile To signify whether its a file or folder
  * @return {String} driveMapping The Drive id of the mapped file/folder
  */
-function getDriveIdUtil(localPath, isFile) {
+function getDriveIdUtil(localPath, isFile, showPrompt) {
   // Checking if the path represents windows file system or unix file system
   var isUnix = PathUtil.checkIfUnixPath(localPath);
 
@@ -108,6 +110,11 @@ function getDriveIdUtil(localPath, isFile) {
 
   // If the mapping is null then we need to prompt the user
   if (driveMapping === null) {
+    if(showPrompt) {
+      // Show prompt to the user to get mapping 
+      showPromptToGetMappingFromUser(localPath, isFile);
+    }
+
     throw new MappingNotFoundException(
         "Mapping for the local path provided is not found. Provide a mapping for " +
         localPath);

@@ -36,8 +36,7 @@ var PathUtil =
  *                   False otherwise
  */
 function checkIfUnixPath(path) {
-  var forwardSlash = path.match(/\//g);
-  return !(forwardSlash === null);
+  return (SharedLibrary.getFileSystemType(path) === FileSystemType.UNIX); 
 }
 
 /**

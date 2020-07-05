@@ -43,7 +43,7 @@ var ApiUtil =
  * @param {boolean} isFile To signify whether its a file or folder
  */
 function addNewMappingToConfig(localPath, id, isFile) {
-  var drivepath = getFullDrivePath(id, isFile);
+  var drivepath = SharedLibrary.getAbsoluteDrivePath(id, isFile);
   var mappingObject = {id : id, drivepath : drivepath, isfolder : !isFile};
   CONFIG.setMappingInConfigData(localPath, mappingObject);
   CONFIG.flushConfigDataToFile();
@@ -60,7 +60,7 @@ function addNewMappingToConfig(localPath, id, isFile) {
 function checkIfMarkedDeleted(localPath) {
   var mappingObj = CONFIG.getMappingFromConfigData(localPath);
 
-  var exists = checkIfValidDriveId(mappingObj.id, !mappingObj.isfolder);
+  var exists = ApiUtil.checkIfValidDriveId(mappingObj.id, !mappingObj.isfolder);
   return !exists;
 }
 
