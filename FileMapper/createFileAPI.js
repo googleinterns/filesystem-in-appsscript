@@ -29,6 +29,7 @@ function createFile(localPath) {
         "File mapped to the local path " + localPath + " already exists.";
     throw new FileAlreadyExistsException(errorMessage);
   }
+  createFileOrFolderUtil = blockerFunction(createFileOrFolderUtil);
   return createFileOrFolderUtil(localPath, true);
 }
 
@@ -47,6 +48,7 @@ function createFolder(localPath) {
         "Folder mapped to the local path " + localPath + " already exists.";
     throw new FileAlreadyExistsException(errorMessage);
   }
+  createFileOrFolderUtil = blockerFunction(createFileOrFolderUtil);
   return createFileOrFolderUtil(localPath, false);
 }
 
@@ -59,7 +61,7 @@ function createFolder(localPath) {
  * @param {boolean} isFile To signify whether its a file or folder
  * @return {String} driveId The Drive id of the newly created file/folder
  */
-function createFileOrFolderUtil(localPath, isFile) {
+function createFileOrFolderUtil(localPath, isFile, showPrompt) {
   // Checking if the path is windows or unix
   var isUnix = PathUtil.checkIfUnixPath(localPath);
 
@@ -117,6 +119,11 @@ function createFileOrFolderUtil(localPath, isFile) {
   // if no such part can be found then prompt the user to select a folder using
   // a file picker
   if (!created) {
+    if (showPrompt) {
+      // Show prompt to the user to get mapping 
+      showPromptToGetMappingFromUser(localPath, isFile);
+    }
+
     throw new MappingNotFoundException(
         "Mapping for the local path provided is not found. Provide a mapping for " +
         localPath);

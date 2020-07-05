@@ -61,7 +61,7 @@ function addFolderMapping(localPath, driveId) {
  *     FAILURE otherwise
  */
 function addMappingUtil(localPath, driveId, isFile) {
-  if (!checkIfAbsolutePath(localPath)) {
+  if (!SharedLibrary.isValidAbsolutePath(localPath)) {
     // Not an absolute path error
     return ReturnValue.FAILURE.INVALID_ABSOLUTE_PATH;
   }

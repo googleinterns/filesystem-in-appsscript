@@ -23,6 +23,7 @@
  *     False if the file has been deleted
  */
 function hasFile(localPath) { 
+  hasFileOrFolderUtil = blockerFunction(hasFileOrFolderUtil);
   return hasFileOrFolderUtil(localPath, true); 
 }
 
@@ -35,6 +36,7 @@ function hasFile(localPath) {
  *     False if the folder has been deleted
  */
 function hasFolder(localPath) { 
+  hasFileOrFolderUtil = blockerFunction(hasFileOrFolderUtil);
   return hasFileOrFolderUtil(localPath, false); 
 }
 
@@ -47,7 +49,7 @@ function hasFolder(localPath) {
  * @return {boolean} found  True if the file/folder exists,
  *     False if the file/folder has been deleted
  */
-function hasFileOrFolderUtil(localPath, isFile) {
+function hasFileOrFolderUtil(localPath, isFile, showPrompt) {
   // Checking if the path is windows or unix
   var isUnix = PathUtil.checkIfUnixPath(localPath);
 
@@ -104,6 +106,11 @@ function hasFileOrFolderUtil(localPath, isFile) {
   if (checked) {
     return found;
   } else {
+    if (showPrompt) {
+      // Show prompt to the user to get mapping 
+      showPromptToGetMappingFromUser(localPath, isFile);
+    }
+
     // If the mapping was not checked in the config then we need to prompt the
     // user to add a mapping
     throw new MappingNotFoundException(
