@@ -15,7 +15,9 @@ limitations under the License.
 -->
 
 <script>
-  // File Picker
+  // The Browser API key obtained from the Google API Console.
+  // Replace with your own Browser API key, or your own key.
+  var developerKey = 'xxxxxxxYYYYYYYY-12345678';
   var DIALOG_DIMENSIONS = {width : 600, height : 425};
   var pickerApiLoaded = false;
 
@@ -86,6 +88,7 @@ limitations under the License.
               .addView(DisplayView)
               .enableFeature(google.picker.Feature.NAV_HIDDEN)
               .setOAuthToken(token)
+              .setDeveloperKey(DEVELOPER_KEY)
               .setCallback(pickerCallback)
               .setSize(DIALOG_DIMENSIONS.width - 2, DIALOG_DIMENSIONS.height - 2)
               .setOrigin(google.script.host.origin)

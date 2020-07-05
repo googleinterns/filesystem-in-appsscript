@@ -19,36 +19,11 @@
  */
 var ConfigUtil =
     {
-      getFullDrivePath : getFullDrivePath,
       checkIfDrivePathChanged : checkIfDrivePathChanged,
       checkMappingExists : checkMappingExists,
       checkIfMimeTypeMatches : checkIfMimeTypeMatches,
       getMimeTypeFromExtension : getMimeTypeFromExtension
     }
-
-/**
- * Computes the Drive path for a file/folder using their Id
- *
- * @param {String} id The drive destination Id whose path needs to be computed
- * @param {boolean} isFolder To signify whether its a file or folder
- * @return {String} drivePath The corresponding drive path
- */
-function getFullDrivePath(id, isFolder) {
-  var current =
-      (!isFolder) ? DriveApp.getFileById(id) : DriveApp.getFolderById(id);
-
-  var folders = [];
-  var parent = current.getParents();
-
-  while (parent.hasNext()) {
-    parent = parent.next();
-    folders.push(parent.getName());
-    parent = parent.getParents();
-  }
-
-  var drivePath = folders.reverse().join("/") + "/" + current.getName();
-  return drivePath;
-}
 
 /**
  * Checks if the Drive Path for a particular mapping has been changed due to
@@ -60,7 +35,7 @@ function getFullDrivePath(id, isFolder) {
  *     False otherwise
  */
 function checkIfDrivePathChanged(mapping) {
-  var newDrivePath = ConfigUtil.getFullDrivePath(mapping.id, !mapping.isfolder);
+  var newDrivePath = SharedLibrary.getAbsoluteDrivePath(mapping.id, !mapping.isfolder);
   return !(newDrivePath === mapping.drivepath);
 }
 
