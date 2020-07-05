@@ -57,6 +57,7 @@ var FileIO = {
   printToFile: printToFile,
   lineInputFile: lineInputFile,
   writeToFile: writeToFile,
+  inputFile: inputFile,
   getFilePointer: getFilePointer,
   setFilePointer: setFilePointer,
   openFiles: {},
@@ -66,7 +67,8 @@ var FileIO = {
 /**
  * Emulates VBA open statement API
  * @todo Implement file locking
- * @body File locking is not possible in Google Drive but it could be emulated by using PropertyServices.
+ * @body File locking is not possible in Google Drive but it could be emulated
+ * by using PropertyServices.
  * @param {string} path The local file path
  * @param {number} fileNumber File number
  * @param {string} openMode Open Mode enumeration
@@ -89,12 +91,13 @@ function openFile(path, fileNumber, openMode, accessMode, lockMode) {
     throw new Error('File Number: ' + fileNumber + ' is invalid.');
   }
 
+  path = DirectoryManager.getAbsolutePath(path);
   // If file exists, get file id else create and get file id
   var fileId;
-  if (FileMapper.hasMapping(FileSystem.currentDirectory, path)) {
-    fileId = FileMapper.getFileId(FileSystem.currentDirectory, path);
+  if (FileMapper.hasFile(path)) {
+    fileId = FileMapper.getFileId(path);
   } else if (openMode != OpenMode.INPUT) {
-    fileId = createFile(FileSystem.currentDirectory, path, MimeType.PLAIN_TEXT);
+    fileId = FileMapper.createFile(path);
   } else {
     throw new Error('File not present');
   }
@@ -113,19 +116,19 @@ function openFile(path, fileNumber, openMode, accessMode, lockMode) {
   switch (openMode) {
     case OpenMode.RANDOM:
     case OpenMode.INPUT:
-      file.pointer = 0; // Beginning of file
+      file.pointer = 0;  // Beginning of file
       file.content = driveFile.getBlob().getDataAsString();
       break;
     case OpenMode.APPEND:
       file.content = driveFile.getBlob().getDataAsString();
-      file.pointer = file.content.length; // End of file
+      file.pointer = file.content.length;  // End of file
       break;
     case OpenMode.OUTPUT:
-      file.pointer = 0; // Beginning of file
-      file.content = ''; // Empty file
+      file.pointer = 0;   // Beginning of file
+      file.content = '';  // Empty file
       break;
     case OpenMode.BINARY:
-      file.pointer = 0; // Beginning of file
+      file.pointer = 0;  // Beginning of file
       file.content = driveFile.getBlob().getBytes();
       break;
   }
@@ -387,8 +390,32 @@ function setFilePointer(fileNumber, position) {
 
   this.openFiles[fileNumber].pointer = position;
   var content = this.openFiles[fileNumber].content;
-  if(position > content.length) {
-    content +=  Array(position - content.length + 1).join(' ');
+  if (position > content.length) {
+    content += Array(position - content.length + 1).join(' ');
   }
   this.openFiles[fileNumber].content = content;
+}
+
+/**
+ * Emulates VBA input statement API. inputList contains a list of input
+ * variables. Each variable can be read independently by the inputFileUtil
+ * function
+ * @todo Implement/use custom DateTime/Time/Date structures
+ * @body Javascript only has a DateTime Type, No Time or Date type.
+ * @param {number} fileNumber File number
+ * @param {Array} inputList variable List
+ */
+function inputFile(fileNumber, inputList) {
+  if (!(fileNumber in this.openFiles)) {
+    throw new Error('File Number: ' + fileNumber + ' is not open');
+  }
+
+  var file = this.openFiles[fileNumber];
+  if (file.accessMode == AccessMode.WRITE) {
+    throw new Error('File is not open for reading');
+  }
+
+  for (var i = 0; i < inputList.length; i++) {
+    inputFileUtil(file, inputList[i]);
+  }
 }

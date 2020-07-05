@@ -92,10 +92,6 @@ var FileSystemType = {
   UNIX: 'unix',
 };
 
-/**
- * @todo Write tests for validation
- * @body Tests will be written in the directory API module as these are more closely related to that module.
- */
 // Regex expressions to validate absolute paths
 var windowsPathRegExp = /^[\w]\:(\\|(\\[^<>\\/:"\|\?\*]+)+)\\?$/;
 var unixPathRegExp = /^(\/[^<>\\/:"\|\?\*]+)*\/?$/;
@@ -124,20 +120,28 @@ function getFileSystemType(localPath) {
 }
 
 /**
- * Helper function to sanitize local filesystem localPath.
- * Remove trailing file separator
- * @todo Fix file separator depending on FileSystem type
- * @body sanitize "C:\Users/Desktop\" to "C:\Users\Desktop"
+ * Helper function to sanitize local filesystem localPath. Removes trailing file
+ * separator. Replaces forward slashes with backward slashes when using Windows
+ * File System. Replaces backward slashes with forward slashes when using Linux
+ * File System.
  * @param {string} localPath File or directory localPath
+ * @param {string} fileSystemType File System Type - Unix/Windows
  * @returns {string} Path with trailing file separator
  */
-function sanitizePath(localPath) {
-  var fileSystemType = getFileSystemType(localPath);
+function sanitizePath(localPath, fileSystemType) {
   var windowsPrefix = 'C:\\';
+  if (fileSystemType == FileSystemType.WINDOWS) {
+    // Replace any forward slashes with backward slashes
+    localPath = localPath.replace(/\//g, '\\');
+  } else if (fileSystemType == FileSystemType.UNIX) {
+    // Replace any backward slashes with forward slashes
+    localPath = localPath.replace(/\\/g, '/');
+  }
   // Remove trailing slash (file separator) from file localPaths
   if (fileSystemType == FileSystemType.WINDOWS) {
     // Remove trailing \ in C:\something\
-    if (localPath.length > windowsPrefix.length && localPath.substr(-1) == '\\') {
+    if (localPath.length > windowsPrefix.length &&
+        localPath.substr(-1) == '\\') {
       localPath = localPath.slice(0, -1);
     }
   } else if (fileSystemType == FileSystemType.UNIX) {
@@ -147,4 +151,62 @@ function sanitizePath(localPath) {
     }
   }
   return localPath;
+}
+
+/**
+ * @todo Implement relative path validation (regex)
+ * @body Currently only absolute paths are being validated
+ * Function to get absolute path given relative path (for local file system)
+ * If the relative path is absolute, then the relative path itself is returned
+ * @param {string} currentDirectory Absolute path of current local directory
+ * @param {string} relativePath Relative or Absolute path
+ * @return {string} Absolute Path
+ */
+function getAbsoluteLocalPath(currentDirectory, relativePath) {
+  // Test if relativePath is actually an absolute path
+  var fileSystemType = getFileSystemType(currentDirectory);
+  if (isValidAbsolutePath(relativePath)) {
+    return sanitizePath(relativePath, fileSystemType);
+  }
+  var fileSeparator = fileSystemType == FileSystemType.UNIX ? '/' : '\\';
+  // First element of windows path split is drive letter ("C:") and
+  // First element of unix path split is empty string ("")
+  var pathSplit = currentDirectory.split(fileSeparator);
+  var relativePathSplit = relativePath.split(fileSeparator);
+
+  for (var i = 0; i < relativePathSplit.length; i++) {
+    if (relativePathSplit[i] == '.') {
+      continue;  // Current directory, do nothing
+    } else if (relativePathSplit[i] == '..') {
+      // Move up one directory if possible
+      if (pathSplit.length > 1) {
+        pathSplit.pop();
+      }
+    } else {
+      // Move down to child directory
+      pathSplit.push(relativePathSplit[i]);
+    }
+  }
+  // Reconstruct absolute file path
+  var absolutePath = pathSplit.join(fileSeparator);
+  // If path is root path, i.e. "C:\" or "/" then we need to add a trailing
+  // seperator
+  if (pathSplit.length == 1) {
+    absolutePath += fileSeparator;
+  }
+  return sanitizePath(absolutePath, fileSystemType);
+}
+
+/**
+ * Helper function to delete a file if it exists.
+ * This is intended to be used for cleanup
+ * @param {string} localPath Local file path of the file to be deleted
+ */
+function deleteFileIfExists(localPath) {
+  localPath = DirectoryManager.getAbsolutePath(localPath);
+  try {
+    FileMapper.deleteFile(localPath);
+  } catch (e) {
+    // File doesn't exist, do nothing
+  }
 }
