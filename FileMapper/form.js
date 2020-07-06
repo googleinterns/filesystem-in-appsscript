@@ -19,7 +19,7 @@
  */
 function displayFileUploadForm(localPathValue, destinationFolder) {
   // Create HTML dialog and set template parameters
-  var htmlOutput = HtmlService.createTemplateFromFile('fileuploadform');
+  var htmlOutput = HtmlService.createTemplateFromFile('fileUploadForm');
   htmlOutput.localPathValue = localPathValue ? localPathValue : '';
   htmlOutput.destinationFolder =
       destinationFolder ? destinationFolder : "My Drive";
