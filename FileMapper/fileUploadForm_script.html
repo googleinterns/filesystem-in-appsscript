@@ -98,7 +98,7 @@ limitations under the License.
             $("#destinationfolder").val(fullpath); 
           })
           .withFailureHandler()
-          .getFullDrivePath(id, true);
+          .getAbsoluteDrivePath(id, true);
     } else if (action == google.picker.Action.CANCEL) {
       showMessage("No File selected using the file picker.");
     }

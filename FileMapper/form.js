@@ -82,7 +82,7 @@ function processForm(data, mimetype, filename, localPathValue,
     ApiUtil.moveFileById(file.getId(), destinationFolderId);
 
     var destinationFolder =
-        ConfigUtil.getFullDrivePath(destinationFolderId, true);
+        SharedLibrary.getAbsoluteDrivePath(destinationFolderId, true);
     drivePath = destinationFolder + '/' + filename;
   }
 
