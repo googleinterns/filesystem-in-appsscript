@@ -16,111 +16,110 @@ limitations under the License.
 
 <!DOCTYPE html>
 <html>
-  <head>
-    <base target="_top">
-    <title>Choose Upload Type</title>
+<head>
+  <base target="_top">
+  <title>Choose Upload Type</title>
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
 
-    <style>
-      .container {
-        color: red
-      }
+  <style>
+    .container {
+      color: red
+    }
 
-      .list-group {
-        margin-bottom: 0px; 
-        text-align: center;
-      }
+    .list-group {
+      margin-bottom: 0px; 
+      text-align: center;
+    }
 
-      #localFileUploadButton {
-        outline-color: #ddd;
-        text-align: center;
-      }
+    #localFileUploadButton {
+      outline-color: #ddd;
+      text-align: center;
+    }
 
-      .prompt {
-        margin: 0px;
-      }
+    .prompt {
+      margin: 0px;
+    }
 
-      .prompt-description {
-        margin: 0px; 
-        font-size: 12px; 
-        color: gray;
-      }
+    .prompt-description {
+      margin: 0px; 
+      font-size: 12px; 
+      color: gray;
+    }
 
-      #filePickerButton {
-        outline-color: #ddd;
-        text-align: center;
-      }
-    </style>
-  </head>
+    #filePickerButton {
+      outline-color: #ddd;
+      text-align: center;
+    }
+  </style>
+</head>
 
-  <body onload="checkIfFolder()">
-    <!-- Error Announcement -->
-    <div class="container">
-      No mapping has been found for the local path 
-        <strong><?= localPathValue ?></strong> 
-      in the config, so please provide a file to map to 
-        <strong><?= localPathValue ?></strong> 
-    </div>
-    <br>
+<body onload="checkIfFolder()">
+  <!-- Error Announcement -->
+  <div class="container">
+    No mapping has been found for the local path <strong><?= localPathValue ?></strong> in the config, so please provide a file to map to <strong><?= localPathValue ?></strong> 
+  </div>
+  <br>
 
-    <!-- Prompt Choice list -->
-    <div class="list-group">
-      <!-- list header -->
-      <div class="list-group-item active">
-        Select a way to provide mapping for <strong><?= localPathValue ?></strong>
-      </div>
-
-      <!-- local file uploader selection button -->
-      <button id="localFileUploadButton" type="button" class="list-group-item" onclick="callLocalFileUploader()">
-        <p class='prompt'> Upload from local system </p>
-        <p class='prompt-description' id="ptag"> 
-          if you have a file in your local system which you want to map to the local path
-        </p>
-      </button>
-
-      <!-- google file picker selection button -->
-      <button id="filePickerButton" type="button" class="list-group-item" onclick="callGoogleDriveFilePicker()">
-        <p class='prompt'> Select from Google Drive </p>
-        <p class='prompt-description'> 
-          if you have a file/folder already uploaded to google drive which you want to map to the local path
-        </p>
-      </button>
+  <!-- Prompt Choice list -->
+  <div class="list-group">
+    <!-- list header -->
+    <div class="list-group-item active">
+      Select a way to provide mapping for <strong><?= localPathValue ?></strong>
     </div>
 
-    <script>
-      var localPathValue = '<?= localPathValue ?>';
-      var isFile = '<?= isFile ?>';
+    <!-- local file uploader selection button -->
+    <button id="localFileUploadButton" type="button" class="list-group-item" onclick="callLocalFileUploader()">
+      <p class='prompt'> Upload from local system </p>
+      <p class='prompt-description' id="ptag"> 
+        if you have a file in your local system which you want to map to the local path
+      </p>
+    </button>
+
+    <!-- google file picker selection button -->
+    <button id="filePickerButton" type="button" class="list-group-item" onclick="callGoogleDriveFilePicker()">
+      <p class='prompt'> Select from Google Drive </p>
+      <p class='prompt-description'> 
+        if you have a file/folder already uploaded to google drive which you want to map to the local path
+      </p>
+    </button>
+  </div>
+
+  <script>
+    var localPathValue = '<?= localPathValue ?>';
+    var isFile = '<?= isFile ?>';
         
-      /**
-       * Function to be executed if the mapping is needed for a folder
-       */   
-      function checkIfFolder() {
-        if (isFile === 'false') {
-          document.getElementById("localFileUploadButton").disabled = true;
-          var error = "<p style='margin: 0px; font-size: 12px; color: red'>Can't use as mapping is needed for a folder</p>";
-          document.getElementById("ptag").insertAdjacentHTML('afterend', error);
-        }
+    /**
+     * Function to be executed if the mapping is needed for a folder
+     */   
+    function checkIfFolder() {
+      if (isFile === 'false') {
+        document.getElementById("localFileUploadButton").disabled = true;
+        var error = 
+            "<p style='margin: 0px; font-size: 12px; color: red'>Folder cannot be directly uploaded here. Please upload folder to Google Drive first and then select the folder using the option below</p>";
+        var descriptionDiv = document.getElementById("ptag");
+        descriptionDiv.insertAdjacentHTML('afterend', error);
+        descriptionDiv.style.display = 'none';
       }
+    }
 
-      /**
-       * Function executed when local file uploader is called
-       */ 
-      function callLocalFileUploader() {
-        google.script.run
-            .withSuccessHandler(() => google.script.host.close())
-            .displayFileUploadForm(localPathValue);
-      }
+    /**
+     * Function executed when local file uploader is called
+     */ 
+    function callLocalFileUploader() {
+      google.script.run
+          .withSuccessHandler(() => google.script.host.close())
+          .displayFileUploadForm(localPathValue);
+    }
 
-      /**
-       * Function executed when google file picker is called
-       */ 
-      function callGoogleDriveFilePicker() {
-        console.log();
-        google.script.run
-            .withSuccessHandler(() => google.script.host.close())
-            .showPicker(localPathValue);
-      }
-    </script>
-  </body>
+    /**
+     * Function executed when google file picker is called
+     */ 
+    function callGoogleDriveFilePicker() {
+      google.script.run
+          .withSuccessHandler(() => google.script.host.close())
+          .showPicker(localPathValue);
+    }
+  </script>
+</body>
 </html>
