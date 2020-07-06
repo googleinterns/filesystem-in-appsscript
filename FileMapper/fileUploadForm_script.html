@@ -195,15 +195,19 @@ limitations under the License.
    * @return {String} MimeType of the file based on it's extension
    */
   function getMimetypeFromExtension(extension) {
-    if (extension === "xls" || extension === "xlsx" || extension === "csv")
+   if (extension === "xls" || extension === "xlsx" || extension === "csv" ||
+       extension === "xlsm" || extension === "tsv")
       return 'GOOGLE_SHEETS';
 
     if (extension === "doc" || extension === "docx" || extension === "pdf" ||
-        extension === "txt")
+        extension === "docm")
       return 'GOOGLE_DOCS';
 
-    if (extension === "ppt" || extension === "pptx")
+    if (extension === "ppt" || extension === "pptx" || extension === "pptm")
       return 'GOOGLE_SLIDES';
+
+    if (extension === "txt") 
+      return 'PLAIN_TEXT';  
 
     return 'UNKNOWN';
   }
@@ -222,9 +226,9 @@ limitations under the License.
 
     if (getMimetypeFromExtension(localPathExtension) ===
         getMimetypeFromExtension(uploadedFileExtension)) {
-      showUploadedFileMessage("File type matches to the local file type", true);
+      showUploadedFileMessage("File type matches the local file type", true);
     } else {
-      showUploadedFileMessage("File type doesn't match to the local file type",
+      showUploadedFileMessage("File type doesn't match the local file type",
                               false);
     }
   }
