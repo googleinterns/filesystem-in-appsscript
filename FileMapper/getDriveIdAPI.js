@@ -63,7 +63,7 @@ function getDriveIdUtil(localPath, isFile, showPrompt) {
         var errorMessage =
             ((currentDirectoryMapping.isfolder) ? "Folder" : "File") +
             " mapped to the local path " + mappedPath +
-            " has been deleted previously.";
+            " has been deleted.";
         throw new FileDoesNotExistException(errorMessage);
       }
 
