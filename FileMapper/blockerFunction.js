@@ -41,6 +41,7 @@ function blockerFunction(functionToBeBlocked) {
         // Try 10 times
         for (var i = 0; i < 10; i++) {
           try {
+            // Delay of 10 seconds
             Utilities.sleep(10 * 1000);
 
             Logger.log('Trying ' + (i + 1) + ' Time');
@@ -59,7 +60,7 @@ function blockerFunction(functionToBeBlocked) {
 
       // If the same error was seen even after 10 times
       if (err instanceof MappingNotFoundException) {
-        showErrorAlert();
+        showErrorAlert(args[0]);
       }
       throw err;
     }
@@ -69,11 +70,12 @@ function blockerFunction(functionToBeBlocked) {
 /**
  * Error Alert for the user when the execution is terminated
  */
-function showErrorAlert() {
+function showErrorAlert(localPath) {
   var ui = SpreadsheetApp.getUi();
 
-  var result =
-      ui.alert('Execution Failed',
-               'Current macro execution has timed out.\n Please try again.',
-               ui.ButtonSet.OK);
+  var errorMessage =
+      'Current macro execution has timed out while waiting for the mapping \nfor local path ' +
+      localPath +
+      '\n\n Please provide the mapping using Config Table and try again.';
+  var result = ui.alert('Execution Failed', errorMessage, ui.ButtonSet.OK);
 }
