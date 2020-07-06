@@ -226,23 +226,28 @@ function blockFunctionDecorator(func) {
       var args = Array.prototype.slice.call(arguments);
       args.push(true);  // Show prompt once
       return func.apply(this, args);
-    } catch (e) {
-      // @todo validate error in block prompt
-      var args = Array.prototype.slice.call(arguments);
-      args.push(false);  // Don't show prompt again
-      // Try 15 times
-      for (var i = 0; i < 15; i++) {
-        try {
-          Utilities.sleep(5 * 1000);
-          return func.apply(this, args);  // Try again
-        } catch (e) {
-          // @todo validate error in block prompt
+    } catch (err) {
+      if (err instanceof PromptException) {
+        var args = Array.prototype.slice.call(arguments);
+        args.push(false);  // Don't show prompt again
+        // Try 15 times
+        for (var i = 0; i < 15; i++) {
+          try {
+            Utilities.sleep(5 * 1000);
+            return func.apply(this, args);  // Try again
+          } catch (err) {
+            if (!(err instanceof PromptException)) {
+              throw err;
+            }
+          }
         }
       }
-      var timeOutMessage =
-          'Current macro execution has timed out. Please try again.';
-      SpreadsheetApp.getUi().alert('Execution Failed', timeOutMessage);
-      throw e;
+      if (err instanceof PromptException) {
+        var timeOutMessage =
+            'Current macro execution has timed out.\nPlease try again.';
+        SpreadsheetApp.getUi().alert('Execution Failed', timeOutMessage);
+      }
+      throw err;
     }
   }
 }

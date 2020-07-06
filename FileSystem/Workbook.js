@@ -92,10 +92,12 @@ function getActiveWorkbookPath(showPrompt) {
   if (showPrompt) {
     promptActiveWorkbookPath(true);
   }
-  throw new Error('ActiveWorkbookPath not defined');
+  var message = 'Active Work book path is not defined';
+  throw new ActiveWorkbookPathNotFoundException(message);
 }
 
-Workbook.getActiveWorkbookPath = blockFunctionDecorator(Workbook.getActiveWorkbookPath);
+Workbook.getActiveWorkbookPath =
+    blockFunctionDecorator(Workbook.getActiveWorkbookPath);
 
 /**
  * @todo Register directory mapping with File Mapper
