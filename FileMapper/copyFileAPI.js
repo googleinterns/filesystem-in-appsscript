@@ -28,7 +28,7 @@ function copyFile(sourceFilePath, targetFolderPath) {
   if (!exists) {
     // If the target folder doesn't exist
     var errorMessage = "Folder Mapped to the target path " + targetFolderPath +
-                       " has been previously deleted."
+                       " has been deleted."
     throw new FileDoesNotExistException(errorMessage);
   }
   var targetFolderId = getFolderId(targetFolderPath);
@@ -37,7 +37,7 @@ function copyFile(sourceFilePath, targetFolderPath) {
   // Copy the file only if it exists else throw error
   if (!exists) {
     var errorMessage = "File Mapped to the source path " + sourceFilePath +
-                       " has been previously deleted."
+                       " has been deleted."
     throw new FileDoesNotExistException(errorMessage);
   }
   var sourceFileId = getFileId(sourceFilePath);
@@ -64,7 +64,7 @@ function copyFolder(sourceFolderPath, targetFolderPath) {
   if (!exists) {
     // If the target folder doesn't exist
     var errorMessage = "Folder Mapped to the target path " + targetFolderPath +
-                       " has been previously deleted."
+                       " has been deleted."
     throw new FileDoesNotExistException(errorMessage);
   }
   var targetFolderId = getFolderId(targetFolderPath);
@@ -73,7 +73,7 @@ function copyFolder(sourceFolderPath, targetFolderPath) {
   // Copy the folder only if it exists else throw error
   if (!exists) {
     var errorMessage = "Folder Mapped to the source path " + sourceFolderPath +
-                       " has been previously deleted."
+                       " has been deleted."
     throw new FileDoesNotExistException(errorMessage);
   }
   var sourceFolderId = getFolderId(sourceFolderPath);

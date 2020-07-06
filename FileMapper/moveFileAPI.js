@@ -28,7 +28,7 @@ function moveFile(sourceFilePath, targetFolderPath) {
   if (!exists) {
     // If the target folder doesn't exist
     var errorMessage = "Folder Mapped to the target path " + targetFolderPath +
-                       " has been previously deleted."
+                       " has been deleted."
     throw new FileDoesNotExistException(errorMessage);
   }
   var targetFolderId = getFolderId(targetFolderPath);
@@ -38,7 +38,7 @@ function moveFile(sourceFilePath, targetFolderPath) {
   if (!exists) {
     // If the target folder doesn't exist
     var errorMessage = "File Mapped to the source path " + sourceFilePath +
-                       " has been previously deleted."
+                       " has been deleted."
     throw new FileDoesNotExistException(errorMessage);
   }
   var sourceFileId = getFileId(sourceFilePath);
@@ -64,7 +64,7 @@ function moveFolder(sourceFolderPath, targetFolderPath) {
   if (!exists) {
     // If the target folder doesn't exist
     var errorMessage = "Folder Mapped to the target path " + targetFolderPath +
-                       " has been previously deleted."
+                       " has been deleted."
     throw new FileDoesNotExistException(errorMessage);
   }
   var targetFolderId = getFolderId(targetFolderPath);
@@ -74,7 +74,7 @@ function moveFolder(sourceFolderPath, targetFolderPath) {
   if (!exists) {
     // If the target folder doesn't exist
     var errorMessage = "Folder Mapped to the source path " + sourceFolderPath +
-                       " has been previously deleted."
+                       " has been deleted."
     throw new FileDoesNotExistException(errorMessage);
   }
   var sourceFolderId = getFolderId(sourceFolderPath);
