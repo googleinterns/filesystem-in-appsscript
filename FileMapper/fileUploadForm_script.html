@@ -14,10 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 
-<script>
+<script> 
   // The Browser API key obtained from the Google API Console.
   // Replace with your own Browser API key, or your own key.
-  var DEVELOPER_KEY = 'xxxxxxxYYYYYYYY-12345678';
+  var DEVELOPER_KEY = ENVIRONMENT.API_KEY;
 
   // Google File Picker
   var DIALOG_DIMENSIONS = {width : 600, height : 425};
@@ -40,8 +40,7 @@ limitations under the License.
    * that Picker needs is available in Apps Script.
    */
   function getOAuthToken() {
-    google.script.run
-        .withSuccessHandler(createPicker)
+    google.script.run.withSuccessHandler(createPicker)
         .withFailureHandler()
         .getOAuthToken();
   }
@@ -56,9 +55,9 @@ limitations under the License.
     if (pickerApiLoaded && token) {
       // Setting the picker view to display folders
       var docsView = new google.picker.DocsView()
-                         .setIncludeFolders(true)
-                         .setMimeTypes('application/vnd.google-apps.folder')
-                         .setSelectFolderEnabled(true);
+                        .setIncludeFolders(true)
+                        .setMimeTypes('application/vnd.google-apps.folder')
+                        .setSelectFolderEnabled(true);
 
       var picker =
           new google.picker.PickerBuilder()
@@ -166,8 +165,9 @@ limitations under the License.
                 localPathValue + "</strong>.<br> Please try again.");
           })
           .processForm(data, mimetype, filename, localPathValue,
-                       document.getElementById('hiddenId').innerHTML);
-    } fr.readAsDataURL(file);
+                      document.getElementById('hiddenId').innerHTML);
+    } 
+    fr.readAsDataURL(file);
   }
 
   /**
