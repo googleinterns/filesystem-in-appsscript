@@ -42,7 +42,7 @@ function showPicker(localPathValue) {
  *     to
  */
 function processPickedFile(id, isFolder, localPathValue) {
-  var drivepath = ConfigUtil.getFullDrivePath(id, isFolder);
+  var drivepath = SharedLibrary.getAbsoluteDrivePath(id, isFolder);
   CONFIG.setMappingInConfigData(localPathValue, {
       id : id, 
       drivepath : drivepath, 
