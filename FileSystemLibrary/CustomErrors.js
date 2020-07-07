@@ -16,6 +16,7 @@
 
 /**
  * Create a new Mapping not found exception object.
+ * @param {string} message Descriptive Error message
  * @constructor
  */
 MappingNotFoundException = function(message) {
@@ -51,6 +52,7 @@ MappingNotFoundException.prototype.toString = function() {
 
 /**
  * Create a new file/folder doesnot exist exception object.
+ * @param {string} message Descriptive Error message
  * @constructor
  */
 FileDoesNotExistException = function(message) {
@@ -86,6 +88,7 @@ FileDoesNotExistException.prototype.toString = function() {
 
 /**
  * Create a new file/folder already exists exception object.
+ * @param {string} message Descriptive Error message
  * @constructor
  */
 FileAlreadyExistsException = function(message) {
@@ -121,6 +124,7 @@ FileAlreadyExistsException.prototype.toString = function() {
 
 /**
  * Create a new file/folder has been moved exception object.
+ * @param {string} message Descriptive Error message
  * @constructor
  */
 FileHasBeenMovedException = function(message) {
@@ -152,6 +156,7 @@ FileHasBeenMovedException.prototype.getMessage = function() {
 FileHasBeenMovedException.prototype.toString = function() {
   return this.name + ': ' + this.message;
 };
+
 
 /**
  * Helper function to get error stack
@@ -189,7 +194,6 @@ function createError(name, BaseError) {
 
 /**
  * Create a new Prompt Exception object.
- * @param {string} message Descriptive Error message
  * @constructor
  */
 var PromptException = createError('PromptException', Error);
