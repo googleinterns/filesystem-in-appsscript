@@ -48,7 +48,8 @@ var VBAFileMapperMocker = {
   getRelativePathSplit: getRelativePathSplit,
   getBaseDriveFolder: getBaseDriveFolder,
   addFileMapping: addFileMapping,
-  addFolderMapping: addFolderMapping
+  addFolderMapping: addFolderMapping,
+  clearAllMappingsInConfig: clearAllMappingsInConfig,
 };
 
 var FileMapper = USE_FILEMAPPER_MOCKER ? VBAFileMapperMocker : VBAFileMapper;
@@ -274,5 +275,12 @@ function addFileMapping(localPath, driveId) {
  * @param {string} driveId Drive Id of the folder
  */
 function addFolderMapping(localPath, driveId) {
+  // Do nothing in mocker
+}
+
+/**
+ * Helper function to clear all mappings in config.
+ */
+function clearAllMappingsInConfig() {
   // Do nothing in mocker
 }
