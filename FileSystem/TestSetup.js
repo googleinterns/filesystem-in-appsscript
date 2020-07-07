@@ -63,6 +63,8 @@ function generateTestReport() {
 }
 
 function testFunctions() {
+  FileMapper.clearAllMappingsInConfig();
+  Workbook.setActiveWorkbookPath('c:\\user\\desktop');
   setupTestEnvironment();
   workbook_run_all_tests();
   file_io_run_all_tests();
