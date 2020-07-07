@@ -54,7 +54,6 @@ function getErrorLocationString() {
  */
 function VbaBox(value) {
   this.value = value;
-
   // A property to access the value of the object irrespective of whether it is
   // being set or accessed.
   Object.defineProperty(this, 'ReferenceValue', {
@@ -158,7 +157,6 @@ function VbaDate(dateValue) {
 
 /**
  * Adds the new entry to collection.
- *
  * @param {!Collection} collection customized array in which the item to be
  *     added.
  * @param {?object} item value to be inserted into collection.
@@ -239,7 +237,6 @@ var ValueIteratorEnd = function() {};
 
 /**
  * Identifies whether the specified input is an array or array of cells (Range).
- *
  * @param {!Variant} input to be validated.
  * @return {boolean} true if the given input is an array.
  */
@@ -250,7 +247,7 @@ function isArray(input) {
 /**
  * Helper method to verify whether an object represents end of iterator or not.
  * @param {!Object} obj object to verify.
- * @return {boolean} whether the object represents end of iterator or not.
+ * @return {boolean} Whether the object represents end of iterator or not.
  */
 function isValueIteratorEnd(obj) {
   return typeof obj == 'object' && obj instanceof ValueIteratorEnd;
@@ -283,14 +280,12 @@ function Space(count) {
 /**
  * Excel equivalent Folder Collection reference.
  * https://docs.microsoft.com/en-us/office/vba/language/reference/user-interface-help/folders-collection
- *
  * @return {Array} Excel Folder Collection equivalent customized array.
  */
 VbaFolderCollection = function(parentFolder) {
   this.parentFolder = parentFolder;
   /**
    * Adds an entry into collection.
-   *
    * @param {number} index collection index.
    * @param {object} item to be added.
    * @param {string=} key if the item is [k,v].
@@ -305,14 +300,12 @@ VbaFolderCollection.prototype = new Array();
 /**
  * Excel equivalent Folder Collection reference.
  * https://docs.microsoft.com/en-us/office/vba/language/reference/user-interface-help/files-collection
- *
  * @return {Array} Excel File Collection equivalent customized array.
  */
 VbaFileCollection = function(parentFolder) {
   this.parentFolder = parentFolder;
   /**
    * Adds an entry into collection.
-   *
    * @param {number} index collection index.
    * @param {object} item to be added.
    * @param {string=} key if the item is [k,v].
