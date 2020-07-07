@@ -15,75 +15,47 @@ limitations under the License.
 -->
 
 <script>
-  // The Browser API key obtained from the Google API Console.
-  // Replace with your own Browser API key, or your own key.
-  var DEVELOPER_KEY = ENVIRONMENT.API_KEY;
-
-  // Google Picker
-  var DIALOG_DIMENSIONS = {width : 600, height : 425};
-  var pickerApiLoaded = false;
   var localPathValue = document.getElementById("localpathinput").value;
-
+  
   // Regex expressions to validate absolute paths
   var windowsPathRegExp = /^[\w]\:(\\|(\\[^<>\\/:"\|\?\*]+)+)\\?$/;
   var unixPathRegExp = /^(\/[^<>\\/:"\|\?\*]+)*\/?$/;
 
   /**
-   * Loads the Google Picker API.
+   * Function to provide the view for Google File Picker
    */
-  function onApiLoad() {
-    gapi.load('picker', {'callback' : function() { pickerApiLoaded = true; }});
+  function getPickerView() {
+    var localPathInput = document.getElementById("localpathinput");
+    var localPath = localPathInput.value;
+    var extension = getExtensionFromLocalPath(localPath);
+    var displayView = createViewUsingExtension(extension);
+
+    return displayView;
   }
 
   /**
-   * Gets the user's OAuth 2.0 access token from the server-side script so that
-   * it can be passed to Picker. This technique keeps Picker from needing to
-   * show its own authorization dialog, but is only possible if the OAuth scope
-   * that Picker needs is available in Apps Script. Otherwise, your Picker code
-   * will need to declare its own OAuth scopes.
+   * Function to display the alert message when the Google File Picker
+   * fails to load
    */
-  function getOAuthToken() {
-    google.script.run
-        .withSuccessHandler(createPicker)
-        .withFailureHandler(showError)
-        .getOAuthToken();
+  function displayPickerFailureAlert() {
+    var message =
+        'Unable to load the file picker. <br> <strong>Please try again after some time.</strong>';
+    showError(message);
   }
 
   /**
-   * Creates a Picker that can access the user's spreadsheets.
-   *
-   * @param {string} token An OAuth 2.0 access token that lets Picker access the
-   *     file type specified in the addView call.
+   * Function to check if the localPathInput value is marked invalid
+   * before loading the file picker
    */
-  function createPicker(token) {
-    if (pickerApiLoaded && token) {
-      var localPathInput = document.getElementById("localpathinput");
-      if (localPathInput.style.borderColor === 'red') {
-        showError(
-            "The local path provided is invalid. <br> <strong> Please provide a valid local path and then try again. </strong>");
-        return;
-      }
-
-      var localPath = localPathInput.value;
-      var extension = getExtensionFromLocalPath(localPath);
-      var displayView = createViewUsingExtension(extension);
-
-      var picker =
-          new google.picker.PickerBuilder()
-              .addView(displayView)
-              .enableFeature(google.picker.Feature.NAV_HIDDEN)
-              .hideTitleBar()
-              .setOAuthToken(token)
-              .setDeveloperKey(DEVELOPER_KEY)
-              .setCallback(pickerCallback)
-              .setOrigin(google.script.host.origin)
-              .setSize(DIALOG_DIMENSIONS.width - 2, DIALOG_DIMENSIONS.height - 2)
-              .build();
-      picker.setVisible(true);
-    } else {
+  function localPathInputError() {
+    var localPathInput = document.getElementById("localpathinput");
+    if (localPathInput.style.borderColor === 'red') {
       showError(
-          'Unable to load the file picker. <br> <strong>Please try again after some time.</strong>');
+          "The local path provided is invalid. <br> <strong> Please provide a valid local path and then try again. </strong>");
+      return;
     }
+    // If there is no error in the local path then we can show the picker
+    loadPicker();
   }
 
   /**
