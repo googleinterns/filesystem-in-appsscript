@@ -26,7 +26,7 @@ var CONFIG =
 
       /**
        * Object variable for storing the config data locally in the memory
-       *  @type {Object}
+       * @type {Object}
        */
       data : {},
       // Methods to access the data object
@@ -39,7 +39,7 @@ var CONFIG =
        * Object variable for keeping the mapping from lowercase localPaths to
        * the ones provided by the user (to handle the case-insensitivity in
        * local file systems)
-       *  @type {Object}
+       * @type {Object}
        */
       localPathCaseMap : {},
       // Methods to access the local path case mappings

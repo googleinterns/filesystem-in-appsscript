@@ -95,7 +95,7 @@ limitations under the License.
             </div>
 
             <div class="col-md-1" id="browseButtondiv">
-              <button type="button" id="browseButton" class="btn btn-primary" onclick="callPicker();">
+              <button type="button" id="browseButton" class="btn btn-primary" onclick="loadPicker()">
                 Browse
               </button>
             </div>
@@ -125,9 +125,10 @@ limitations under the License.
 
   <!-- scripts -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-  <script src="https://apis.google.com/js/api.js?onload=onApiLoad"></script>
+  <script src="https://apis.google.com/js/api.js?onload=loadPicker"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
   <?!= getHtmlContentFromFile('environment_variables'); ?>
+  <?!= getHtmlContentFromFile("picker_library"); ?>
   <?!= getHtmlContentFromFile('config_script'); ?>
   <?!= getHtmlContentFromFile('config_scriptUtil'); ?>
   <!-- scripts -->
