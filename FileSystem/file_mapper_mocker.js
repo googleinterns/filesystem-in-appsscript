@@ -16,7 +16,7 @@
 /**
  * Flag variable to toggle using FileMapper mocker
  */
-var USE_FILEMAPPER_MOCKER = true;
+var USE_FILEMAPPER_MOCKER = false;
 
 /**
  * Mocks the FileMapper module. The mocker is implemented as we need a way to

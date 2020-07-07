@@ -4,7 +4,8 @@
     "libraries": [{
       "userSymbol": "VBAFileMapper",
       "libraryId": "1mv6EhAjuJ04D3nns3LCmIZCM5qqWpYFAVqae5bV8K7HqNYH2mFXY_xMj",
-      "version": "3"
+      "version": "3",
+      "developmentMode": true
     }, {
       "userSymbol": "QUnit",
       "libraryId": "13agWuzcPH32W4JJvOqOEYqeNHGihS63P2V-a-Vxz-c9WPIzZYBvIhs3m",

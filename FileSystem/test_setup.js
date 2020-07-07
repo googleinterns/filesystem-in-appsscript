@@ -60,12 +60,13 @@ function generateTestReport() {
   DriveApp.createFile(pdf).setName(fileName);
 }
 
+
+
 function testFunctions() {
-  FileMapper.clearAllMappingsInConfig();
-  Workbook.setActiveWorkbookPath('c:\\user\\desktop');
+  
   setupTestEnvironment();
-  workbook_run_all_tests();
-  file_io_run_all_tests();
+ workbook_run_all_tests();
+ file_io_run_all_tests();
   file_mapper_run_all_tests();
   directory_manager_run_all_tests();
   vba_file_run_all_tests();
@@ -73,8 +74,10 @@ function testFunctions() {
 }
 
 function setupTestEnvironment() {
-  var folder1 = 'c:\\User\\Desktop\\folder1';
-  var folder2 = 'c:\\User\\Desktop\\folder2';
+  FileMapper.clearAllMappingsInConfig();
+Workbook.setActiveWorkbookPath('c:\\user\\desktop');
+  var folder1 = 'c:\\user\\desktop\\folder1';
+  var folder2 = 'c:\\user\\desktop\\folder2';
   try {
     FileMapper.deleteFolder(folder1);
   } catch (e) {
@@ -85,10 +88,10 @@ function setupTestEnvironment() {
   } catch (e) {
     // Do Nothing
   }
-  var originalFolder1 = 'c:\\User\\Desktop\\original\\folder1';
-  var originalFolder2 = 'c:\\User\\Desktop\\original\\folder2';
-  FileMapper.copyFolder(originalFolder1, 'c:\\User\\Desktop');
-  FileMapper.copyFolder(originalFolder2, 'c:\\User\\Desktop');
+  var originalFolder1 = 'c:\\user\\desktop\\original\\folder1';
+  var originalFolder2 = 'c:\\user\\desktop\\original\\folder2';
+  FileMapper.copyFolder(originalFolder1, 'c:\\user\\desktop');
+  FileMapper.copyFolder(originalFolder2, 'c:\\user\\desktop');
 }
 
 // Callback when module starts
