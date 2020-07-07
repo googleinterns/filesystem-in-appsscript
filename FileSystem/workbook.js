@@ -96,8 +96,10 @@ function getActiveWorkbookPath(showPrompt) {
   throw new ActiveWorkbookPathNotFoundException(message);
 }
 
-Workbook.getActiveWorkbookPath =
-    blockFunctionDecorator(Workbook.getActiveWorkbookPath);
+// Create blocking function
+Workbook.getActiveWorkbookPath = blockFunctionDecorator(
+    Workbook.getActiveWorkbookPath, 5000, 15, null,
+    showActiveWorkbookErrorAlert);
 
 /**
  * Set active workbook path. The active workbook path is the path of the folder
@@ -128,4 +130,15 @@ function resetActiveWorkbookPath() {
   this.activeWorkbookPath = '';
   var properties = PropertiesService.getDocumentProperties();
   properties.deleteProperty('ActiveWorkbookPath');
+}
+
+/**
+ * Active Workbook Path Time out Error message callback
+ */
+function showActiveWorkbookErrorAlert() {
+  var ui = SpreadsheetApp.getUi();
+  var errorMessage =
+      'Current macro execution has timed out while waiting for the active workbook path\n' +
+      'Please set the active workbook path and try again. (FileSystem -> Set Local File Path)';
+  var result = ui.alert('Execution Failed', errorMessage, ui.ButtonSet.OK);
 }

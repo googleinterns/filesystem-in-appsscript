@@ -68,3 +68,9 @@ function buildTestMetadata(tests, metadata) {
 function include(filename) {
   return HtmlService.createHtmlOutputFromFile(filename).getContent();
 }
+
+// Include Errors from FileSystemLibrary
+ActiveWorkbookPathNotFoundException =
+    FileSystemLibrary.ActiveWorkbookPathNotFoundException;
+// Include Helper functions from FileSystemLibrary
+blockFunctionDecorator = FileSystemLibrary.blockFunctionDecorator;
