@@ -15,66 +15,27 @@ limitations under the License.
 -->
 
 <script> 
-  // The Browser API key obtained from the Google API Console.
-  // Replace with your own Browser API key, or your own key.
-  var DEVELOPER_KEY = ENVIRONMENT.API_KEY;
-
-  // Google File Picker
-  var DIALOG_DIMENSIONS = {width : 600, height : 425};
-  var pickerApiLoaded = false;
-
   var localPathValue = document.getElementById("localpathinput").value;
 
   /**
-   * Loads the Google Picker API.
+   * Function to provide the view for Google File Picker
    */
-  function callPicker() {
-    gapi.load('picker', {'callback' : function() { pickerApiLoaded = true; }});
-    getOAuthToken();
+  function getPickerView() {
+    var view = new google.picker.DocsView()
+                   .setIncludeFolders(true)
+                   .setMimeTypes('application/vnd.google-apps.folder')
+                   .setSelectFolderEnabled(true);
+    return view;
   }
 
   /**
-   * Gets the user's OAuth 2.0 access token from the server-side script so that
-   * it can be passed to Picker. This technique keeps Picker from needing to
-   * show its own authorization dialog, but is only possible if the OAuth scope
-   * that Picker needs is available in Apps Script.
+   * Function to display the alert message when the Google File Picker
+   * fails to load
    */
-  function getOAuthToken() {
-    google.script.run.withSuccessHandler(createPicker)
-        .withFailureHandler()
-        .getOAuthToken();
-  }
-
-  /**
-   * Creates a Picker that can access the user's spreadsheets.
-   *
-   * @param {String} token An OAuth 2.0 access token that lets
-   *     Picker access the file type
-   */
-  function createPicker(token) {
-    if (pickerApiLoaded && token) {
-      // Setting the picker view to display folders
-      var docsView = new google.picker.DocsView()
-                        .setIncludeFolders(true)
-                        .setMimeTypes('application/vnd.google-apps.folder')
-                        .setSelectFolderEnabled(true);
-
-      var picker =
-          new google.picker.PickerBuilder()
-              .addView(docsView)
-              .enableFeature(google.picker.Feature.NAV_HIDDEN)
-              .hideTitleBar()
-              .setOAuthToken(token)
-              .setDeveloperKey(DEVELOPER_KEY)
-              .setCallback(pickerCallback)
-              .setSize(DIALOG_DIMENSIONS.width - 2, DIALOG_DIMENSIONS.height - 2)
-              .setOrigin(google.script.host.origin)
-              .build();
-      picker.setVisible(true);
-    } else {
-      showMessage(
-          'Unable to load the file picker. <br><strong> Please try again after sometime.</strong>');
-    }
+  function displayPickerFailureAlert() {
+    var message =
+        'Unable to load the file picker. <br><strong> Please try again after sometime.</strong>';
+    showMessage(message);
   }
 
   /**
@@ -92,14 +53,21 @@ limitations under the License.
 
       document.getElementById("hiddenId").innerHTML = id;
 
+      document.getElementById('browseButton').innerHTML = "Loading...";
       google.script.run
           .withSuccessHandler(function(fullpath) { 
             $("#destinationfolder").val(fullpath); 
+            document.getElementById('browseButton').innerHTML = "Browse";
           })
-          .withFailureHandler()
+          .withFailureHandler(function() {
+            showMessage(
+                "<strong>Unable to load the selected Drive Folder.</strong><br> Please try again.");
+            document.getElementById('browseButton').innerHTML = "Browse";
+          })
           .getAbsoluteDrivePath(id, true);
     } else if (action == google.picker.Action.CANCEL) {
-      showMessage("No File selected using the file picker.");
+      showMessage(
+          "No File selected using the file picker.");
     }
   }
 

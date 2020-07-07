@@ -75,7 +75,7 @@ limitations under the License.
           value="<?= destinationFolder ?>" 
           readonly 
         />
-        <button type="button" id="browseButton" onclick="callPicker();">
+        <button type="button" id="browseButton" onclick="loadPicker()">
           Browse
         </button>
         <div id="hiddenId"> </div>
@@ -105,9 +105,10 @@ limitations under the License.
   </form>  
   
   <!-- scripts -->
+  <script src="https://apis.google.com/js/api.js?onload=loadPicker"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-  <script src="https://apis.google.com/js/api.js?onload=onApiLoad"></script>
   <?!= getHtmlContentFromFile('environment_variables'); ?>
+  <?!= getHtmlContentFromFile("picker_library"); ?>
   <?!= getHtmlContentFromFile("fileUploadForm_script"); ?>
   <!-- scripts -->
 
