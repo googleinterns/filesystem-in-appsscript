@@ -100,7 +100,7 @@ function getMimeTypeFromExtension(extension) {
 
   var other_extensions = ["txt"];
   if (other_extensions.indexOf(extension) !== -1) 
-    return Mimetype.PLAIN_TEXT;  
+    return MimeType.PLAIN_TEXT;  
 
   if(extension === "")
     return MimeType.FOLDER;
