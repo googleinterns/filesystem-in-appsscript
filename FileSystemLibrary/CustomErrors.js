@@ -152,3 +152,60 @@ FileHasBeenMovedException.prototype.getMessage = function() {
 FileHasBeenMovedException.prototype.toString = function() {
   return this.name + ': ' + this.message;
 };
+
+/**
+ * Helper function to get error stack
+ * @return {string} Line number of the caller's caller
+ */
+function getErrorStack() {
+  try {
+    throw new Error();
+  } catch (err) {
+    return err.stack.split(/\t/g).slice(3).join('\t');
+  }
+}
+
+/**
+ * Helper function to create a new custom error
+ * @param {string} name Name of the newly created error
+ * @param {function} BaseError Constructor of the base error
+ * @returns {Err} The new Error
+ */
+function createError(name, BaseError) {
+  function Err(message) {
+    this.message = message;
+    this.stack = getErrorStack()
+    return this;
+  }
+  // Defaults to default Error as base error
+  BaseError = BaseError || Error;
+  Err.prototype = new BaseError();
+  // set the name property
+  Err.prototype.name = name;
+  // set the constructor
+  Err.prototype.constructor = Err;
+  return Err;
+}
+
+/**
+ * Create a new Prompt Exception object.
+ * @param {string} message Descriptive Error message
+ * @constructor
+ */
+var PromptException = createError('PromptException', Error);
+
+/**
+ * Create a new Active Workbook Not Found Exception object.
+ * @param {string} message Descriptive Error message
+ * @constructor
+ */
+var ActiveWorkbookPathNotFoundException =
+    createError('ActiveWorkbookPathNotFoundException', PromptException);
+
+/**
+ * Create a new Mapping Not Found Exception object.
+ * @param {string} message Descriptive Error message
+ * @constructor
+ */
+var MappingNotFoundException =
+    createError('MappingNotFoundException', PromptException);
