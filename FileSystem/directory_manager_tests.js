@@ -129,7 +129,7 @@ function current_directory_tests() {
   QUnit.test(
       'Current Directory is initialized to active workbook path', 1,
       function() {
-        Workbook.setActiveWorkbookPath('C:\\User\\Desktop\\');
+        Workbook.setActiveWorkbookPath('c:\\user\\desktop\\');
         DirectoryManager.currentDirectory = '';
         var directory = DirectoryManager.getCurrentDirectory();
         var workbookPath = Workbook.getActiveWorkbookPath();
@@ -137,7 +137,7 @@ function current_directory_tests() {
       });
 
   QUnit.test('CurDir API - Returns Current Directory', 1, function() {
-    Workbook.setActiveWorkbookPath('C:\\User\\Desktop\\');
+    Workbook.setActiveWorkbookPath('c:\\user\\desktop\\');
     DirectoryManager.currentDirectory = '';
     var currentDirectory = DirectoryManager.getCurrentDirectory();
     var curDirResponse = DirectoryManager.curDir();
@@ -145,7 +145,7 @@ function current_directory_tests() {
   });
 
   QUnit.test('CurDir API - Drive Parameter Tests', 3, function() {
-    Workbook.setActiveWorkbookPath('C:\\User\\Desktop\\');
+    Workbook.setActiveWorkbookPath('c:\\user\\desktop\\');
     DirectoryManager.currentDirectory = '';
     var currentDirectory = DirectoryManager.getCurrentDirectory();
     var curDirResponse = DirectoryManager.curDir('C');
@@ -262,13 +262,13 @@ function absolute_localpath_tests() {
 
 function misc_tests() {
   QUnit.test('FileLen - File Length Testing', 1, function() {
-    var filePath = 'c:\\User\\Desktop\\folder1\\FileLengthTest.txt';
+    var filePath = 'c:\\user\\desktop\\folder1\\FileLengthTest.txt';
     var fileLength = DirectoryManager.getFileLength(filePath);
     equal(fileLength, 192, 'File length is correct');
   });
 
   QUnit.test('FileDateTime - DateTime String Testing', 1, function() {
-    var filePath = 'c:\\User\\Desktop\\marks.xlsx';
+    var filePath = 'c:\\user\\desktop\\marks.xlsx';
     var dateTime = DirectoryManager.getFileDateTime(filePath);
     var dateTimeRegExp =
         /^\d{1,2}\/\d{1,2}\/\d{1,2} \d{1,2}:\d{1,2}:\d{1,2} (AM|PM)$/;
@@ -322,13 +322,13 @@ function dir_tests() {
 
 function kill_tests() {
   QUnit.test('Kill() - Delete Files by Pattern Testing', 4, function() {
-    var folder1 = 'c:\\User\\Desktop\\killtests';
+    var folder1 = 'c:\\user\\desktop\\killtests';
     try {
       FileMapper.deleteFolder(folder1);
     } catch (e) {
       // Do Nothing
     }
-    var originalFolder1 = 'c:\\User\\Desktop\\original\\killtests';
+    var originalFolder1 = 'c:\\user\\desktop\\original\\killtests';
     FileMapper.copyFolder(originalFolder1, 'c:\\User\\Desktop');
     var file;
     var pattern = 'killtests\\*.txt';
