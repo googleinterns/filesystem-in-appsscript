@@ -86,16 +86,22 @@ function checkIfMimeTypeMatches(localPath, driveId) {
  * Function to return the MimeType based on the file extension
  */
 function getMimeTypeFromExtension(extension) {
-  if (extension === "xls" || extension === "xlsx" || extension === "csv")
+  var sheets_extensions = ["xls", "xlsx", "csv", "xlsm", "tsv"];
+  if (sheets_extensions.indexOf(extension) !== -1)
     return MimeType.GOOGLE_SHEETS;
 
-  if (extension === "doc" || extension === "docx" || extension === "pdf" ||
-      extension === "txt")
+  var docs_extensions = ["doc", "docx", "docm", "pdf"];
+  if (docs_extensions.indexOf(extension) !== -1)
     return MimeType.GOOGLE_DOCS;
 
-  if (extension === "ppt" || extension === "pptx")
+  var slides_extensions = ["ppt", "pptx", "pptm"];
+  if (slides_extensions.indexOf(extension) !== -1)
     return MimeType.GOOGLE_SLIDES;
 
-  if (extension === "")
+  var other_extensions = ["txt"];
+  if (other_extensions.indexOf(extension) !== -1) 
+    return Mimetype.PLAIN_TEXT;  
+
+  if(extension === "")
     return MimeType.FOLDER;
 }
