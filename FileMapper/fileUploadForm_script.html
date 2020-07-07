@@ -195,18 +195,20 @@ limitations under the License.
    * @return {String} MimeType of the file based on it's extension
    */
   function getMimetypeFromExtension(extension) {
-   if (extension === "xls" || extension === "xlsx" || extension === "csv" ||
-       extension === "xlsm" || extension === "tsv")
+    var sheets_extensions = ["xls", "xlsx", "csv", "xlsm", "tsv"];
+    if (sheets_extensions.indexOf(extension) !== -1)
       return 'GOOGLE_SHEETS';
 
-    if (extension === "doc" || extension === "docx" || extension === "pdf" ||
-        extension === "docm")
+    var docs_extensions = ["doc", "docx", "docm", "pdf"];
+    if (docs_extensions.indexOf(extension) !== -1)
       return 'GOOGLE_DOCS';
 
-    if (extension === "ppt" || extension === "pptx" || extension === "pptm")
+    var slides_extensions = ["ppt", "pptx", "pptm"];
+    if (slides_extensions.indexOf(extension) !== -1)
       return 'GOOGLE_SLIDES';
 
-    if (extension === "txt") 
+    var other_extensions = ["txt"];
+    if (other_extensions.indexOf(extension) !== -1) 
       return 'PLAIN_TEXT';  
 
     return 'UNKNOWN';
