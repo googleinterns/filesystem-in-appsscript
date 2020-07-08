@@ -54,7 +54,6 @@ function getErrorLocationString() {
  */
 function VbaBox(value) {
   this.value = value;
-
   // A property to access the value of the object irrespective of whether it is
   // being set or accessed.
   Object.defineProperty(this, 'ReferenceValue', {
@@ -156,6 +155,103 @@ function VbaDate(dateValue) {
   return this;
 }
 
+/**
+ * Adds the new entry to collection.
+ * @param {!Collection} collection customized array in which the item to be
+ *     added.
+ * @param {?object} item value to be inserted into collection.
+ * @param {string= } key optional key value.
+ * @param {string | number=} before - item to be added is placed before this
+ *     index.
+ * @param {string | number=} after - item to be added is placed after this
+ *     index.
+ */
+function addToCollection(collection, item, key, before, after) {
+  if (collection == null) {
+    collection = new Collection();
+  }
+  if (item == null) {
+    ThrowGenericException('Collection.Add item should not be null.');
+  }
+  if (key && typeof key != 'string') {
+    ThrowGenericException('Collection.Add Key must be string.');
+  }
+  if (before && after) {
+    ThrowGenericException(
+        'Collection.Add cannot define both before and after.');
+  }
+  if (key && collection.hasKey(key)) {
+    ThrowGenericException(
+        'Collection.Add Key is already associated with another element.');
+  }
+  var index = collection.length;
+  if (before || after) {
+    index = getCollectionIndex(collection, before || after);
+    if (after) {
+      index++;
+    }
+  }
+  collection.addEntry(index, item, key);
+}
+
+/**
+ * Helper function to create Iterator of the required type.
+ * @param {!Object} object object for which iterator needs to be returned.
+ * @return {!Object} iterator specific to the object or the object itself
+ */
+function ValueIterator(object) {
+  if (isArray(object)) {
+    return new ArrayValueIterator(object);
+  }
+  if (object instanceof IterableRangeList) {
+    return new RangeListValueIterator(object);
+  }
+  if (object instanceof _vba_new_range_array) {
+    return new VbaArrayValueIterator(object);
+  }
+  if (!object) {
+    return new EmptyIterator();
+  }
+  return object;
+}
+
+/**
+ * Iterator to iterate over value of an array.
+ * @param {!Array} arr array to iterate over.
+ */
+function ArrayValueIterator(arr) {
+  this.currentIndex = 0;
+  this.getNext = function() {
+    if (this.currentIndex < arr.length) {
+      return arr[this.currentIndex++];
+    } else {
+      return new ValueIteratorEnd();
+    }
+  };
+}
+
+/**
+ * Type to denote the end of iterator.
+ */
+var ValueIteratorEnd = function() {};
+
+/**
+ * Identifies whether the specified input is an array or array of cells (Range).
+ * @param {!Variant} input to be validated.
+ * @return {boolean} true if the given input is an array.
+ */
+function isArray(input) {
+  return Array.isArray(input) || input instanceof Array;
+}
+
+/**
+ * Helper method to verify whether an object represents end of iterator or not.
+ * @param {!Object} obj object to verify.
+ * @return {boolean} Whether the object represents end of iterator or not.
+ */
+function isValueIteratorEnd(obj) {
+  return typeof obj == 'object' && obj instanceof ValueIteratorEnd;
+}
 //  ----------------------- New Structures to be added to library.gs ------------------
 
 /**
@@ -180,3 +276,43 @@ function Space(count) {
   this.count = count;
   return this;
 }
+
+/**
+ * Excel equivalent Folder Collection reference.
+ * https://docs.microsoft.com/en-us/office/vba/language/reference/user-interface-help/folders-collection
+ * @return {Array} Excel Folder Collection equivalent customized array.
+ */
+VbaFolderCollection = function(parentFolder) {
+  this.parentFolder = parentFolder;
+  /**
+   * Adds an entry into collection.
+   * @param {number} index collection index.
+   * @param {object} item to be added.
+   * @param {string=} key if the item is [k,v].
+   */
+  this.addEntry = function(index, item, key) {
+    this.splice(index, 0, item);
+  };
+  return this;
+};
+VbaFolderCollection.prototype = new Array();
+
+/**
+ * Excel equivalent Folder Collection reference.
+ * https://docs.microsoft.com/en-us/office/vba/language/reference/user-interface-help/files-collection
+ * @return {Array} Excel File Collection equivalent customized array.
+ */
+VbaFileCollection = function(parentFolder) {
+  this.parentFolder = parentFolder;
+  /**
+   * Adds an entry into collection.
+   * @param {number} index collection index.
+   * @param {object} item to be added.
+   * @param {string=} key if the item is [k,v].
+   */
+  this.addEntry = function(index, item, key) {
+    this.splice(index, 0, item);
+  };
+  return this;
+};
+VbaFileCollection.prototype = new Array();

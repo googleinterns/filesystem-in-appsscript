@@ -63,11 +63,15 @@ function generateTestReport() {
 }
 
 function testFunctions() {
+  FileMapper.clearAllMappingsInConfig();
+  Workbook.setActiveWorkbookPath('c:\\user\\desktop');
   setupTestEnvironment();
   workbook_run_all_tests();
   file_io_run_all_tests();
   file_mapper_run_all_tests();
   directory_manager_run_all_tests();
+  vba_file_run_all_tests();
+  vba_folder_run_all_tests();
 }
 
 function setupTestEnvironment() {

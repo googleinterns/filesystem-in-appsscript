@@ -47,6 +47,7 @@ function file_mapper_run_all_tests() {
 
 function file_mapper_tests_setup() {
   QUnit.module('FileMapper');
+  Workbook.setActiveWorkbookPath('c:\\user\\desktop');
 }
 
 function file_folder_get_tests() {
