@@ -19,20 +19,33 @@
  */
 var ApiUtil =
     {
+      // Common API Utilities
       addNewMappingToConfig : addNewMappingToConfig,
       checkIfMarkedDeleted : checkIfMarkedDeleted,
       checkIfValidDriveId : checkIfValidDriveId,
       findInDrive : findInDrive,
       getDestinationId : getDestinationId,
+
+      // Create API Utilities
       createDeletedDestination : createDeletedDestination,
       createInDrive : createInDrive,
       createDestination : createDestination,
+
+      // Pattern Match API Utilities
       getRegExFromPattern : getRegExFromPattern,
+
+      // Move API Utilities
       moveFileById : moveFileById,
       moveFolderById : moveFolderById,
+
+      // Copy API Utilities
       copyFileById : copyFileById,
       copyFolderById : copyFolderById,
-      copyFolderInDrive : copyFolderInDrive
+      copyFolderInDrive : copyFolderInDrive,
+
+      // Search Utilities
+      searchFileByName : searchFileByName,
+      searchFolderByName : searchFolderByName
     }
 
 /**
@@ -117,9 +130,12 @@ function findInDrive(currentDirectory, path, isUnix, isFile) {
     path = path.slice(index + 1);
 
     var folders = currentDirectory.getFoldersByName(folderName);
-    return (folders.hasNext())
-               ? ApiUtil.findInDrive(folders.next(), path, isUnix, isFile)
-               : null;
+    var folder = (folders.hasNext())
+                     ? folders.next()
+                     : ApiUtil.searchFolderByName(folderName, currentDirectory);
+
+    return (folder !== null) ? ApiUtil.findInDrive(folder, path, isUnix, isFile)
+                             : null;
   }
 }
 
@@ -145,11 +161,23 @@ function getDestinationId(destination, folder, isFile) {
         driveId = x.getId();
       }
     }
+
+    if (driveId === null) {
+      var file = ApiUtil.searchFileByName(destination, folder);
+      if (file !== null) {
+        driveId = file.getId();
+      }
+    }
   } else {
     var fldrs = folder.getFoldersByName(destination);
     if (fldrs.hasNext()) {
       var x = fldrs.next();
       driveId = x.getId();
+    } else {
+      var fldr = ApiUtil.searchFolderByName(destination, folder);
+      if (fldr !== null) {
+        driveId = fldr.getId();
+      }
     }
   }
   return driveId;
@@ -206,10 +234,14 @@ function createInDrive(currentDirectory, relativePath, isUnix, isFile) {
     var folderName = relativePath.slice(0, index);
     // New path is now without the folder which will be searched in this call
     relativePath = relativePath.slice(index + 1);
+
     var folders = currentDirectory.getFoldersByName(folderName);
     var folder = (folders.hasNext())
                      ? folders.next()
-                     : currentDirectory.createFolder(folderName);
+                     : ApiUtil.searchFolderByName(folderName, currentDirectory);
+    if (folder === null) {
+      folder = currentDirectory.createFolder(folderName);
+    }
 
     return ApiUtil.createInDrive(folder, relativePath, isUnix, isFile);
   }
@@ -358,4 +390,46 @@ function copyFolderInDrive(source, target) {
     var targetFolder = target.createFolder(folderName);
     copyFolderInDrive(subFolder, targetFolder);
   }
+}
+
+/**
+ * Utility to search files by name in a directory without case sensitivity
+ *
+ * @param {String} fileName The name of file which is to be searched
+ * @param {FolderObject} currentDirectory The directory in which the file is
+ *    to be searched
+ * @return {FileObject} file The file object of the searched file
+ */
+function searchFileByName(fileName, currentDirectory) {
+  var files = currentDirectory.getFiles();
+  fileName = fileName.toLowerCase();
+
+  while (files.hasNext()) {
+    var file = files.next();
+    if (file.getName().toLowerCase() === fileName) {
+      return file;
+    }
+  }
+  return null;
+}
+
+/**
+ * Utility to search folders by name in a directory without case sensitivity
+ *
+ * @param {String} folderName The name of folder which is to be searched
+ * @param {FolderObject} currentDirectory The directory in which the folder is
+ *    to be searched
+ * @return {FolderObject} folder The folder object of the searched folder
+ */
+function searchFolderByName(folderName, currentDirectory) {
+  var folders = currentDirectory.getFolders();
+  folderName = folderName.toLowerCase();
+
+  while (folders.hasNext()) {
+    var folder = folders.next();
+    if (folder.getName().toLowerCase() === folderName) {
+      return folder;
+    }
+  }
+  return null;
 }

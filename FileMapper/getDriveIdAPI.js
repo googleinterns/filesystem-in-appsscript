@@ -20,9 +20,13 @@
  * @param {String} localPath Local File Path whose mapping is to be found
  * @return {String} driveMapping The Drive id of the mapped file
  */
-function getFileId(localPath) { 
-  getDriveIdUtil = blockerFunction(getDriveIdUtil);
-  return getDriveIdUtil(localPath, true); 
+function getFileId(localPath) {
+  getDriveIdUtil = SharedLibrary.blockFunctionDecorator(
+      getDriveIdUtil, PromptSettings.sleepTime, PromptSettings.retryCount,
+      PromptSettings.retryCallback, PromptSettings.failureCallback,
+      [ localPath ]);
+
+  return getDriveIdUtil(localPath, true);
 }
 
 /**
@@ -31,9 +35,13 @@ function getFileId(localPath) {
  * @param {String} localPath Local Folder Path whose mapping is to be found
  * @return {String} driveMapping The Drive id of the mapped folder
  */
-function getFolderId(localPath) { 
-  getDriveIdUtil = blockerFunction(getDriveIdUtil);
-  return getDriveIdUtil(localPath, false); 
+function getFolderId(localPath) {
+  getDriveIdUtil = SharedLibrary.blockFunctionDecorator(
+      getDriveIdUtil, PromptSettings.sleepTime, PromptSettings.retryCount,
+      PromptSettings.retryCallback, PromptSettings.failureCallback,
+      [ localPath ]);
+  
+  return getDriveIdUtil(localPath, false);
 }
 
 /**
@@ -62,8 +70,7 @@ function getDriveIdUtil(localPath, isFile, showPrompt) {
       if (ApiUtil.checkIfMarkedDeleted(mappedPath)) {
         var errorMessage =
             ((currentDirectoryMapping.isfolder) ? "Folder" : "File") +
-            " mapped to the local path " + mappedPath +
-            " has been deleted.";
+            " mapped to the local path " + mappedPath + " has been deleted.";
         throw new FileDoesNotExistException(errorMessage);
       }
 
@@ -110,8 +117,8 @@ function getDriveIdUtil(localPath, isFile, showPrompt) {
 
   // If the mapping is null then we need to prompt the user
   if (driveMapping === null) {
-    if(showPrompt) {
-      // Show prompt to the user to get mapping 
+    if (showPrompt) {
+      // Show prompt to the user to get mapping
       showPromptToGetMappingFromUser(localPath, isFile);
     }
 
