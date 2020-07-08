@@ -63,7 +63,7 @@ function promptActiveWorkbookPath(error) {
   var localPathValue = documentProperties.getProperty('ActiveWorkbookPath');
 
   // Create HTML dialog and set template parameters
-  var htmlOutput = HtmlService.createTemplateFromFile('WorkbookPathPrompt');
+  var htmlOutput = HtmlService.createTemplateFromFile('workbook_path_prompt');
   htmlOutput.drivePath = drivePath;
   htmlOutput.localPathExample = localPathExample;
   htmlOutput.error = error;
