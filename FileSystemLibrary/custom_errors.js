@@ -15,15 +15,58 @@
  */
 
 /**
- * Create a new Mapping not found exception object.
- * @param {string} message Descriptive Error message
+ * Helper function to get error stack
+ * @return {string} Line number of the caller's caller
+ */
+function getErrorStack() {
+  try {
+    throw new Error();
+  } catch (err) {
+    return err.stack.split(/\t/g).slice(3).join('\t');
+  }
+}
+
+/**
+ * Helper function to create a new custom error
+ * @param {string} name Name of the newly created error
+ * @param {function} BaseError Constructor of the base error
+ * @returns {Err} The new Error
+ */
+function createError(name, BaseError) {
+  // Define the constructor
+  function Err(message) {
+    this.message = message;
+    this.stack = getErrorStack()
+    return this;
+  }
+
+  // Defaults to default Error as base error
+  BaseError = BaseError || Error;
+  Err.prototype = new BaseError();
+
+  // set the name property
+  Err.prototype.name = name;
+
+  // set the constructor
+  Err.prototype.constructor = Err;
+
+  return Err;
+}
+
+
+/**
+ * Create a new Prompt Exception object for blocker function Utility.
  * @constructor
  */
-MappingNotFoundException = function(message) {
-  this.constructor.prototype.__proto__ = Error.prototype;
-  this.name = 'MappingNotFoundException';
-  this.message = message;
-};
+PromptException = createError('PromptException', Error);
+
+
+/**
+ * Create a new Mapping not found exception object.
+ * @constructor
+ */
+MappingNotFoundException =
+    createError('MappingNotFoundException', PromptException);    
 
 /**
  * Get the exception's name.
@@ -52,14 +95,10 @@ MappingNotFoundException.prototype.toString = function() {
 
 /**
  * Create a new file/folder doesnot exist exception object.
- * @param {string} message Descriptive Error message
  * @constructor
  */
-FileDoesNotExistException = function(message) {
-  this.constructor.prototype.__proto__ = Error.prototype;
-  this.name = 'FileDoesNotExistException';
-  this.message = message;
-};
+FileDoesNotExistException = 
+    createError('FileDoesNotExistException', Error);
 
 /**
  * Get the exception's name.
@@ -88,14 +127,10 @@ FileDoesNotExistException.prototype.toString = function() {
 
 /**
  * Create a new file/folder already exists exception object.
- * @param {string} message Descriptive Error message
  * @constructor
  */
-FileAlreadyExistsException = function(message) {
-  this.constructor.prototype.__proto__ = Error.prototype;
-  this.name = 'FileAlreadyExistsException';
-  this.message = message;
-};
+FileAlreadyExistsException = 
+    createError('FileAlreadyExistsException', Error);
 
 /**
  * Get the exception's name.
@@ -124,14 +159,10 @@ FileAlreadyExistsException.prototype.toString = function() {
 
 /**
  * Create a new file/folder has been moved exception object.
- * @param {string} message Descriptive Error message
  * @constructor
  */
-FileHasBeenMovedException = function(message) {
-  this.constructor.prototype.__proto__ = Error.prototype;
-  this.name = 'FileHasBeenMovedException';
-  this.message = message;
-};
+FileHasBeenMovedException = 
+    createError('FileHasBeenMovedException', Error);
 
 /**
  * Get the exception's name.
@@ -159,57 +190,32 @@ FileHasBeenMovedException.prototype.toString = function() {
 
 
 /**
- * Helper function to get error stack
- * @return {string} Line number of the caller's caller
- */
-function getErrorStack() {
-  try {
-    throw new Error();
-  } catch (err) {
-    return err.stack.split(/\t/g).slice(3).join('\t');
-  }
-}
-
-/**
- * Helper function to create a new custom error
- * @param {string} name Name of the newly created error
- * @param {function} BaseError Constructor of the base error
- * @returns {Err} The new Error
- */
-function createError(name, BaseError) {
-  function Err(message) {
-    this.message = message;
-    this.stack = getErrorStack()
-    return this;
-  }
-  // Defaults to default Error as base error
-  BaseError = BaseError || Error;
-  Err.prototype = new BaseError();
-  // set the name property
-  Err.prototype.name = name;
-  // set the constructor
-  Err.prototype.constructor = Err;
-  return Err;
-}
-
-/**
- * Create a new Prompt Exception object.
- * @constructor
- */
-var PromptException = createError('PromptException', Error);
-
-/**
  * Create a new Active Workbook Not Found Exception object.
- * @param {string} message Descriptive Error message
  * @constructor
  */
-var ActiveWorkbookPathNotFoundException =
+ActiveWorkbookPathNotFoundException =
     createError('ActiveWorkbookPathNotFoundException', PromptException);
 
 /**
- * Create a new Mapping Not Found Exception object.
- * @param {string} message Descriptive Error message
- * @constructor
+ * Get the exception's name.
+ * @return {string}
  */
-var MappingNotFoundException =
-    createError('MappingNotFoundException', PromptException);
+ActiveWorkbookPathNotFoundException.prototype.getName = function() {
+  return this.name;
+};
+
+/**
+ * Get the exception message.
+ * @return {string}
+ */
+ActiveWorkbookPathNotFoundException.prototype.getMessage = function() {
+  return this.message;
+};
+
+/**
+ * Get the printable message
+ * @return {string}
+ */
+ActiveWorkbookPathNotFoundException.prototype.toString = function() {
+  return this.name + ': ' + this.message;
+};
