@@ -54,7 +54,10 @@ function findFoldersByPattern(pattern) {
  *     specified pattern.
  */
 function getPatternMatchesUtil(pattern, isFile) {
-  var isUnix = PathUtil.checkIfUnixPath(pattern);
+  // Need to find the file system for pattern using slash type
+  // as it won't match the file system regex due to wildcard symbols
+  var forwardSlash = pattern.match(/\//g);
+  var isUnix = !(forwardSlash === null);
 
   // To store all the pattern matches found
   var matches = [];

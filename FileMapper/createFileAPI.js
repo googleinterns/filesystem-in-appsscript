@@ -29,7 +29,11 @@ function createFile(localPath) {
         "File mapped to the local path " + localPath + " already exists.";
     throw new FileAlreadyExistsException(errorMessage);
   }
-  createFileOrFolderUtil = blockerFunction(createFileOrFolderUtil);
+  createFileOrFolderUtil = SharedLibrary.blockFunctionDecorator(
+      createFileOrFolderUtil, PromptSettings.sleepTime,
+      PromptSettings.retryCount, PromptSettings.retryCallback,
+      PromptSettings.failureCallback, [ localPath ]);
+
   return createFileOrFolderUtil(localPath, true);
 }
 
@@ -48,7 +52,11 @@ function createFolder(localPath) {
         "Folder mapped to the local path " + localPath + " already exists.";
     throw new FileAlreadyExistsException(errorMessage);
   }
-  createFileOrFolderUtil = blockerFunction(createFileOrFolderUtil);
+  createFileOrFolderUtil = SharedLibrary.blockFunctionDecorator(
+      createFileOrFolderUtil, PromptSettings.sleepTime,
+      PromptSettings.retryCount, PromptSettings.retryCallback,
+      PromptSettings.failureCallback, [ localPath ]);
+  
   return createFileOrFolderUtil(localPath, false);
 }
 
@@ -89,8 +97,8 @@ function createFileOrFolderUtil(localPath, isFile, showPrompt) {
 
       if (relativePath.length > 0) {
         var currentDirectory = DriveApp.getFolderById(currentDirectoryId);
-        var relativeMapping = 
-            ApiUtil.createInDrive(currentDirectory, relativePath, isUnix, isFile);
+        var relativeMapping = ApiUtil.createInDrive(
+            currentDirectory, relativePath, isUnix, isFile);
 
         if (relativeMapping !== null) {
           ApiUtil.addNewMappingToConfig(localPath, relativeMapping, isFile);
@@ -120,7 +128,7 @@ function createFileOrFolderUtil(localPath, isFile, showPrompt) {
   // a file picker
   if (!created) {
     if (showPrompt) {
-      // Show prompt to the user to get mapping 
+      // Show prompt to the user to get mapping
       showPromptToGetMappingFromUser(localPath, isFile);
     }
 

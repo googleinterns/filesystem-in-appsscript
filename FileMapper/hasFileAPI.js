@@ -22,9 +22,12 @@
  * @return {boolean} found  True if the file exists,
  *     False if the file has been deleted
  */
-function hasFile(localPath) { 
-  hasFileOrFolderUtil = blockerFunction(hasFileOrFolderUtil);
-  return hasFileOrFolderUtil(localPath, true); 
+function hasFile(localPath) {
+  hasFileOrFolderUtil = SharedLibrary.blockFunctionDecorator(
+      hasFileOrFolderUtil, PromptSettings.sleepTime, PromptSettings.retryCount,
+      PromptSettings.retryCallback, PromptSettings.failureCallback, [ localPath ]);
+
+  return hasFileOrFolderUtil(localPath, true);
 }
 
 /**
@@ -35,9 +38,12 @@ function hasFile(localPath) {
  * @return {boolean} found  True if the folder exists,
  *     False if the folder has been deleted
  */
-function hasFolder(localPath) { 
-  hasFileOrFolderUtil = blockerFunction(hasFileOrFolderUtil);
-  return hasFileOrFolderUtil(localPath, false); 
+function hasFolder(localPath) {
+  hasFileOrFolderUtil = SharedLibrary.blockFunctionDecorator(
+      hasFileOrFolderUtil, PromptSettings.sleepTime, PromptSettings.retryCount,
+      PromptSettings.retryCallback, PromptSettings.failureCallback, [ localPath ]);
+  
+  return hasFileOrFolderUtil(localPath, false);
 }
 
 /**
@@ -107,7 +113,7 @@ function hasFileOrFolderUtil(localPath, isFile, showPrompt) {
     return found;
   } else {
     if (showPrompt) {
-      // Show prompt to the user to get mapping 
+      // Show prompt to the user to get mapping
       showPromptToGetMappingFromUser(localPath, isFile);
     }
 
