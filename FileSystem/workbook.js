@@ -16,7 +16,6 @@
 
 /**
  * Workbook APIs
- * @todo migrate currentDirectory calls to DirectoryManager
  */
 var Workbook = {
   openWorkbook: openWorkbook,
@@ -33,8 +32,8 @@ var Workbook = {
  * @return {Spreadsheet} The spreadsheet object of the path
  */
 function openWorkbook(path) {
-  var fileId =
-      FileMapper.getFileId(this.currentDirectory, path, MimeType.GOOGLE_SHEETS);
+  path = DirectoryManager.getAbsolutePath(path);
+  var fileId = FileMapper.getFileId(path);
   var file = SpreadsheetApp.openById(fileId);
   openURL(file.getUrl(), file.getName() + ' file open in new tab');
   return file;
@@ -64,7 +63,7 @@ function promptActiveWorkbookPath(error) {
   var localPathValue = documentProperties.getProperty('ActiveWorkbookPath');
 
   // Create HTML dialog and set template parameters
-  var htmlOutput = HtmlService.createTemplateFromFile('WorkbookPathPrompt');
+  var htmlOutput = HtmlService.createTemplateFromFile('workbook_path_prompt');
   htmlOutput.drivePath = drivePath;
   htmlOutput.localPathExample = localPathExample;
   htmlOutput.error = error;
@@ -81,7 +80,7 @@ function promptActiveWorkbookPath(error) {
  * and the user is prompted if the active workbook path is not available.
  * @return {string} The active workbook path
  */
-function getActiveWorkbookPath() {
+function getActiveWorkbookPath(showPrompt) {
   if (!this.activeWorkbookPath) {
     var properties = PropertiesService.getDocumentProperties();
     this.activeWorkbookPath = properties.getProperty('ActiveWorkbookPath');
@@ -90,21 +89,33 @@ function getActiveWorkbookPath() {
     return this.activeWorkbookPath;
   }
   // path not found, prompt and throw error
-  promptActiveWorkbookPath(true);
-  throw new Error('ActiveWorkbookPath not defined');
+  if (showPrompt) {
+    promptActiveWorkbookPath(true);
+  }
+  var message = 'Active Work book path is not defined';
+  throw new ActiveWorkbookPathNotFoundException(message);
 }
 
+Workbook.getActiveWorkbookPath =
+    blockFunctionDecorator(Workbook.getActiveWorkbookPath);
+
 /**
- * @todo Register directory mapping with File Mapper
- * @body This mapping is very useful as in most cases this will handle most
- * scenarios Set the active workbook path in PropertyService
+ * Set active workbook path. The active workbook path is the path of the folder
+ * containing the current spreadsheet document. This function also registers a
+ * file mapping with the File Mapper. This mapping is very useful as in most
+ * cases this will handle most scenarios. The active workbook path is stored in
+ * DocumentProperties.
  * @param {string} path The active workbook path
  */
 function setActiveWorkbookPath(path) {
   if (!isValidAbsolutePath(path)) {
     throw new Error(path + ' is not a valid');
   }
-  var path = sanitizePath(path);
+  var id = SpreadsheetApp.getActive().getId();
+  var file = DriveApp.getFileById(id);
+  FileMapper.addFileMapping(path, file.getParents().next().getId());
+  var fileSystemType = getFileSystemType(path);
+  var path = sanitizePath(path, fileSystemType);
   this.activeWorkbookPath = path;
   var properties = PropertiesService.getDocumentProperties();
   properties.setProperty('ActiveWorkbookPath', path);

@@ -104,48 +104,44 @@ function getOrCreateFolder(localPath) {
 
 /**
  * Clone file helper function
- * API clones all files to the target folder. Optionally deletes source files.
+ * API clones file to the target folder. Optionally deletes source file.
  * Apps Script does not have a move API. Move is implemented by making a copy
  * and deleting the original file.
- * @param {Array} sourceFilePaths List of local files to be moved
+ * @param {string} sourceFilePath Local file to be moved
  * @param {string} targetFolderPath Destination folder path
- * @param {boolean} deleteOriginal If true, source files will be deleted
+ * @param {boolean} deleteOriginal If true, source file will be deleted
  */
-function cloneFiles(sourceFilePaths, targetFolderPath, deleteOriginal) {
+function cloneFile(sourceFilePath, targetFolderPath, deleteOriginal) {
   // Get folder, if it doesn't exist then create it
   var targetFolder = getOrCreateFolder(targetFolderPath);
-  // Move all files
-  for (var i = 0; i < sourceFilePaths.length; i++) {
-    var fileId = VBAFileMapperMocker.getFileId(sourceFilePaths[i]);
-    var file = DriveApp.getFileById(fileId);
-    file.makeCopy(file.getName(), targetFolder);
-    if (deleteOriginal) {
-      file.setTrashed(true);
-    }
+  // Move file
+  var fileId = VBAFileMapperMocker.getFileId(sourceFilePath);
+  var file = DriveApp.getFileById(fileId);
+  file.makeCopy(file.getName(), targetFolder);
+  if (deleteOriginal) {
+    file.setTrashed(true);
   }
 }
 
 /**
- * Clone file helper function
- * API clones all folders to the target folder. Optionally deletes source
- * folders. Apps Script does not have a move API. Move is implemented by making
+ * Clone folder helper function
+ * API clones folder to the target folder. Optionally deletes source
+ * folder. Apps Script does not have a move API. Move is implemented by making
  * a recursive copy and deleting the original folder.
- * @param {Array} sourceFilePaths List of local files to be moved
+ * @param {string} sourceFolderPath Local folder to be moved
  * @param {string} targetFolderPath Destination folder path
- * @param {boolean} deleteOriginal If true, source folders will be deleted
+ * @param {boolean} deleteOriginal If true, source folder will be deleted
  */
-function cloneFolder(sourceFolderPaths, targetFolderPath, deleteOriginal) {
+function cloneFolder(sourceFolderPath, targetFolderPath, deleteOriginal) {
   // Get folder, if it doesn't exist then create it
   var targetFolder = getOrCreateFolder(targetFolderPath);
-  // Move all folders
-  for (var i = 0; i < sourceFolderPaths.length; i++) {
-    var folderId = VBAFileMapperMocker.getFolderId(sourceFolderPaths[i]);
-    var folder = DriveApp.getFolderById(folderId);
-    var destination = targetFolder.createFolder(folder.getName());
-    recursiveCopyFolder(folder, destination);
-    if (deleteOriginal) {
-      folder.setTrashed(true);
-    }
+  // Move folder
+  var folderId = VBAFileMapperMocker.getFolderId(sourceFolderPath);
+  var folder = DriveApp.getFolderById(folderId);
+  var destination = targetFolder.createFolder(folder.getName());
+  recursiveCopyFolder(folder, destination);
+  if (deleteOriginal) {
+    folder.setTrashed(true);
   }
 }
 

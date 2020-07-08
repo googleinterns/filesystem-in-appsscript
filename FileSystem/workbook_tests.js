@@ -23,8 +23,7 @@ function workbook_run_all_tests() {
       'check if filemapper returns correct file and mimeType when file is present',
       function() {
         var fileName = 'c:\\User\\Desktop\\marks.xlsx';
-        var fileId = FileMapper.getFileId(
-            FileSystem.currentDirectory, fileName, MimeType.GOOGLE_SHEETS);
+        var fileId = FileMapper.getFileId(fileName);
         equal(
             fileId, '1i3M1cYfubmXnosn5LJQmHCghBzhPBrDjBQszkWvZkxA',
             'FileMapper returns correct file id');
@@ -50,13 +49,6 @@ function workbook_run_all_tests() {
       });
 
   QUnit.test(
-      'single call to workbook.open() when file is not present', function() {
-        expect(0);
-        var fileName1 = 'FileNotExist.xlsx';
-        Workbook.openWorkbook(fileName1);
-      });
-
-  QUnit.test(
       'ActiveWorkbook call when active workbook path is not set', function() {
         Workbook.resetActiveWorkbookPath();
         throws(function() {
@@ -75,4 +67,9 @@ function workbook_run_all_tests() {
         Workbook.setActiveWorkbookPath(path + '\\');
         equal(path, Workbook.getActiveWorkbookPath(), 'Path set correctly');
       });
+}
+
+function workbook_active_workbook_test() {
+  Workbook.resetActiveWorkbookPath();
+  SpreadsheetApp.getUi().alert(Workbook.getActiveWorkbookPath());
 }
