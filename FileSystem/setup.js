@@ -35,7 +35,7 @@ function onOpen(e) {
  * selectively chose what tests are to be run.
  */
 function createTestSidebar() {
-  var template = HtmlService.createTemplateFromFile('TestSystem');
+  var template = HtmlService.createTemplateFromFile('test_system');
   var tests = {};
   buildTestMetadata(getFileSystemTests().tests, tests);
   template.tests = JSON.stringify(tests);
