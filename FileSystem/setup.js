@@ -46,9 +46,11 @@ function installLibrary(thisObj) {
   thisObj.Workbook = Workbook;
   thisObj.DirectoryManager = DirectoryManager;
   thisObj.FileIO = FileIO;
-  thisObj.FileSystem = FileSystem;
   thisObj.resetConfig = resetConfig;
   thisObj.uiSetup = uiSetup;
+  thisObj.OpenMode = OpenMode;
+  thisObj.LockMode = LockMode;
+  thisObj.AccessMode = AccessMode;
 }
 
 function resetConfig() {
