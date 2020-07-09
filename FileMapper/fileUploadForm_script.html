@@ -125,6 +125,7 @@ limitations under the License.
                 localPathValue +
                 "</strong>. <br> To check it out visit this <strong><a href='" +
                 url + "' style='color: inherit;'>Drive Link</a></strong> !!");
+            setTimeout(function() { google.script.host.close(); }, 2000);
           })
           .withFailureHandler(function() {
             document.getElementById('submitButton').value = "Submit";
