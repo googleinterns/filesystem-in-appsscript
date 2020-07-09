@@ -15,11 +15,13 @@
  */
 
 /**
- * Creates a menu entry in the Google Docs UI when the sheet is opened.
- * This method is only used by the regular add-on, and is never called by
- * the mobile add-on version.
+ * Creates a menu entry in the Google Spreadsheet UI when the document is
+ * opened.
+ * @param {object} e The event parameter for a simple onOpen trigger. To
+ *     determine which authorization mode (ScriptApp.AuthMode) the trigger is
+ *     running in, inspect e.authMode.
  */
-function onOpen() {
+function onOpen(e) {
   SpreadsheetApp.getUi()
       .createMenu('Local File Mapping')
       .addItem('Edit Mapping', 'DisplayConfigTable')
@@ -41,6 +43,10 @@ function DisplayConfigTable() {
 /**
  * Imports the specified file content into the current file
  * Used to seperate the CSS and Script content into seperate files
+ * 
+ * @param {string} filename Filename of the external html content that is to be
+ *     included
+ * @return {string} External HTML content
  */
 function getHtmlContentFromFile(filename) {
   return HtmlService.createHtmlOutputFromFile(filename).getContent();
