@@ -30,6 +30,32 @@ function onOpen(e) {
       .addToUi();
 }
 
+function uiSetup() {
+  SpreadsheetApp.getUi()
+  .createMenu('FileSystem')
+  .addItem('Active Spreadsheet Path', 'promptActiveWorkbookPath')
+  .addItem('File Config Table', 'DisplayConfigTable')
+  .addItem('Reset Config', 'resetConfig')
+  .addToUi();
+}
+
+function installLibrary(thisObj) {
+  thisObj.promptActiveWorkbookPath = promptActiveWorkbookPath;
+  thisObj.setActiveWorkbookPath = setActiveWorkbookPath;
+  thisObj.DisplayConfigTable = VBAFileMapper.DisplayConfigTable;
+  thisObj.Workbook = Workbook;
+  thisObj.DirectoryManager = DirectoryManager;
+  thisObj.FileIO = FileIO;
+  thisObj.FileSystem = FileSystem;
+  thisObj.resetConfig = resetConfig;
+  thisObj.uiSetup = uiSetup;
+}
+
+function resetConfig() {
+  FileMapper.clearAllMappingsInConfig();
+  resetActiveWorkbookPath(); 
+}
+
 /**
  * Creates the test sidebar with hierarchy of all tests available. User can
  * selectively chose what tests are to be run.
