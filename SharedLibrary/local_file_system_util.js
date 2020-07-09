@@ -46,7 +46,7 @@ function getFileSystemType(localPath) {
   } else if (unixPathRegExp.test(localPath)) {
     return FileSystemType.UNIX;
   }
-  throw new Error('Unknown FileSystem');
+  throw new Error('Unknown FileSystem: ' + localPath);
 }
 
 /**

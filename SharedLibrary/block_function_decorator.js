@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 /**
  * Decorate function to make it blocking
  * Emulate blocking behavior by manually blocking the execution by using
@@ -31,17 +31,18 @@
  * @param {array} failureCallbackArgs Callback function arguments list
  * @return {function} Decorated blocking function
  */
-function blockFunctionDecorator(func, sleepTime, retryCount, retryCallback,
-                                failureCallback, failureCallbackArgs) {
+function blockFunctionDecorator(
+    func, sleepTime, retryCount, retryCallback, failureCallback,
+    failureCallbackArgs) {
   return function() {
     try {
       var args = Array.prototype.slice.call(arguments);
-      args.push(true); // Show prompt once
+      args.push(true);  // Show prompt once
       return func.apply(this, args);
     } catch (err) {
       if (err instanceof PromptException) {
         var args = Array.prototype.slice.call(arguments);
-        args.push(false); // Don't show prompt again
+        args.push(false);  // Don't show prompt again
         // Try 15 times
         for (var i = 0; i < retryCount; i++) {
           try {
@@ -50,7 +51,7 @@ function blockFunctionDecorator(func, sleepTime, retryCount, retryCallback,
             if (retryCallback) {
               retryCallback();
             }
-            return func.apply(this, args); // Try again
+            return func.apply(this, args);  // Try again
           } catch (err) {
             if (!(err instanceof PromptException)) {
               throw err;
