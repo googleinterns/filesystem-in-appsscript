@@ -17,24 +17,48 @@
  * @fileoverview VbaFolder Unit Tests
  */
 
-function vba_folder_run_all_tests() {
-  QUnit.module('VbaFolder', {
-    setup: function() {
-      DirectoryManager.setCurrentDirectory('c:\\user\\desktop');
+var vbaFolderTests = {
+  setup: vba_folder_tests_setup,
+  tests: {
+    create: vba_folder_create_testing,
+    date: folder_date_testing,
+    misc: folder_misc_testing,
+    directory: folder_directory_testing,
+    get: {
+      tests: {
+        'sub_folders': folder_get_subfolders_testing,
+        'files': folder_get_files_testing,
+      }
     }
-  });
+  }
+};
 
+function vba_folder_run_all_tests() {
+  vba_folder_tests_setup();
+  vba_folder_create_testing();
+  folder_date_testing();
+  folder_misc_testing();
+  folder_directory_testing();
+  folder_get_files_testing();
+  folder_get_subfolders_testing();
+}
+
+function vba_folder_create_testing() {
   var folderPath = 'folder1';
   var fullPath = 'c:\\user\\desktop\\folder1';
   var folderId = FileMapper.getFolderId(fullPath);
-  var driveFolder = DriveApp.getFolderById(folderId);
-
   QUnit.test('Folder create testing', 2, function() {
     var vbaFolder = FileSystem.getFolder(folderPath);
     equal(folderId, vbaFolder.driveId, 'Folder created correctly - Id Check');
     equal(fullPath, vbaFolder.localPath, 'Folder created correctly - Id Check');
   });
+}
 
+function folder_date_testing() {
+  var folderPath = 'folder1';
+  var fullPath = 'c:\\user\\desktop\\folder1';
+  var folderId = FileMapper.getFolderId(fullPath);
+  var driveFolder = DriveApp.getFolderById(folderId);
   QUnit.test('Folder date property testing', 3, function() {
     var vbaFolder = FileSystem.getFolder(folderPath);
     var dateCreated = vbaFolder.getDateCreated();
@@ -50,7 +74,13 @@ function vba_folder_run_all_tests() {
         dateLastModified.date.getTime(), driveFolder.getLastUpdated().getTime(),
         'Date Modified Test');
   });
+}
 
+function folder_misc_testing() {
+  var folderPath = 'folder1';
+  var fullPath = 'c:\\user\\desktop\\folder1';
+  var folderId = FileMapper.getFolderId(fullPath);
+  var driveFolder = DriveApp.getFolderById(folderId);
   QUnit.test('Folder misc property testing', 3, function() {
     var vbaFolder = FileSystem.getFolder(folderPath);
     var folderType = vbaFolder.getType();
@@ -60,7 +90,11 @@ function vba_folder_run_all_tests() {
     deepEqual(folderSize, driveFolder.getSize(), 'Folder Size Test');
     deepEqual(path, fullPath, 'Folder Path Test');
   });
+}
 
+function folder_directory_testing() {
+  var folderPath = 'folder1';
+  var fullPath = 'c:\\user\\desktop\\folder1';
   QUnit.test('Folder directory property testing', 2, function() {
     var vbaFolder = FileSystem.getFolder(folderPath);
     var vbaDrive = vbaFolder.getDrive();
@@ -70,7 +104,9 @@ function vba_folder_run_all_tests() {
     equal(vbaDrive, 'C:', 'Drive Test');
     equal(parentFolderPath, actualParentFolderPath, 'Parent Folder Path Test');
   });
+}
 
+function folder_get_files_testing() {
   QUnit.test('Folder get files testing', 1, function() {
     var vbaFolder = FileSystem.getFolder('folder1\\files');
     var vbaFileCollection = vbaFolder.getFiles();
@@ -86,9 +122,11 @@ function vba_folder_run_all_tests() {
     actualFileNames.sort();
     deepEqual(fileNames, actualFileNames, 'Get Files Test')
   });
+}
 
+function folder_get_subfolders_testing() {
   QUnit.test('Folder get sub folders testing', 1, function() {
-    var vbaFolder = FileSystem.getFolder(DirectoryManager.curDir());
+    var vbaFolder = FileSystem.getFolder('filesystem/folders');
     var vbaFolderCollection = vbaFolder.getSubFolders();
     var folderNames = [];
     var Item;
@@ -97,9 +135,17 @@ function vba_folder_run_all_tests() {
          !isValueIteratorEnd(Item); Item = __iter1.getNext()) {
       folderNames.push(Item.name());
     }
-    var actualFolderNames = ['folder1', 'folder2', 'original'];
+    var actualFolderNames = ['folder1', 'folder2', 'folder3'];
     folderNames.sort();
     actualFolderNames.sort();
     deepEqual(folderNames, actualFolderNames, 'Get Folders Test')
+  });
+}
+
+function vba_folder_tests_setup() {
+  QUnit.module('VbaFolder', {
+    setup: function() {
+      DirectoryManager.setCurrentDirectory('c:\\user\\desktop');
+    }
   });
 }

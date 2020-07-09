@@ -16,12 +16,29 @@
 /**
  * @fileoverview Workbook Unit Tests
  */
-function workbook_run_all_tests() {
-  QUnit.module('Workbook');
+var workbookTests = {
+  setup: workbook_tests_setup,
+  tests: {
+    workbook_open: workbook_open_tests,
+    active_workbook: active_workbook_tests,
+    active_prompt: set_workbook_active_workbook_test,
+  }
+};
 
+function workbook_run_all_tests() {
+  workbook_tests_setup();
+  workbook_open_tests();
+  active_workbook_tests();
+}
+
+function workbook_tests_setup() {
+  QUnit.module('Workbook');
+}
+
+function workbook_open_tests() {
   QUnit.test(
       'check if filemapper returns correct file and mimeType when file is present',
-      function() {
+      2, function() {
         var fileName = 'c:\\User\\Desktop\\marks.xlsx';
         var fileId = FileMapper.getFileId(fileName);
         equal(
@@ -33,32 +50,25 @@ function workbook_run_all_tests() {
             'FileMapper returns correct mimeType');
       });
 
-  QUnit.test('single call to workbook.open() when file is present', function() {
-    expect(0);
-    var fileName = 'c:\\User\\Desktop\\marks.xlsx';
-    Workbook.openWorkbook(fileName);
-  });
+  QUnit.test(
+      'single call to workbook.open() when file is present', 0, function() {
+        var fileName = 'c:\\User\\Desktop\\marks.xlsx';
+        Workbook.openWorkbook(fileName);
+      });
 
   QUnit.test(
-      'multiple calls to workbook.open() when files are present', function() {
-        expect(0);
+      'multiple calls to workbook.open() when files are present', 0,
+      function() {
         var fileName1 = 'c:\\User\\Desktop\\marks.xlsx';
         var fileName2 = 'c:\\User\\Desktop\\attendance.xlsx';
         Workbook.openWorkbook(fileName2);
         Workbook.openWorkbook(fileName1);
       });
+}
 
+function active_workbook_tests() {
   QUnit.test(
-      'ActiveWorkbook call when active workbook path is not set', function() {
-        Workbook.resetActiveWorkbookPath();
-        throws(function() {
-          Workbook.getActiveWorkbookPath();
-        }, 'ActiveWorkbookPath not defined', 'Error thrown correctly');
-      });
-
-  QUnit.test(
-      'ActiveWorkbook call when active workbook path is set', function() {
-        expect(2);
+      'ActiveWorkbook call when active workbook path is set', 2, function() {
         Workbook.resetActiveWorkbookPath();
         var path = 'C:\\User\\Desktop';
         Workbook.setActiveWorkbookPath(path);
@@ -69,7 +79,12 @@ function workbook_run_all_tests() {
       });
 }
 
-function workbook_active_workbook_test() {
-  Workbook.resetActiveWorkbookPath();
-  SpreadsheetApp.getUi().alert(Workbook.getActiveWorkbookPath());
+function set_workbook_active_workbook_test() {
+  QUnit.test(
+      'ActiveWorkbook call when active workbook path is not set', 1,
+      function() {
+        Workbook.resetActiveWorkbookPath();
+        var path = Workbook.getActiveWorkbookPath();
+        ok(path, 'ActiveWorkbook path is set');
+      });
 }

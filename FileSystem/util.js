@@ -24,26 +24,15 @@
  */
 function openURL(url, message) {
   message = message || 'Open Url in new tab';
-
-  // Lock is required to prevent parallel
-  // processes from opening multiple dialogs
-  var lock = LockService.getDocumentLock();
-  try {
-    lock.waitLock(10000);
-    // Create dialog
-    var htmlTemplate = HtmlService.createTemplateFromFile('OpenUrlDialog');
-    htmlTemplate.url = url;
-    var htmlOutput = htmlTemplate.evaluate().setHeight(25).setWidth(350);
-    // Display dialog to the user
-    SpreadsheetApp.getUi().showModelessDialog(htmlOutput, message);
-    // Open in new tab takes some time.
-    // Therefore we need to hold the lock for some time.
-    Utilities.sleep(3000);
-    lock.releaseLock();
-  } catch (e) {
-    Logger.log('Could not obtain lock after 10 seconds.');
-    throw new Error('Could not obtain lock after 10 seconds.');
-  }
+  // Create dialog
+  var htmlTemplate = HtmlService.createTemplateFromFile('open_url_dialog');
+  htmlTemplate.url = url;
+  var htmlOutput = htmlTemplate.evaluate().setHeight(25).setWidth(350);
+  // Display dialog to the user
+  SpreadsheetApp.getUi().showModelessDialog(htmlOutput, message);
+  // Open in new tab takes some time.
+  // Therefore we need to hold the lock for some time.
+  Utilities.sleep(3000);
 }
 
 /**

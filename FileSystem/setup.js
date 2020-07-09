@@ -65,6 +65,6 @@ function buildTestMetadata(tests, metadata) {
  *     included
  * @return {string} External HTML content
  */
-function include(filename) {
+function getHtmlContentFromFile(filename) {
   return HtmlService.createHtmlOutputFromFile(filename).getContent();
 }
