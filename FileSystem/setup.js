@@ -107,9 +107,8 @@ function processForm(data, mimetype, filename, localPathValue,
 }
 
 function getOAuthToken() { 
-  FileMapper.getOAuthToken; 
+  FileMapper.getOAuthToken(); 
 }
-
 
 /**
  * Creates the test sidebar with hierarchy of all tests available. User can
