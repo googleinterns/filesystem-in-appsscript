@@ -109,14 +109,16 @@ limitations under the License.
    *     it's extension
    */
   function createViewUsingExtension(extension) {
-    if (extension === "xls" || extension === "xlsx" || extension === "csv")
+    var sheets_extensions = ["xls", "xlsx", "csv", "xlsm", "tsv"];
+    if (sheets_extensions.indexOf(extension) !== -1)
       return google.picker.ViewId.SPREADSHEETS;
 
-    if (extension === "doc" || extension === "docx" || extension === "pdf" ||
-        extension === "txt")
+    var docs_extensions = ["doc", "docx", "docm", "pdf", "txt"];
+    if (docs_extensions.indexOf(extension) !== -1)
       return google.picker.ViewId.DOCUMENTS;
 
-    if (extension === "ppt" || extension === "pptx")
+    var slides_extensions = ["ppt", "pptx", "pptm"];
+    if (slides_extensions.indexOf(extension) !== -1)
       return google.picker.ViewId.PRESENTATIONS;
 
     if (extension === "") {
