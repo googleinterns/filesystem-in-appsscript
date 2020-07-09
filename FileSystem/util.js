@@ -106,8 +106,18 @@ function isValidAbsolutePath(path) {
 }
 
 /**
- * Helper function to obtain localPath type
- * @param {string} localPath File or directory localPath
+ * Checks if path is an absolute path. Does not check for validity.
+ * Required when path is not sanitized and when path contains wildcards.
+ * @param {string} path File or Directory path
+ * @return {boolean} true if path is a absolute Windows/Unix path
+ */
+function isAbsolutePath(path) {
+  return /^\w:\\/.test(path) || /^\//.test(path);
+}
+
+/**
+ * Helper function to obtain path type
+ * @param {string} localPath File or directory path
  * @return {string} File System type enumeration
  */
 function getFileSystemType(localPath) {
@@ -164,7 +174,7 @@ function sanitizePath(localPath, fileSystemType) {
  */
 function getAbsoluteLocalPath(currentDirectory, relativePath) {
   // Test if relativePath is actually an absolute path
-  var fileSystemType = getFileSystemType(currentDirectory);
+  var fileSystemType = DirectoryManager.getFileSystemType();
   if (isValidAbsolutePath(relativePath)) {
     return sanitizePath(relativePath, fileSystemType);
   }
@@ -210,3 +220,54 @@ function deleteFileIfExists(localPath) {
     // File doesn't exist, do nothing
   }
 }
+
+/**
+ * Decorate function to make it blocking
+ * Emulate blocking behavior by manually blocking the execution by using
+ * utilities.sleep, If the mapping is not found, the function will try 15 times
+ * with 5 seconds interval between attempts. If the mapping is still not found,
+ * error will be thrown.
+ * @param {function} func Function that needs to be blocking
+ * @return {function} Decorated blocking function
+ */
+function blockFunctionDecorator(func) {
+  return function() {
+    try {
+      var args = Array.prototype.slice.call(arguments);
+      args.push(true);  // Show prompt once
+      return func.apply(this, args);
+    } catch (err) {
+      if (err instanceof PromptException) {
+        var args = Array.prototype.slice.call(arguments);
+        args.push(false);  // Don't show prompt again
+        // Try 15 times
+        for (var i = 0; i < 15; i++) {
+          try {
+            Utilities.sleep(5 * 1000);
+            return func.apply(this, args);  // Try again
+          } catch (err) {
+            if (!(err instanceof PromptException)) {
+              throw err;
+            }
+          }
+        }
+      }
+      if (err instanceof PromptException) {
+        var timeOutMessage =
+            'Current macro execution has timed out.\nPlease try again.';
+        SpreadsheetApp.getUi().alert('Execution Failed', timeOutMessage);
+      }
+      throw err;
+    }
+  };
+};
+
+/**
+ * Get parent directory file path. This method returns a path that
+ * is one directory above localPath
+ * @param {string} localPath Local file path
+ * @return {string} Parent directory file path
+ */
+function getParentFolderPath(localPath) {
+  return getAbsoluteLocalPath(localPath, '..');
+};

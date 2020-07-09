@@ -68,3 +68,8 @@ function workbook_run_all_tests() {
         equal(path, Workbook.getActiveWorkbookPath(), 'Path set correctly');
       });
 }
+
+function workbook_active_workbook_test() {
+  Workbook.resetActiveWorkbookPath();
+  SpreadsheetApp.getUi().alert(Workbook.getActiveWorkbookPath());
+}
