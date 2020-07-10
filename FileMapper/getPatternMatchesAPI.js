@@ -98,7 +98,7 @@ function getPatternMatchesUtil(pattern, isFile) {
       var tempDestination = mapping.slice(tempPosition + 1);
       var tempDestinationInLowerCase = tempDestination.toLowerCase();
       var tempArray = tempDestinationInLowerCase.match(regex);
-      if (tempArray.length > 0 && tempArray[0] === tempDestinationInLowerCase) {
+      if (tempArray !== null && tempArray[0] === tempDestinationInLowerCase) {
         if (!(tempDestination in done)) {
           done[tempDestination] = true;
           matches.push(tempDestination);
