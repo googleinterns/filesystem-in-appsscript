@@ -87,6 +87,9 @@ function getMappingFromConfigData(localpath) {
  */
 function setMappingInConfigData(localpath, mappingObject) {
   CONFIG.checkIfConfigDataLoaded();
+  if (CONFIG.checkIfLocalPathExists(localpath)) {
+    localpath = CONFIG.getLocalPathCaseMapping(localpath);
+  }
   CONFIG.data[localpath] = mappingObject;
   CONFIG.updateLocalPathCaseMapping(localpath);
 }
