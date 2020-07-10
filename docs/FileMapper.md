@@ -213,7 +213,7 @@ Throws a `FileDoesNotExistException` :
 
 Intended to move a file from it's source location to a destination location.
 
-**Implementation:**  `moveFiles(sourceFilePath,targetFolderPath)`
+**Implementation:**  `moveFile(sourceFilePath,targetFolderPath)`
 
 **Parameters:**
 1. `sourceFilePath` - String 
@@ -237,7 +237,7 @@ Throws a `FileDoesNotExistException` :
 
 Intended to move a folder from it's source location to a destination location.
 
-**Implementation:**  `moveFolders(sourceFolderPath,targetFolderPath)`
+**Implementation:**  `moveFolder(sourceFolderPath,targetFolderPath)`
 
 **Parameters:**
 1. `sourceFolderPath` - String 
@@ -262,7 +262,7 @@ Throws a `FileDoesNotExistException` :
 
 Intended to copy a file from it's source location to a destination location.
 
-**Implementation:**  `copyFiles(sourceFilePath,targetFolderPath)`
+**Implementation:**  `copyFile(sourceFilePath,targetFolderPath)`
 
 **Parameters:**
 1. `sourceFilePath` - String 
@@ -287,7 +287,7 @@ Throws a `FileDoesNotExistException` :
 
 Intended to copy a folder from it's source location to a destination location.
 
-**Implementation:**  `copyFolders(sourceFolderPath,targetFolderPath)`
+**Implementation:**  `copyFolder(sourceFolderPath,targetFolderPath)`
 
 **Parameters:**
 1. `sourceFolderPath` - String 
