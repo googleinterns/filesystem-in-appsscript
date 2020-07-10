@@ -240,7 +240,7 @@ function getRelativePathSplit(localPath) {
   var prefix = localPath.substr(0, prefixLength);
   // Check if path has base directory as prefix
   if (prefix != this.baseDirectory) {
-    throw new Error('Base Directory does not match');
+    throw new Error(prefix + ' is not the base Directory prefix');
   }
   // Find relative path from base directory
   var pathSplit = localPath.substr(prefixLength).split(/\\|\//);

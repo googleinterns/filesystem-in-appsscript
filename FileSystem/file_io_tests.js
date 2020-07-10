@@ -44,6 +44,7 @@ function file_io_test_setup() {
         currentRunningTestModule = moduleName;
         Workbook.setActiveWorkbookPath('c:\\user\\desktop');
         DirectoryManager.setCurrentDirectory('c:\\user\\desktop');
+        file_io_cleanup();
       }
     }
   });
@@ -327,6 +328,7 @@ function file_misc_tests() {
 }
 
 function file_io_cleanup() {
+  DirectoryManager.setCurrentDirectory('c:\\user\\desktop');
   deleteFileIfExists('TESTFILE');
   deleteFileIfExists('PRINT_TEST');
   deleteFileIfExists('WRITE_TEST');
