@@ -47,6 +47,7 @@ function file_mapper_run_all_tests() {
 
 function file_mapper_tests_setup() {
   QUnit.module('FileMapper');
+  Workbook.setActiveWorkbookPath('c:\\user\\desktop');
 }
 
 function file_folder_get_tests() {
@@ -139,7 +140,7 @@ function file_folder_move_tests() {
     var destination = 'c:\\User\\Desktop\\folder2';
     ok(FileMapper.hasFile(file1), 'File exists');
     ok(!FileMapper.hasFile(destinationFile), 'File does not exist');
-    FileMapper.moveFile([file1], destination);
+    FileMapper.moveFile(file1, destination);
     ok(FileMapper.hasFile(destinationFile), 'File exists');
     ok(!FileMapper.hasFile(file1), 'File does not exist');
   });
@@ -152,7 +153,7 @@ function file_folder_move_tests() {
     var cloneFile = 'c:\\User\\Desktop\\folder2\\movethis\\clonethis.txt';
     ok(FileMapper.hasFolder(folder1), 'Folder exists');
     ok(!FileMapper.hasFolder(destinationFolder), 'Folder does not exist');
-    FileMapper.moveFolder([folder1], destination);
+    FileMapper.moveFolder(folder1, destination);
     ok(FileMapper.hasFolder(destinationFolder), 'Folder exists');
     ok(!FileMapper.hasFolder(folder1), 'Folder does not exist');
     ok(FileMapper.hasFile(cloneFile), 'Folder moves correctly');
@@ -167,7 +168,7 @@ function file_folder_copy_tests() {
     var destination = 'c:\\User\\Desktop\\folder2';
     ok(FileMapper.hasFile(file1), 'File exists');
     ok(!FileMapper.hasFile(destinationFile), 'File does not exist');
-    FileMapper.copyFile([file1], destination);
+    FileMapper.copyFile(file1, destination);
     ok(FileMapper.hasFile(destinationFile), 'File exists');
     ok(FileMapper.hasFile(file1), 'File exists');
   });
@@ -179,7 +180,7 @@ function file_folder_copy_tests() {
     var cloneFile = 'c:\\User\\Desktop\\folder2\\copythis\\clonethis.txt';
     ok(FileMapper.hasFolder(folder1), 'Folder exists');
     ok(!FileMapper.hasFolder(destinationFolder), 'Folder does not exist');
-    FileMapper.copyFolder([folder1], destination);
+    FileMapper.copyFolder(folder1, destination);
     ok(FileMapper.hasFolder(destinationFolder), 'Folder exists');
     ok(FileMapper.hasFolder(folder1), 'Folder exists');
     ok(FileMapper.hasFile(cloneFile), 'Folder copies correctly');

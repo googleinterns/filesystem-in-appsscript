@@ -23,8 +23,7 @@ function workbook_run_all_tests() {
       'check if filemapper returns correct file and mimeType when file is present',
       function() {
         var fileName = 'c:\\User\\Desktop\\marks.xlsx';
-        var fileId = FileMapper.getFileId(
-            FileSystem.currentDirectory, fileName, MimeType.GOOGLE_SHEETS);
+        var fileId = FileMapper.getFileId(fileName);
         equal(
             fileId, '1i3M1cYfubmXnosn5LJQmHCghBzhPBrDjBQszkWvZkxA',
             'FileMapper returns correct file id');
@@ -68,4 +67,9 @@ function workbook_run_all_tests() {
         Workbook.setActiveWorkbookPath(path + '\\');
         equal(path, Workbook.getActiveWorkbookPath(), 'Path set correctly');
       });
+}
+
+function workbook_active_workbook_test() {
+  Workbook.resetActiveWorkbookPath();
+  SpreadsheetApp.getUi().alert(Workbook.getActiveWorkbookPath());
 }

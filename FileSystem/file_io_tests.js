@@ -44,6 +44,7 @@ function file_io_test_setup() {
         currentRunningTestModule = moduleName;
         Workbook.setActiveWorkbookPath('c:\\user\\desktop');
         DirectoryManager.setCurrentDirectory('c:\\user\\desktop');
+        file_io_cleanup();
       }
     }
   });
@@ -72,8 +73,16 @@ function file_io_tests() {
     fileNumber = FileIO.getNextAvailableFile();
     FileIO.openFile('PRINT_TEST', fileNumber, OpenMode.INPUT);
     var content = FileIO.openFiles[fileNumber].content;
-    var actualContent =
-        'This is a test\r\n\r\nZone 1        Zone 2\r\nHello World\r\n     5 leading spaces \r\n         Hello\r\nFalse is a Boolean value\r\n12-02-1969  is a date\r\nNull is a null value\r\nError 32767 is an error value\r\n';
+    var actualContent = 'This is a test\r\n\r\n' +
+        'Zone 1        Zone 2\r\n' +
+        'Hello World\r\n' +
+        '     5 leading spaces \r\n' +
+        '         Hello\r\n' +
+        'False is a Boolean value\r\n' +
+        '12-02-1969  is a date\r\n' +
+        'Null is a null value\r\n' +
+        'Error 32767 is an error value\r\n';
+
     equal(content, actualContent, 'Test for exact print match');
     FileIO.closeFileList();
   });
@@ -113,8 +122,16 @@ function file_io_tests() {
 
     fileNumber = FileIO.getNextAvailableFile();
     FileIO.openFile('PRINT_TEST', fileNumber, OpenMode.INPUT);
-    var actualContent =
-        'This is a test\r\n\r\nZone 1        Zone 2\r\nHello World\r\n     5 leading spaces \r\n         Hello\r\nFalse is a Boolean value\r\n12-02-1969  is a date\r\nNull is a null value\r\nError 32767 is an error value\r\nThis is a test\r\n';
+    var actualContent = 'This is a test\r\n\r\n' +
+        'Zone 1        Zone 2\r\n' +
+        'Hello World\r\n' +
+        '     5 leading spaces \r\n' +
+        '         Hello\r\n' +
+        'False is a Boolean value\r\n' +
+        '12-02-1969  is a date\r\n' +
+        'Null is a null value\r\n' +
+        'Error 32767 is an error value\r\n' +
+        'This is a test\r\n';
     var content = FileIO.openFiles[fileNumber].content;
     equal(content, actualContent, 'Test for exact print match');
     FileIO.closeFileList();
@@ -134,14 +151,17 @@ function file_io_tests() {
     FileIO.writeToFile(fileNumber, [null, ' is a null value']);
     FileIO.writeToFile(fileNumber, [new Error(32767), ' is an error value']);
 
-    var actualContent =
-        '"Hello World",234\r\n\r\n#FALSE#," is a Boolean value"\r\n#1969-02-12#," is a date"\r\n#NULL#," is a null value"\r\n#ERROR 32767#," is an error value"\r\n';
+    var actualContent = '"Hello World",234\r\n\r\n' +
+        '#FALSE#," is a Boolean value"\r\n' +
+        '#1969-02-12#," is a date"\r\n' +
+        '#NULL#," is a null value"\r\n' +
+        '#ERROR 32767#," is an error value"\r\n';
     var content = FileIO.openFiles[fileNumber].content;
     equal(content, actualContent, 'Test for exact write match');
     FileIO.closeFileList();
   });
 
-  QUnit.test('File input testing', function () {
+  QUnit.test('File input testing', function() {
     var actualContent = [
       'Hello World',
       234,
@@ -187,13 +207,13 @@ function file_open_close_tests() {
   QUnit.test('File open testing', function() {
     expect(4);
     var fileName = 'TESTFILE';
+    var fullPath = DirectoryManager.getAbsolutePath(fileName);
     var fileNumber = FileIO.getNextAvailableFile();
 
     equal(fileNumber, 1, 'Test for file number');
     FileIO.openFile(fileName, fileNumber, OpenMode.OUTPUT);
-    var hasMapping =
-        FileMapper.hasMapping(FileSystem.currentDirectory, fileName);
-    ok(hasMapping, 'Test for FileMapping');
+    var hasFile = FileMapper.hasFile(fullPath);
+    ok(hasFile, 'Test for File Creation');
     equal(FileIO.getNextAvailableFile(), 2, 'Test for file number');
 
     FileIO.closeFileList([1]);
@@ -265,13 +285,11 @@ function file_misc_tests() {
 
     fileNumber = FileIO.getNextAvailableFile();
     FileIO.openFile(fileName, FileIO.getNextAvailableFile(), OpenMode.OUTPUT);
-    equal(
-        FileIO.getFilePointer(fileNumber),
-        0);  // file pointer should be in beginning of file
+    equal(FileIO.getFilePointer(fileNumber), 0, 'Pointer - Beginning Test');
     FileIO.printToFile(fileNumber, [fileContent]);
     equal(
-        FileIO.getFilePointer(fileNumber),
-        fileContent.length + 2);  // +2 for line ending (\r\n)
+        FileIO.getFilePointer(fileNumber), fileContent.length + 2,
+        'File Pointer Test');  // +2 for line ending (\r\n)
     FileIO.closeFileList();
   });
 
@@ -283,34 +301,35 @@ function file_misc_tests() {
     fileNumber = FileIO.getNextAvailableFile();
     FileIO.openFile(fileName, FileIO.getNextAvailableFile(), OpenMode.OUTPUT);
     // file pointer should be in beginning of file
-    equal(FileIO.getFilePointer(fileNumber), 0);
+    equal(FileIO.getFilePointer(fileNumber), 0, 'Pointer - Beginning Test');
     FileIO.printToFile(fileNumber, [fileContent]);
     // File should contain 1 line now
     equal(
-        FileIO.getFilePointer(fileNumber),
-        fileContent.length + 2);  // +2 for line ending (\r\n)
+        FileIO.getFilePointer(fileNumber), fileContent.length + 2,
+        'File Pointer - line 1 Test');  // +2 for line ending (\r\n)
     FileIO.printToFile(fileNumber, [fileContent]);
     // File should contain 2 lines now
     equal(
-        FileIO.getFilePointer(fileNumber),
-        2 * (fileContent.length + 2));  // +2 for line ending (\r\n)
+        FileIO.getFilePointer(fileNumber), 2 * (fileContent.length + 2),
+        'File Pointer - line 2 test');  // +2 for line ending (\r\n)
     // Reset file pointer to beginning and write 3 times. It should contain 3
     // lines now
     FileIO.setFilePointer(fileNumber, 0);
     // file pointer should be in beginning of file
-    equal(FileIO.getFilePointer(fileNumber), 0);
+    equal(FileIO.getFilePointer(fileNumber), 0, 'Pointer - Beginning Test');
     FileIO.printToFile(fileNumber, [fileContent]);
     FileIO.printToFile(fileNumber, [fileContent]);
     FileIO.printToFile(fileNumber, [fileContent]);
     equal(
-        FileIO.getFilePointer(fileNumber),
-        3 * (fileContent.length + 2));  // +2 for line ending (\r\n)
+        FileIO.getFilePointer(fileNumber), 3 * (fileContent.length + 2),
+        'File Pointer - line 3 test');  // +2 for line ending (\r\n)
     FileIO.closeFileList();
   });
 }
 
 function file_io_cleanup() {
-  deleteFile('TESTFILE');
-  deleteFile('PRINT_TEST');
-  deleteFile('WRITE_TEST');
+  DirectoryManager.setCurrentDirectory('c:\\user\\desktop');
+  deleteFileIfExists('TESTFILE');
+  deleteFileIfExists('PRINT_TEST');
+  deleteFileIfExists('WRITE_TEST');
 }
