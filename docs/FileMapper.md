@@ -385,4 +385,3 @@ Returns a number - `FAILURE`  to tell that the mapping has not been added to the
   * `INVALID_DRIVE_ID = 2` the drive id provided may be invalid or 
   * `DUPLICATE_MAPPING = 3` the local path provided has a mapping already present in the config. 
   * `INCOMPATIBLE_MIMETYPES = 4` the mimetype of of the local path and drive id provided do not match  
-
