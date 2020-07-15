@@ -268,21 +268,17 @@ function createDestination(destinationName, folder, isFile) {
 
     var mimetype = ConfigUtil.getMimeTypeFromExtension(extension);
     switch (mimetype) {
-      case MimeType.GOOGLE_SHEETS: {
+      case MimeType.GOOGLE_SHEETS: 
         destination = SpreadsheetApp.create(destinationName);
         break;
-      }
-      case MimeType.GOOGLE_DOCS: {
+      case MimeType.GOOGLE_DOCS: 
         destination = DocumentApp.create(destinationName);
         break;
-      }
-      case MimeType.GOOGLE_SLIDES: {
+      case MimeType.GOOGLE_SLIDES: 
         destination = SlidesApp.create(destinationName);
         break;
-      }
-      default: {
+      default: 
         destination = DriveApp.createFile(destinationName, '', mimetype);
-      }
     }
 
     driveId = destination.getId();
