@@ -40,7 +40,7 @@ function getFolderId(localPath) {
       getDriveIdUtil, PromptSettings.sleepTime, PromptSettings.retryCount,
       PromptSettings.retryCallback, PromptSettings.failureCallback,
       [ localPath ]);
-  
+
   return getDriveIdUtil(localPath, false);
 }
 
