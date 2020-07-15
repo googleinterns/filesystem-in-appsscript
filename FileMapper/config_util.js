@@ -35,7 +35,8 @@ var ConfigUtil =
  *     False otherwise
  */
 function checkIfDrivePathChanged(mapping) {
-  var newDrivePath = SharedLibrary.getAbsoluteDrivePath(mapping.id, !mapping.isfolder);
+  var newDrivePath =
+      SharedLibrary.getAbsoluteDrivePath(mapping.id, !mapping.isfolder);
   return !(newDrivePath === mapping.drivepath);
 }
 
@@ -86,22 +87,68 @@ function checkIfMimeTypeMatches(localPath, driveId) {
  * Function to return the MimeType based on the file extension
  */
 function getMimeTypeFromExtension(extension) {
-  var sheets_extensions = ["xls", "xlsx", "csv", "xlsm", "tsv"];
+  if (extension === "")
+    return MimeType.FOLDER;
+
+  var sheets_extensions = [ "xls", "xlsx", "xlsm" ];
   if (sheets_extensions.indexOf(extension) !== -1)
     return MimeType.GOOGLE_SHEETS;
 
-  var docs_extensions = ["doc", "docx", "docm", "pdf"];
+  var docs_extensions = [ "doc", "docx", "docm" ];
   if (docs_extensions.indexOf(extension) !== -1)
     return MimeType.GOOGLE_DOCS;
 
-  var slides_extensions = ["ppt", "pptx", "pptm"];
+  var slides_extensions = [ "ppt", "pptx", "pptm" ];
   if (slides_extensions.indexOf(extension) !== -1)
     return MimeType.GOOGLE_SLIDES;
 
-  var other_extensions = ["txt"];
-  if (other_extensions.indexOf(extension) !== -1) 
-    return MimeType.PLAIN_TEXT;  
+  var csv_extensions = [ "csv", "tsv" ];
+  if (csv_extensions.indexOf(extension) !== -1)
+    return MimeType.CSV;
 
-  if(extension === "")
-    return MimeType.FOLDER;
+  var pdf_extensions = [ "pdf" ];
+  if (pdf_extensions.indexOf(extension) !== -1)
+    return MimeType.PDF;
+
+  var rtf_extensions = [ "rtf" ];
+  if (rtf_extensions.indexOf(extension) !== -1)
+    return MimeType.RTF;
+
+  var css_extensions = [ "css" ];
+  if (css_extensions.indexOf(extension) !== -1)
+    return MimeType.CSS;
+
+  var html_extensions = [ "html" ];
+  if (html_extensions.indexOf(extension) !== -1)
+    return MimeType.HTML;
+
+  var javascript_extensions = [ "js" ];
+  if (javascript_extensions.indexOf(extension) !== -1)
+    return MimeType.JAVASCRIPT;
+
+  /**
+   * IMAGE EXTENSION MIMETYPES
+   */
+  var bmp_extensions = [ "bmp" ];
+  if (bmp_extensions.indexOf(extension) !== -1)
+    return MimeType.BMP;
+
+  var gif_extensions = [ "gif" ];
+  if (gif_extensions.indexOf(extension) !== -1)
+    return MimeType.GIF;
+
+  var jpeg_extensions = [ "jpg", "jpeg" ];
+  if (jpeg_extensions.indexOf(extension) !== -1)
+    return MimeType.JPEG;
+
+  var png_extensions = [ "png" ];
+  if (png_extensions.indexOf(extension) !== -1)
+    return MimeType.PNG;
+
+  var svg_extensions = [ "svg" ];
+  if (svg_extensions.indexOf(extension) !== -1)
+    return MimeType.SVG;
+
+  // Default MimeType
+  return MimeType.PLAIN_TEXT;
 }
