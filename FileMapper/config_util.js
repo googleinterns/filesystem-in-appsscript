@@ -17,12 +17,33 @@
 /**
  * Config Utilities
  */
-var ConfigUtil =
+var ConfigUtil = 
     {
       checkIfDrivePathChanged : checkIfDrivePathChanged,
       checkMappingExists : checkMappingExists,
       checkIfMimeTypeMatches : checkIfMimeTypeMatches,
       getMimeTypeFromExtension : getMimeTypeFromExtension
+    }
+
+/**
+ * File Extensions Types
+ */
+var Extensions =
+    {
+      sheets_extensions : [ "xls", "xlsx", "xlsm" ],
+      docs_extensions : [ "doc", "docx", "docm" ],
+      slides_extensions : [ "ppt", "pptx", "pptm" ],
+      csv_extensions : [ "csv", "tsv" ],
+      pdf_extensions : [ "pdf" ],
+      rtf_extensions : [ "rtf" ],
+      css_extensions : [ "css" ],
+      html_extensions : [ "html" ],
+      javascript_extensions : [ "js" ],
+      bmp_extensions : [ "bmp" ],
+      gif_extensions : [ "gif" ],
+      jpeg_extensions : [ "jpg", "jpeg" ],
+      png_extensions : [ "png" ],
+      svg_extensions : [ "svg" ]
     }
 
 /**
@@ -90,63 +111,49 @@ function getMimeTypeFromExtension(extension) {
   if (extension === "")
     return MimeType.FOLDER;
 
-  var sheets_extensions = [ "xls", "xlsx", "xlsm" ];
-  if (sheets_extensions.indexOf(extension) !== -1)
+  if (Extensions.sheets_extensions.indexOf(extension) !== -1)
     return MimeType.GOOGLE_SHEETS;
 
-  var docs_extensions = [ "doc", "docx", "docm" ];
-  if (docs_extensions.indexOf(extension) !== -1)
+  if (Extensions.docs_extensions.indexOf(extension) !== -1)
     return MimeType.GOOGLE_DOCS;
 
-  var slides_extensions = [ "ppt", "pptx", "pptm" ];
-  if (slides_extensions.indexOf(extension) !== -1)
+  if (Extensions.slides_extensions.indexOf(extension) !== -1)
     return MimeType.GOOGLE_SLIDES;
 
-  var csv_extensions = [ "csv", "tsv" ];
-  if (csv_extensions.indexOf(extension) !== -1)
+  if (Extensions.csv_extensions.indexOf(extension) !== -1)
     return MimeType.CSV;
 
-  var pdf_extensions = [ "pdf" ];
-  if (pdf_extensions.indexOf(extension) !== -1)
+  if (Extensions.pdf_extensions.indexOf(extension) !== -1)
     return MimeType.PDF;
 
-  var rtf_extensions = [ "rtf" ];
-  if (rtf_extensions.indexOf(extension) !== -1)
+  if (Extensions.rtf_extensions.indexOf(extension) !== -1)
     return MimeType.RTF;
 
-  var css_extensions = [ "css" ];
-  if (css_extensions.indexOf(extension) !== -1)
+  if (Extensions.css_extensions.indexOf(extension) !== -1)
     return MimeType.CSS;
 
-  var html_extensions = [ "html" ];
-  if (html_extensions.indexOf(extension) !== -1)
+  if (Extensions.html_extensions.indexOf(extension) !== -1)
     return MimeType.HTML;
 
-  var javascript_extensions = [ "js" ];
-  if (javascript_extensions.indexOf(extension) !== -1)
+  if (Extensions.javascript_extensions.indexOf(extension) !== -1)
     return MimeType.JAVASCRIPT;
 
   /**
    * IMAGE EXTENSION MIMETYPES
    */
-  var bmp_extensions = [ "bmp" ];
-  if (bmp_extensions.indexOf(extension) !== -1)
+  if (Extensions.bmp_extensions.indexOf(extension) !== -1)
     return MimeType.BMP;
 
-  var gif_extensions = [ "gif" ];
-  if (gif_extensions.indexOf(extension) !== -1)
+  if (Extensions.gif_extensions.indexOf(extension) !== -1)
     return MimeType.GIF;
 
-  var jpeg_extensions = [ "jpg", "jpeg" ];
-  if (jpeg_extensions.indexOf(extension) !== -1)
+  if (Extensions.jpeg_extensions.indexOf(extension) !== -1)
     return MimeType.JPEG;
 
-  var png_extensions = [ "png" ];
-  if (png_extensions.indexOf(extension) !== -1)
+  if (Extensions.png_extensions.indexOf(extension) !== -1)
     return MimeType.PNG;
 
-  var svg_extensions = [ "svg" ];
-  if (svg_extensions.indexOf(extension) !== -1)
+  if (Extensions.svg_extensions.indexOf(extension) !== -1)
     return MimeType.SVG;
 
   // Default MimeType
