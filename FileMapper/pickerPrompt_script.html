@@ -109,25 +109,16 @@ limitations under the License.
    *     it's extension
    */
   function createViewUsingExtension(extension) {
-    var sheets_extensions = ["xls", "xlsx", "csv", "xlsm", "tsv"];
-    if (sheets_extensions.indexOf(extension) !== -1)
-      return google.picker.ViewId.SPREADSHEETS;
-
-    var docs_extensions = ["doc", "docx", "docm", "pdf", "txt"];
-    if (docs_extensions.indexOf(extension) !== -1)
-      return google.picker.ViewId.DOCUMENTS;
-
-    var slides_extensions = ["ppt", "pptx", "pptm"];
-    if (slides_extensions.indexOf(extension) !== -1)
-      return google.picker.ViewId.PRESENTATIONS;
+    var view = new google.picker.DocsView();
+    view.setMimeTypes(getMimeTypeFromExtension(extension));
 
     if (extension === "") {
-      var docsView = new google.picker.DocsView()
-                         .setIncludeFolders(true)
-                         .setMimeTypes('application/vnd.google-apps.folder')
-                         .setSelectFolderEnabled(true);
-      return docsView;
+      // For folder's view, we need to enable some settings
+      view.setIncludeFolders(true)
+          .setSelectFolderEnabled(true);
     }
+
+    return view;
   }
 
   /**

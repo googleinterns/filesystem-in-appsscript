@@ -30,10 +30,10 @@ var fileIoTests = {
 
 function file_io_run_all_tests() {
   file_io_test_setup();
+  file_io_cleanup();
   file_open_close_tests();
   file_io_tests();
   file_misc_tests();
-  file_io_cleanup();
 }
 
 function file_io_test_setup() {
@@ -44,13 +44,14 @@ function file_io_test_setup() {
         currentRunningTestModule = moduleName;
         Workbook.setActiveWorkbookPath('c:\\user\\desktop');
         DirectoryManager.setCurrentDirectory('c:\\user\\desktop');
+        file_io_cleanup();
       }
     }
   });
 }
 
 function file_io_tests() {
-  QUnit.test('File print testing', function() {
+  QUnit.test('File print testing', 1, function() {
     var fileNumber;
     fileNumber = FileIO.getNextAvailableFile();
     FileIO.openFile('PRINT_TEST', fileNumber, OpenMode.OUTPUT);
@@ -86,20 +87,21 @@ function file_io_tests() {
     FileIO.closeFileList();
   });
 
-  QUnit.test('File line input testing', function() {
-    var actualContent = [
-      'This is a test',
-      '',
-      'Zone 1        Zone 2',
-      'Hello World',
-      '     5 leading spaces ',
-      '         Hello',
-      'False is a Boolean value',
-      '12-02-1969  is a date',
-      'Null is a null value',
-      'Error 32767 is an error value',
-    ];
-    expect(actualContent.length + 1);
+  var lineInputContent = [
+    'This is a test',
+    '',
+    'Zone 1        Zone 2',
+    'Hello World',
+    '     5 leading spaces ',
+    '         Hello',
+    'False is a Boolean value',
+    '12-02-1969  is a date',
+    'Null is a null value',
+    'Error 32767 is an error value',
+  ];
+  var lineInputTests = lineInputContent.length + 1;
+  QUnit.test('File line input testing', lineInputTests, function() {
+    var actualContent = lineInputContent;
     var fileNumber = FileIO.getNextAvailableFile();
     FileIO.openFile('PRINT_TEST', fileNumber, OpenMode.INPUT);
     for (var i = 0; i < actualContent.length; i++) {
@@ -112,7 +114,7 @@ function file_io_tests() {
     FileIO.closeFileList();
   });
 
-  QUnit.test('File append testing', function() {
+  QUnit.test('File append testing', 1, function() {
     var fileNumber;
     fileNumber = FileIO.getNextAvailableFile();
     FileIO.openFile('PRINT_TEST', fileNumber, OpenMode.APPEND);
@@ -136,8 +138,7 @@ function file_io_tests() {
     FileIO.closeFileList();
   });
 
-  QUnit.test('File write testing', function() {
-    expect(1);
+  QUnit.test('File write testing', 1, function() {
     var fileNumber = FileIO.getNextAvailableFile();
     FileIO.openFile('WRITE_TEST', fileNumber, OpenMode.OUTPUT);
     FileIO.writeToFile(fileNumber, ['Hello World', 234]);
@@ -160,22 +161,22 @@ function file_io_tests() {
     FileIO.closeFileList();
   });
 
-  QUnit.test('File input testing', function() {
-    var actualContent = [
-      'Hello World',
-      234,
-      '',
-      false,
-      ' is a Boolean value',
-      new VbaDate(new Date(1969, 2 - 1, 12)),
-      ' is a date',
-      null,
-      ' is a null value',
-      new Error('32767'),
-      ' is an error value',
-    ];
-
-    expect(actualContent.length + 1);
+  var fileInputContent = [
+    'Hello World',
+    234,
+    '',
+    false,
+    ' is a Boolean value',
+    new VbaDate(new Date(1969, 2 - 1, 12)),
+    ' is a date',
+    null,
+    ' is a null value',
+    new Error('32767'),
+    ' is an error value',
+  ];
+  var fileInputTest = fileInputContent.length + 1;
+  QUnit.test('File input testing', fileInputTest, function() {
+    var actualContent = fileInputContent;
     var fileNumber = FileIO.getNextAvailableFile();
     FileIO.openFile('WRITE_TEST', fileNumber, OpenMode.INPUT);
     for (var i = 0; i < actualContent.length; i++) {
@@ -196,15 +197,13 @@ function file_io_tests() {
 }
 
 function file_open_close_tests() {
-  QUnit.test('File available testing', function() {
-    expect(3);
+  QUnit.test('File available testing', 3, function() {
     equal(FileIO.getNextAvailableFile(), 1, 'Test for no input');
     equal(FileIO.getNextAvailableFile(0), 1, 'Test for 0 as input');
     equal(FileIO.getNextAvailableFile(1), 256, 'Test for 1 as input');
   });
 
-  QUnit.test('File open testing', function() {
-    expect(4);
+  QUnit.test('File open testing', 4, function() {
     var fileName = 'TESTFILE';
     var fullPath = DirectoryManager.getAbsolutePath(fileName);
     var fileNumber = FileIO.getNextAvailableFile();
@@ -219,8 +218,7 @@ function file_open_close_tests() {
     equal(FileIO.getNextAvailableFile(), 1, 'Test for file number');
   });
 
-  QUnit.test('File close testing', function() {
-    expect(6);
+  QUnit.test('File close testing', 6, function() {
     var fileName = 'TESTFILE';
     var fileNumber;
 
@@ -245,7 +243,7 @@ function file_open_close_tests() {
     equal(Object.keys(FileIO.openFiles).length, 0, 'Test for 0 open files');
   });
 
-  QUnit.test('File close write testing', function() {
+  QUnit.test('File close write testing', 1, function() {
     var fileName = 'TESTFILE';
     var fileNumber;
     var fileContent = 'This is a string';
@@ -263,7 +261,7 @@ function file_open_close_tests() {
     FileIO.closeFileList();
   });
 
-  QUnit.test('File length testing', function() {
+  QUnit.test('File length testing', 1, function() {
     var fileName = 'TESTFILE';
     var fileNumber;
     var fileContent = 'This is a string';
@@ -277,7 +275,7 @@ function file_open_close_tests() {
 }
 
 function file_misc_tests() {
-  QUnit.test('File getPointer testing', function() {
+  QUnit.test('File getPointer testing', 2, function() {
     var fileName = 'TESTFILE';
     var fileNumber;
     var fileContent = 'This is a string';
@@ -292,7 +290,7 @@ function file_misc_tests() {
     FileIO.closeFileList();
   });
 
-  QUnit.test('File setPointer testing', function() {
+  QUnit.test('File setPointer testing', 5, function() {
     var fileName = 'TESTFILE';
     var fileNumber;
     var fileContent = 'This is a string';
@@ -327,6 +325,7 @@ function file_misc_tests() {
 }
 
 function file_io_cleanup() {
+  DirectoryManager.setCurrentDirectory('c:\\user\\desktop');
   deleteFileIfExists('TESTFILE');
   deleteFileIfExists('PRINT_TEST');
   deleteFileIfExists('WRITE_TEST');
