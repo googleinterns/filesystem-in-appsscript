@@ -24,26 +24,15 @@
  */
 function openURL(url, message) {
   message = message || 'Open Url in new tab';
-
-  // Lock is required to prevent parallel
-  // processes from opening multiple dialogs
-  var lock = LockService.getDocumentLock();
-  try {
-    lock.waitLock(10000);
-    // Create dialog
-    var htmlTemplate = HtmlService.createTemplateFromFile('OpenUrlDialog');
-    htmlTemplate.url = url;
-    var htmlOutput = htmlTemplate.evaluate().setHeight(25).setWidth(350);
-    // Display dialog to the user
-    SpreadsheetApp.getUi().showModelessDialog(htmlOutput, message);
-    // Open in new tab takes some time.
-    // Therefore we need to hold the lock for some time.
-    Utilities.sleep(3000);
-    lock.releaseLock();
-  } catch (e) {
-    Logger.log('Could not obtain lock after 10 seconds.');
-    throw new Error('Could not obtain lock after 10 seconds.');
-  }
+  // Create dialog
+  var htmlTemplate = HtmlService.createTemplateFromFile('open_url_dialog');
+  htmlTemplate.url = url;
+  var htmlOutput = htmlTemplate.evaluate().setHeight(25).setWidth(350);
+  // Display dialog to the user
+  SpreadsheetApp.getUi().showModelessDialog(htmlOutput, message);
+  // Open in new tab takes some time.
+  // Therefore we need to hold the lock for some time.
+  Utilities.sleep(3000);
 }
 
 /**
@@ -106,8 +95,18 @@ function isValidAbsolutePath(path) {
 }
 
 /**
- * Helper function to obtain localPath type
- * @param {string} localPath File or directory localPath
+ * Checks if path is an absolute path. Does not check for validity.
+ * Required when path is not sanitized and when path contains wildcards.
+ * @param {string} path File or Directory path
+ * @return {boolean} true if path is a absolute Windows/Unix path
+ */
+function isAbsolutePath(path) {
+  return /^\w:\\/.test(path) || /^\//.test(path);
+}
+
+/**
+ * Helper function to obtain path type
+ * @param {string} localPath File or directory path
  * @return {string} File System type enumeration
  */
 function getFileSystemType(localPath) {
@@ -164,7 +163,7 @@ function sanitizePath(localPath, fileSystemType) {
  */
 function getAbsoluteLocalPath(currentDirectory, relativePath) {
   // Test if relativePath is actually an absolute path
-  var fileSystemType = getFileSystemType(currentDirectory);
+  var fileSystemType = DirectoryManager.getFileSystemType();
   if (isValidAbsolutePath(relativePath)) {
     return sanitizePath(relativePath, fileSystemType);
   }
@@ -249,5 +248,15 @@ function blockFunctionDecorator(func) {
       }
       throw err;
     }
-  }
-}
+  };
+};
+
+/**
+ * Get parent directory file path. This method returns a path that
+ * is one directory above localPath
+ * @param {string} localPath Local file path
+ * @return {string} Parent directory file path
+ */
+function getParentFolderPath(localPath) {
+  return getAbsoluteLocalPath(localPath, '..');
+};

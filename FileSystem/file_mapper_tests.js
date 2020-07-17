@@ -17,7 +17,6 @@
 /**
  * @fileoverview File Mapper Unit Tests
  */
-
 var fileMapperTests = {
   setup: file_mapper_tests_setup,
   tests: {
@@ -31,9 +30,6 @@ var fileMapperTests = {
   }
 };
 
-/**
- * @fileoverview File Mapper Unit Tests
- */
 function file_mapper_run_all_tests() {
   file_mapper_tests_setup();
   file_folder_get_tests();
@@ -46,13 +42,23 @@ function file_mapper_run_all_tests() {
 }
 
 function file_mapper_tests_setup() {
-  QUnit.module('FileMapper');
+  var moduleName = 'File Mapper';
+  QUnit.module('FileMapper', {
+    setup: function() {
+      if (currentRunningTestModule != moduleName) {
+        currentRunningTestModule = moduleName;
+        FileMapper.clearAllMappingsInConfig();
+        Workbook.setActiveWorkbookPath('c:\\user\\desktop');
+        DirectoryManager.setCurrentDirectory('c:\\user\\desktop');
+        setupTestEnvironment();
+      }
+    }
+  });
   Workbook.setActiveWorkbookPath('c:\\user\\desktop');
 }
 
 function file_folder_get_tests() {
-  QUnit.test('getFileID - Get file ID from localpath testing', function() {
-    expect(2);
+  QUnit.test('getFileID - Get file ID from localpath testing', 2, function() {
     var file1 = 'c:\\User\\Desktop\\marks.xlsx';
     var file2 = 'c:\\User\\Desktop\\attendance.xlsx';
     var fileId1 = FileMapper.getFileId(file1);
@@ -63,17 +69,16 @@ function file_folder_get_tests() {
     equal(fileId2, actualId2, file2 + ' found correctly');
   });
 
-  QUnit.test('getFolderID - Get folder ID from localpath testing', function() {
-    expect(1);
-    var folder = 'c:\\User\\Desktop\\original';
-    var folderId = FileMapper.getFolderId(folder);
-    equal(folderId, '1x4uusmVrFYkOx_YJz6ikch8QzuR9uMDw');
-  });
+  QUnit.test(
+      'getFolderID - Get folder ID from localpath testing', 1, function() {
+        var folder = 'c:\\User\\Desktop\\original';
+        var folderId = FileMapper.getFolderId(folder);
+        equal(folderId, '1x4uusmVrFYkOx_YJz6ikch8QzuR9uMDw');
+      });
 }
 
 function file_folder_existence_tests() {
-  QUnit.test('hasFile - Check if file exists testing', function() {
-    expect(2);
+  QUnit.test('hasFile - Check if file exists testing', 2, function() {
     var file1 = 'c:\\User\\Desktop\\marks.xlsx';
     var file2 = 'c:\\User\\Desktop\\doesNotExist.xlsx';
     var hasFile1 = FileMapper.hasFile(file1);
@@ -82,8 +87,7 @@ function file_folder_existence_tests() {
     ok(!hasFile2, 'hasFile works correctly');
   });
 
-  QUnit.test('hasFolder - Check if folder exists testing', function() {
-    expect(3);
+  QUnit.test('hasFolder - Check if folder exists testing', 3, function() {
     var folder1 = 'c:\\User\\Desktop';
     var folder2 = 'c:\\User\\Desktop\\folder2';
     var folder3 = 'c:\\User\\Desktop\\doesNotExist';
@@ -97,16 +101,14 @@ function file_folder_existence_tests() {
 }
 
 function file_folder_delete_tests() {
-  QUnit.test('deleteFile - Delete a file testing', function() {
-    expect(2);
+  QUnit.test('deleteFile - Delete a file testing', 2, function() {
     var file1 = 'c:\\User\\Desktop\\folder1\\deletethis.txt';
     ok(FileMapper.hasFile(file1), 'File exists');
     FileMapper.deleteFile(file1);
     ok(!FileMapper.hasFile(file1), 'File does not exist');
   });
 
-  QUnit.test('deleteFolder - Delete a folder testing', function() {
-    expect(2);
+  QUnit.test('deleteFolder - Delete a folder testing', 2, function() {
     var folder1 = 'c:\\User\\Desktop\\folder1\\deletethis';
     ok(FileMapper.hasFolder(folder1), 'Folder exists');
     FileMapper.deleteFolder(folder1);
@@ -115,16 +117,14 @@ function file_folder_delete_tests() {
 }
 
 function file_folder_create_tests() {
-  QUnit.test('createFile - Create a file testing', function() {
-    expect(2);
+  QUnit.test('createFile - Create a file testing', 2, function() {
     var file1 = 'c:\\User\\Desktop\\folder1\\somenewfile.txt';
     ok(!FileMapper.hasFile(file1), 'File does not exist');
     FileMapper.createFile(file1);
     ok(FileMapper.hasFile(file1), 'File exists');
   });
 
-  QUnit.test('createFolder - Create a folder testing', function() {
-    expect(2);
+  QUnit.test('createFolder - Create a folder testing', 2, function() {
     var folder1 = 'c:\\User\\Desktop\\folder1\\somenewfolder';
     ok(!FileMapper.hasFolder(folder1), 'Folder does not exist');
     FileMapper.createFolder(folder1);
@@ -133,8 +133,7 @@ function file_folder_create_tests() {
 }
 
 function file_folder_move_tests() {
-  QUnit.test('moveFile - Move a file testing', function() {
-    expect(4);
+  QUnit.test('moveFile - Move a file testing', 4, function() {
     var file1 = 'c:\\User\\Desktop\\folder1\\movethis.txt';
     var destinationFile = 'c:\\User\\Desktop\\folder2\\movethis.txt';
     var destination = 'c:\\User\\Desktop\\folder2';
@@ -145,8 +144,7 @@ function file_folder_move_tests() {
     ok(!FileMapper.hasFile(file1), 'File does not exist');
   });
 
-  QUnit.test('moveFolder - Move a folder testing', function() {
-    expect(5);
+  QUnit.test('moveFolder - Move a folder testing', 5, function() {
     var folder1 = 'c:\\User\\Desktop\\folder1\\movethis';
     var destinationFolder = 'c:\\User\\Desktop\\folder2\\movethis';
     var destination = 'c:\\User\\Desktop\\folder2';
@@ -161,8 +159,7 @@ function file_folder_move_tests() {
 }
 
 function file_folder_copy_tests() {
-  QUnit.test('copyFile - Copy a file testing', function() {
-    expect(4);
+  QUnit.test('copyFile - Copy a file testing', 4, function() {
     var file1 = 'c:\\User\\Desktop\\folder1\\copythis.txt';
     var destinationFile = 'c:\\User\\Desktop\\folder2\\copythis.txt';
     var destination = 'c:\\User\\Desktop\\folder2';
@@ -173,7 +170,7 @@ function file_folder_copy_tests() {
     ok(FileMapper.hasFile(file1), 'File exists');
   });
 
-  QUnit.test('copyFolder - Copy a folder testing', function() {
+  QUnit.test('copyFolder - Copy a folder testing', 5, function() {
     var folder1 = 'c:\\User\\Desktop\\folder1\\copythis';
     var destinationFolder = 'c:\\User\\Desktop\\folder2\\copythis';
     var destination = 'c:\\User\\Desktop\\folder2';
@@ -189,9 +186,8 @@ function file_folder_copy_tests() {
 
 function file_folder_pattern_search_testing() {
   QUnit.test(
-      'findFilesByPattern - Search for files using wildcard pattern testing',
+      'findFilesByPattern - Search for files using wildcard pattern testing', 2,
       function() {
-        expect(2);
         var filePattern1 = 'c:\\User\\Desktop\\folder1\\files\\*.txt';
         var filePattern2 = 'c:\\User\\Desktop\\folder1\\files\\file?.txt';
         var fileMatches1 = FileMapper.findFilesByPattern(filePattern1);
@@ -208,16 +204,17 @@ function file_folder_pattern_search_testing() {
 
   QUnit.test(
       'findFoldersByPattern - Search for folders using wildcard pattern testing',
-      function() {
-        expect(2);
-        var folderPattern1 = 'c:\\User\\Desktop\\*';
-        var folderPattern2 = 'c:\\User\\Desktop\\folder?';
+      2, function() {
+        var folderPattern1 = 'c:\\User\\Desktop\\filesystem\\*';
+        var folderPattern2 = 'c:\\User\\Desktop\\filesystem\\folder?';
         var folderMatches1 = FileMapper.findFoldersByPattern(folderPattern1);
         var folderMatches2 = FileMapper.findFoldersByPattern(folderPattern2);
         folderMatches1.sort();
         folderMatches2.sort();
-        var actualMatches1 = ['folder1', 'folder2', 'original'];
-        var actualMatches2 = ['folder1', 'folder2'];
+        var actualMatches1 = ['folders', 'copythis', 'folder1'];
+        var actualMatches2 = ['folder1', 'folders'];
+        actualMatches1.sort();
+        actualMatches2.sort();
         deepEqual(
             folderMatches1, actualMatches1, 'Folder Pattern matches correctly');
         deepEqual(

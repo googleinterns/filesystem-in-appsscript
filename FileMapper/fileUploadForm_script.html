@@ -158,32 +158,6 @@ limitations under the License.
   }
 
   /**
-   * Function to return the MimeType based on the file extension
-   *
-   * @param {String} extension The extension of the local path
-   * @return {String} MimeType of the file based on it's extension
-   */
-  function getMimetypeFromExtension(extension) {
-    var sheets_extensions = ["xls", "xlsx", "csv", "xlsm", "tsv"];
-    if (sheets_extensions.indexOf(extension) !== -1)
-      return 'GOOGLE_SHEETS';
-
-    var docs_extensions = ["doc", "docx", "docm", "pdf"];
-    if (docs_extensions.indexOf(extension) !== -1)
-      return 'GOOGLE_DOCS';
-
-    var slides_extensions = ["ppt", "pptx", "pptm"];
-    if (slides_extensions.indexOf(extension) !== -1)
-      return 'GOOGLE_SLIDES';
-
-    var other_extensions = ["txt"];
-    if (other_extensions.indexOf(extension) !== -1) 
-      return 'PLAIN_TEXT';  
-
-    return 'UNKNOWN';
-  }
-
-  /**
    * Function to check if the mimetype of the local path file and the uploaded
    * file matches or not
    *
@@ -195,8 +169,8 @@ limitations under the License.
     var uploadedFileExtension = getExtensionFromLocalPath(uploadedFile);
     var localPathExtension = getExtensionFromLocalPath(localPath);
 
-    if (getMimetypeFromExtension(localPathExtension) ===
-        getMimetypeFromExtension(uploadedFileExtension)) {
+    if (getMimeTypeFromExtension(localPathExtension) ===
+        getMimeTypeFromExtension(uploadedFileExtension)) {
       showUploadedFileMessage("File type matches the local file type", true);
     } else {
       showUploadedFileMessage("File type doesn't match the local file type",

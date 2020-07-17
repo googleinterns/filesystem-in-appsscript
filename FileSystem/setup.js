@@ -35,7 +35,7 @@ function onOpen(e) {
  * selectively chose what tests are to be run.
  */
 function createTestSidebar() {
-  var template = HtmlService.createTemplateFromFile('TestSystem');
+  var template = HtmlService.createTemplateFromFile('test_system');
   var tests = {};
   buildTestMetadata(getFileSystemTests().tests, tests);
   template.tests = JSON.stringify(tests);
@@ -65,6 +65,6 @@ function buildTestMetadata(tests, metadata) {
  *     included
  * @return {string} External HTML content
  */
-function include(filename) {
+function getHtmlContentFromFile(filename) {
   return HtmlService.createHtmlOutputFromFile(filename).getContent();
 }
