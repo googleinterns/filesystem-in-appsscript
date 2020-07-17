@@ -17,24 +17,40 @@
  * @fileoverview VbaFile Unit Tests
  */
 
-function vba_file_run_all_tests() {
-  QUnit.module('VbaFile', {
-    setup: function() {
-      DirectoryManager.setCurrentDirectory('c:\\user\\desktop');
-    }
-  });
+var vbaFileTests = {
+  setup: vba_file_tests_setup,
+  tests: {
+    create: file_create_testing,
+    date: file_date_testing,
+    misc: file_misc_testing,
+    directory: file_directory_testing,
+  }
+};
 
+function vba_file_run_all_tests() {
+  vba_file_tests_setup();
+  file_create_testing();
+  file_date_testing();
+  file_misc_testing();
+  file_directory_testing();
+}
+
+function file_create_testing() {
   var filePath = 'attendance.xlsx';
   var fullPath = 'c:\\user\\desktop\\attendance.xlsx';
   var fileId = FileMapper.getFileId(fullPath);
-  var driveFile = DriveApp.getFileById(fileId);
-
-  QUnit.test('File create testing', 2, function() {
+  QUnit.test('File structure create testing', 2, function() {
     var vbaFile = FileSystem.getFile(filePath);
     equal(fileId, vbaFile.driveId, 'File created correctly - Id Check');
     equal(fullPath, vbaFile.localPath, 'File created correctly - Id Check');
   });
+}
 
+function file_date_testing() {
+  var filePath = 'attendance.xlsx';
+  var fullPath = 'c:\\user\\desktop\\attendance.xlsx';
+  var fileId = FileMapper.getFileId(fullPath);
+  var driveFile = DriveApp.getFileById(fileId);
   QUnit.test('File date property testing', 3, function() {
     var vbaFile = FileSystem.getFile(filePath);
     var dateCreated = vbaFile.getDateCreated();
@@ -50,7 +66,13 @@ function vba_file_run_all_tests() {
         dateLastModified.date.getTime(), driveFile.getLastUpdated().getTime(),
         'Date Modified Test');
   });
+}
 
+function file_misc_testing() {
+  var filePath = 'attendance.xlsx';
+  var fullPath = 'c:\\user\\desktop\\attendance.xlsx';
+  var fileId = FileMapper.getFileId(fullPath);
+  var driveFile = DriveApp.getFileById(fileId);
   QUnit.test('File misc property testing', 3, function() {
     var vbaFile = FileSystem.getFile(filePath);
     var fileType = vbaFile.getType();
@@ -60,7 +82,11 @@ function vba_file_run_all_tests() {
     deepEqual(fileSize, driveFile.getSize(), 'File Size Test');
     deepEqual(path, fullPath, 'File Path Test');
   });
+}
 
+function file_directory_testing() {
+  var filePath = 'attendance.xlsx';
+  var fullPath = 'c:\\user\\desktop\\attendance.xlsx';
   QUnit.test('File directory property testing', 2, function() {
     var vbaFile = FileSystem.getFile(filePath);
     var vbaDrive = vbaFile.getDrive();
@@ -69,5 +95,13 @@ function vba_file_run_all_tests() {
     var actualParentFolderPath = getParentFolderPath(fullPath);
     equal(vbaDrive, 'C:', 'Drive Test');
     equal(parentFolderPath, actualParentFolderPath, 'Parent Folder Path Test');
+  });
+}
+
+function vba_file_tests_setup() {
+  QUnit.module('VbaFile', {
+    setup: function() {
+      DirectoryManager.setCurrentDirectory('c:\\user\\desktop');
+    }
   });
 }

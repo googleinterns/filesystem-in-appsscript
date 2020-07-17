@@ -23,48 +23,46 @@
  */
 function onOpen(e) {
   SpreadsheetApp.getUi()
-      .createMenu('FileSystem')
-      .addItem('Set Local File Path', 'promptActiveWorkbookPath')
-      .addItem('Run Tests', 'generateTestReport')
-      .addItem('View Tests', 'createTestSidebar')
+      .createMenu('Local File Mapping')
+      .addItem('Edit Mapping', 'DisplayConfigTable')
+      .addItem('Run Tests', 'displayTestResults')
       .addToUi();
 }
 
 /**
- * Creates the test sidebar with hierarchy of all tests available. User can
- * selectively chose what tests are to be run.
+ * Opens a form in the document containing the add-on's user interface.
  */
-function createTestSidebar() {
-  var template = HtmlService.createTemplateFromFile('test_system');
-  var tests = {};
-  buildTestMetadata(getFileSystemTests().tests, tests);
-  template.tests = JSON.stringify(tests);
-  var htmlOutput = template.evaluate();
-  SpreadsheetApp.getUi().showSidebar(htmlOutput);
+function DisplayConfigTable() {
+  var html = HtmlService.createTemplateFromFile('config_table')
+                 .evaluate()
+                 .setWidth(1000)
+                 .setHeight(425);
+  SpreadsheetApp.getUi().showModalDialog(html, 'Config Table');
 }
 
 /**
- * Helper function to build test metadata for the view.
- * @param {object} tests Source test data
- * @param {object} metadata Destination test metadata
- */
-function buildTestMetadata(tests, metadata) {
-  for (test in tests) {
-    if (typeof (tests[test]) == 'function') {
-      metadata[test] = true;
-    } else {
-      metadata[test] = {};
-      buildTestMetadata(tests[test].tests, metadata[test]);
-    }
-  }
-}
-
-/**
- * Helper function to include external HTML content in templated HTML Files
+ * Imports the specified file content into the current file
+ * Used to seperate the CSS and Script content into seperate files
+ * 
  * @param {string} filename Filename of the external html content that is to be
  *     included
  * @return {string} External HTML content
  */
 function getHtmlContentFromFile(filename) {
   return HtmlService.createHtmlOutputFromFile(filename).getContent();
+}
+
+/**
+ * Gets the user's OAuth 2.0 access token so that it can be passed to Picker.
+ * This technique keeps Picker from needing to show its own authorization
+ * dialog, but is only possible if the OAuth scope that Picker needs is
+ * available in Apps Script.
+ *
+ * @return {string} The user's OAuth 2.0 access token.
+ */
+function getOAuthToken() {
+  // The function includes an unused call to a DriveApp method to ensure that 
+  // Apps Script requests access to all files in the user's Drive.
+  DriveApp.getRootFolder();
+  return ScriptApp.getOAuthToken();
 }

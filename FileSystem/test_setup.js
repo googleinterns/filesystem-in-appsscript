@@ -179,8 +179,18 @@ var currentRunningTestModule = null;
  */
 function getFileSystemTests() {
   var FileSystemTests = {
-    setup: setupTestEnvironment,
-    tests: {'File Mapper': fileMapperTests}
+    setup: function() {
+      FileMapper.clearAllMappingsInConfig();
+      Workbook.setActiveWorkbookPath('c:\\user\\desktop');
+    },
+    tests: {
+      'File Mapper': fileMapperTests,
+      'File IO': fileIoTests,
+      'Directory Manager': directoryManagerTests,
+      'Workbook': workbookTests,
+      'VBA File': vbaFileTests,
+      'VBA Folder': vbaFolderTests,
+    }
   };
   return FileSystemTests;
 }
