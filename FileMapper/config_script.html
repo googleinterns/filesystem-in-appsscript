@@ -1,0 +1,330 @@
+<!--
+Copyright 2020 Google LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   https://www.apache.org/licenses/LICENSE-2.0
+   
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<script>
+  // Next id for adding a new mapping
+  var nextId = 1;
+  // ID of mapping currently editing
+  var activeId = 0;
+
+  // Config Table Column enumeration
+  var ConfigColumns = {
+    EDIT_BUTTON : 0,
+    LOCAL_PATH : 1,
+    DRIVE_PATH : 2,
+    FILE_OR_FOLDER : 3,
+    DELETE_BUTTON : 4
+  };
+
+  /**
+   * Executed as soon as this page loads
+   * Gets the config data from the server
+   * to display in the table.
+   */
+  $(document).ready(function() {
+    // Display the loading modal 
+    ScriptUtil.displayLoadingMessage("Config Data Is Loading...");
+    google.script.run
+        .withSuccessHandler(function(configData) { displayTable(configData);})
+        .withFailureHandler()
+        .getConfigDataToBuildTable();
+  })
+
+  /**
+   * Function to provide the view for Google File Picker 
+   */ 
+  function getPickerView() {
+    var view = new google.picker.DocsView()
+                    .setIncludeFolders(true)
+                    .setSelectFolderEnabled(true);
+    return view;
+  }
+
+  /**
+   * Function to display the alert message when the Google File Picker
+   * fails to load
+   */ 
+  function displayPickerFailureAlert() {
+    var message = 'Unable to load the file picker.';
+    ScriptUtil.showAlert(message, true);
+  }
+
+  /**
+   * A callback function that extracts the chosen document's metadata from the
+   * response object.
+   *
+   * @param {object} data The response object.
+   */
+  function pickerCallback(data) {
+    var action = data[google.picker.Response.ACTION];
+    if (action == google.picker.Action.PICKED) {
+      var doc = data[google.picker.Response.DOCUMENTS][0];
+      var id = doc[google.picker.Document.ID];
+      var mime = doc[google.picker.Document.MIME_TYPE];
+
+      $("#hiddenId").val("");
+      $("#hiddenId").val(id);
+
+      $("#browseButton").html('Loading...'); 
+      google.script.run
+          .withSuccessHandler(function(fullpath) {
+            $("#drivepathinput").val(fullpath); 
+            $("#browseButton").html('Browse'); 
+          })
+          .withFailureHandler(function() {
+            $("#browseButton").html('Browse');
+            ScriptUtil.showAlert("Unable to load the selected Drive File.", true);
+          })
+          .getAbsoluteDrivePath(id, ((mime === MimeType.FOLDER) ? true : false));
+    } else if (action == google.picker.Action.CANCEL) {
+      ScriptUtil.showAlert("No File selected.", true);
+    }
+  }
+
+  /**
+   * Creates an HTML table containing all the config data
+   *
+   * @param {object} configData The config data object having keys containing 
+   *     local path with values containing coresponding drive path
+   */
+  function displayTable(configData) {
+    if ($("#configTable tbody").length == 0) {
+      $("#configTable").append("<tbody></tbody>");
+    }
+
+    for (var localPath in configData) {
+      $("#configTable tbody")
+          .append(pathBuildTableRow(
+              localPath, 
+              configData[localPath].drivepath,
+              configData[localPath].isfolder,
+              nextId, 
+              configData[localPath].isdeleted
+            ));
+      nextId += 1;
+    }    
+    // Removing the loading modal once the table has been loaded
+    ScriptUtil.removeLoadingMessage();
+  }
+
+  /**
+   * Display the selected row in the form for edit
+   *
+   * @param {Object} ctl The reference to the HTML element which called this function
+   */
+  function pathDisplay(ctl) {
+    var row = $(ctl).parents("tr");
+    var cols = row.children("td");
+
+    activeId =
+        $($(cols[ConfigColumns.EDIT_BUTTON]).children("button")[0]).data("id");
+
+    $("#localpathinput").val($(cols[ConfigColumns.LOCAL_PATH]).text());
+    $("#drivepathinput").val($(cols[ConfigColumns.DRIVE_PATH]).text());
+    ($(cols[ConfigColumns.FILE_OR_FOLDER]).text() === "File")
+        ? ($("#isfolder").prop("checked", false))
+        : ($("#isfolder").prop("checked", true));
+
+    $("#localpathinput").attr("readonly", true);
+    $("#updateButton").text("Update");
+  }
+
+  /**
+   * Triggered when the form submit event takes place
+   */
+  function pathUpdate() {
+    // Check empty inputs
+    if ($("#localpathinput").val() === "" || $("#drivepathinput").val() === "") {
+      ScriptUtil.showAlert("One or both of the Input Fields are Empty.", true);
+      return;
+    }
+
+    if ($("#updateButton").text() == "Update") {
+      pathUpdateInTable(activeId);
+    } else {
+      // Check for absolute local path
+      if (!ScriptUtil.checkIfAbsolutePath($("#localpathinput").val())) {
+        ScriptUtil.showAlert("Provide Absolute Local Path.", true);
+        return;
+      }
+
+      // Display the loading message
+      ScriptUtil.displayLoadingMessage("Mapping Is Being Added...");
+
+      google.script.run
+          .withSuccessHandler(function(exists) {
+            if (!exists) {
+              pathAddToTable();
+            } else {
+              // Removing the loading modal once the mapping has been added
+              ScriptUtil.removeLoadingMessage();
+              ScriptUtil.showAlert("Local Path already exists.", true);
+            }
+          })
+          .withFailureHandler()
+          .checkIfLocalPathExists($("#localpathinput").val());
+    }
+  }
+
+  /**
+   * Add new row containing path mapping to the Html table and also to the config
+   * data on the server
+   */
+  function pathAddToTable() {
+    if ($("#configTable tbody").length == 0) {
+      $("#configTable").append("<tbody></tbody>");
+    }
+
+    google.script.run
+        .withSuccessHandler(function(success) {
+          // Removing the loading modal once the mapping has been added
+          ScriptUtil.removeLoadingMessage();
+
+          if (success) {
+            ScriptUtil.showAlert("Mapping Added Successfully.", false);
+            $("#hiddenId").val("");
+            $("#configTable tbody")
+                .append(pathBuildTableRow($("#localpathinput").val(),
+                                          $("#drivepathinput").val(),
+                                          $("#isfolder").is(':checked'),
+                                           nextId, false));
+            nextId += 1;
+            ScriptUtil.formClear();
+            $("#localpathinput").focus();
+          } else {
+            ScriptUtil.showAlert("The MimeType of Local Path and Drive Path doesn't match.",
+                      true);
+          }
+        })
+        .withFailureHandler(function() { 
+          // Removing the loading modal once the mapping has been added
+          ScriptUtil.removeLoadingMessage();
+          ScriptUtil.showAlert("Mapping Add Failed", true); 
+        })
+        .addMapping($("#localpathinput").val(), $("#drivepathinput").val(),
+                    $("#hiddenId").val(), $("#isfolder").is(':checked'));
+  }
+
+  /**
+   * Update a row containing path mapping in the Html table and also in the config
+   * data on the server
+   */
+  function pathUpdateInTable(id) {
+    var row = $("#configTable button[data-id='" + id + "']").parents("tr")[0];
+
+    // Display the loading message
+    ScriptUtil.displayLoadingMessage("Mapping Is Being Updated...");
+
+    google.script.run
+        .withSuccessHandler(function(success) {
+          // Removing the loading modal once the mapping has been updated
+          ScriptUtil.removeLoadingMessage();
+
+          if (success) {
+            ScriptUtil.showAlert("Mapping Updated Successfully.", false);
+
+            // To check if the updated row needs to be marked deleted or not
+            var isDeleted = $(row).hasClass('danger');
+            if($("#hiddenId").val()){
+              isDeleted = false;
+            }
+
+            $(row).after(pathBuildTableRow($("#localpathinput").val(),
+                                           $("#drivepathinput").val(),
+                                           $("#isfolder").is(':checked'), 
+                                           id, isDeleted ));
+            $(row).remove();
+          } else {
+            ScriptUtil.showAlert("The MimeType of Local Path and Drive Path doesn't match.",
+                      true);
+          }
+
+          $("#hiddenId").val("");
+          ScriptUtil.formClear();
+          $("#updateButton").text("Add");
+          $("#localpathinput").attr("readonly", false);
+          $("#localpathinput").focus();
+        })
+        .withFailureHandler(function() { 
+          // Removing the loading modal once the mapping has been updated
+          ScriptUtil.removeLoadingMessage();
+          ScriptUtil.showAlert("Update Failed", true); 
+        })
+        .updateMapping($("#localpathinput").val(), $("#drivepathinput").val(),
+                       $("#hiddenId").val(), $("#isfolder").is(':checked'));
+  }
+
+  /**
+   * Build a new <table> row
+   */
+  function pathBuildTableRow(localPath, drivePath, isFolder, id, isDeleted) {
+    var rowtab = "<tr>";
+    if(isDeleted) {
+      var tooltipText = "Drive " + ((isFolder) ? "Folder" : "File") + " has been deleted or moved";
+      rowtab = "<tr class='danger' data-toggle='tooltip' data-placement='left' data-container='body' title='" + tooltipText + "'>";
+    }
+
+    var ret =  rowtab +
+                "<td>" +
+                  "<button type='button' " +
+                    "id = 'rowbutton'" +
+                    "onclick='pathDisplay(this);' " +
+                    "class='btn btn-default' " +
+                    "data-id='" + id + "'>" +
+                    "<span class='glyphicon glyphicon-edit' />" +
+                  "</button>" +
+                  "</td>" +
+                  "<td>" + localPath + "</td>" +
+                  "<td>" + drivePath + "</td>" +
+                  "<td>" + ((isFolder) ? "Folder" : "File") + "</td>" +
+                  "<td>" +
+                  "<button type='button' " +
+                    "id = 'rowbutton'" +
+                    "onclick='pathDelete(this);' " +
+                    "class='btn btn-default' " +
+                    "data-id='" + id + "'>" +
+                    "<span class='glyphicon glyphicon-remove' />" +
+                  "</button>" +
+                "</td>" +
+              "</tr>"
+
+    return ret;
+  }
+
+  /**
+   * Delete a row containing path mapping from the Html table and also from the config
+   * data on the server
+   */
+  function pathDelete(ctl) {
+    var row = $(ctl).parents("tr");
+    var cols = row.children("td");
+
+    // Display the loading message
+    ScriptUtil.displayLoadingMessage("Mapping Is Being Deleted...");
+
+    google.script.run
+        .withSuccessHandler( function() {
+            // Removing the loading modal once the mapping has been deleted
+            ScriptUtil.removeLoadingMessage();
+
+            $(ctl).parents("tr").remove();
+            ScriptUtil.showAlert("Mapping Deleted Successfully.", false);
+          }
+        ).withFailureHandler()
+        .deleteMapping($(cols[ConfigColumns.LOCAL_PATH]).text());
+  }
+
+</script>
