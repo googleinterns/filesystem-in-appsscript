@@ -29,12 +29,12 @@ function createFile(localPath) {
         "File mapped to the local path " + localPath + " already exists.";
     throw new FileAlreadyExistsException(errorMessage);
   }
-  createFileOrFolderUtil = SharedLibrary.blockFunctionDecorator(
+  createFileOrFolderUtilDecorated = SharedLibrary.blockFunctionDecorator(
       createFileOrFolderUtil, PromptSettings.sleepTime,
       PromptSettings.retryCount, PromptSettings.retryCallback,
       PromptSettings.failureCallback, [ localPath ]);
 
-  return createFileOrFolderUtil(localPath, true);
+  return createFileOrFolderUtilDecorated(localPath, true);
 }
 
 /**
@@ -52,12 +52,12 @@ function createFolder(localPath) {
         "Folder mapped to the local path " + localPath + " already exists.";
     throw new FileAlreadyExistsException(errorMessage);
   }
-  createFileOrFolderUtil = SharedLibrary.blockFunctionDecorator(
+  createFileOrFolderUtilDecorated = SharedLibrary.blockFunctionDecorator(
       createFileOrFolderUtil, PromptSettings.sleepTime,
       PromptSettings.retryCount, PromptSettings.retryCallback,
       PromptSettings.failureCallback, [ localPath ]);
   
-  return createFileOrFolderUtil(localPath, false);
+  return createFileOrFolderUtilDecorated(localPath, false);
 }
 
 /**
