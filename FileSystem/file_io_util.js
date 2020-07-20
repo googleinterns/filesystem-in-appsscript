@@ -235,7 +235,7 @@ function getLineStart(file) {
  * @param(object) file File structure
  * @param {VbaBox} variable reference variable to store value
  */
-function inputFileUtil(file, variable) {
+function inputFileHelper(file, variable) {
   var content = file.content;
   var filePointer = file.pointer;
   // Jump over whitespace
