@@ -15,64 +15,83 @@
  */
 
 /**
- * Creates a menu entry in the Google Docs UI when the document is opened.
- * This method is only used by the regular add-on, and is never called by
- * the mobile add-on version.
- */
-function onOpen() {
-  SpreadsheetApp.getUi() 
-      .createMenu('File Mapping')
-      .addItem('Open', 'DisplayFileMapping')
-      .addToUi();
-}
-
-
-/**
  * Opens a form in the document containing the add-on's user interface.
  */
-function DisplayFileMapping() {
-  var html = HtmlService.createHtmlOutputFromFile('fileuploadform')
+function displayFileUploadForm(localPathValue, destinationFolder) {
+  // Create HTML dialog and set template parameters
+  var htmlOutput = HtmlService.createTemplateFromFile('fileUploadForm');
+  htmlOutput.localPathValue = localPathValue ? localPathValue : '';
+  htmlOutput.destinationFolder =
+      destinationFolder ? destinationFolder : "My Drive";
+
+  // Display dialog to the user
+  var html = htmlOutput.evaluate()
       .setWidth(600)
-      .setHeight(425);
-  SpreadsheetApp.getUi() 
-      .showModalDialog(html, 'Upload a file to Google Drive');
+      .setHeight(425)
+      .setSandboxMode(HtmlService.SandboxMode.IFRAME);
+  var title = 'Upload a file to Google Drive';
+  SpreadsheetApp.getUi().showModalDialog(html, title);
 }
 
-
 /**
- * Gets the blob data, mimetype and filename and decodes the data back 
- * from base64, then create a blob from all of these and then create a 
- * file in the drive
+ * Gets the blob data, mimetype and filename and decodes the data back
+ * from base64, then create a blob from all of these and then create a
+ * file in the drive. Also, add the mapping of the uploaded file to
+ * the config
  *
  * @param {string} data The base64 encoded file data.
  * @param {string} mimetype The required mimetype of the file.
- * @param {string} filename The required filename for the file. 
+ * @param {string} filename The required filename for the file.
+ * @param {string} localPathValue Local path to which uploaded file will be
+ *     mapped to
+ * @param {string} destinationFolderId Drive id of the destination folder where
+ *     the file is to be uploaded
  * @return {string} string containing the drive url of the file created.
  */
-function processForm(data, mimetype, filename) {
+function processForm(data, mimetype, filename, localPathValue,
+                     destinationFolderId) {
   var filedata = Utilities.base64Decode(data);
   var blob = Utilities.newBlob(filedata);
-  
+
   var driveFile = {
-    title: filename,
-    mimeType: mimetype
-  };
-  
+      title : filename, 
+      mimeType : mimetype
+    };
+
   var index = filename.lastIndexOf(".");
   var extension = "";
-  if(index != -1){
+  if (index != -1) {
     extension = filename.substr(index + 1);
   }
-  
-  if(extension === "xls" || extension === "xlsx"){
-    driveFile = Drive.Files.insert(driveFile, blob, {
-      convert: true
-    });
-  }
-  else{
+
+  if (extension === "xls" || extension === "xlsx") {
+    driveFile = Drive.Files.insert(driveFile, blob, {convert : true});
+  } else {
     driveFile = Drive.Files.insert(driveFile, blob);
   }
-  driveFile = DriveApp.getFolderById(driveFile.id);
-  
-  return driveFile.getUrl();
+
+  var file;
+  file = DriveApp.getFileById(driveFile.id);
+  // File name is changing to one without extension
+  // Hence setting it again
+  file.setName(filename);
+
+  var drivePath = "My Drive/" + filename;
+  if (destinationFolderId !== "") {
+    // Move the newly uploaded file to the desired folder
+    ApiUtil.moveFileById(file.getId(), destinationFolderId);
+
+    var destinationFolder =
+        SharedLibrary.getAbsoluteDrivePath(destinationFolderId, true);
+    drivePath = destinationFolder + '/' + filename;
+  }
+
+  CONFIG.setMappingInConfigData(localPathValue, {
+      id : driveFile.id, 
+      drivepath : drivePath, 
+      isfolder : false
+  });
+  CONFIG.flushConfigDataToFile();
+
+  return file.getUrl();
 }
