@@ -39,7 +39,7 @@ function workbook_open_tests() {
   QUnit.test(
       'check if filemapper returns correct file and mimeType when file is present',
       2, function() {
-        var fileName = 'c:\\User\\Desktop\\marks.xlsx';
+        var fileName = 'c:\\user\\desktop\\marks.xlsx';
         var fileId = FileMapper.getFileId(fileName);
         equal(
             fileId, '1i3M1cYfubmXnosn5LJQmHCghBzhPBrDjBQszkWvZkxA',
@@ -52,15 +52,15 @@ function workbook_open_tests() {
 
   QUnit.test(
       'single call to workbook.open() when file is present', 0, function() {
-        var fileName = 'c:\\User\\Desktop\\marks.xlsx';
+        var fileName = 'c:\\user\\desktop\\marks.xlsx';
         Workbook.openWorkbook(fileName);
       });
 
   QUnit.test(
       'multiple calls to workbook.open() when files are present', 0,
       function() {
-        var fileName1 = 'c:\\User\\Desktop\\marks.xlsx';
-        var fileName2 = 'c:\\User\\Desktop\\attendance.xlsx';
+        var fileName1 = 'c:\\user\\desktop\\marks.xlsx';
+        var fileName2 = 'c:\\user\\desktop\\attendance.xlsx';
         Workbook.openWorkbook(fileName2);
         Workbook.openWorkbook(fileName1);
       });
@@ -70,7 +70,7 @@ function active_workbook_tests() {
   QUnit.test(
       'ActiveWorkbook call when active workbook path is set', 2, function() {
         Workbook.resetActiveWorkbookPath();
-        var path = 'C:\\User\\Desktop';
+        var path = 'c:\\user\\desktop';
         Workbook.setActiveWorkbookPath(path);
         equal(path, Workbook.getActiveWorkbookPath(), 'Path set correctly');
         Workbook.resetActiveWorkbookPath();

@@ -30,6 +30,86 @@ function onOpen(e) {
       .addToUi();
 }
 
+function uiSetup() {
+  SpreadsheetApp.getUi()
+  .createMenu('FileSystem')
+  .addItem('Active Spreadsheet Path', 'promptActiveWorkbookPath')
+  .addItem('File Config Table', 'DisplayConfigTable')
+  .addItem('Reset Config', 'resetConfig')
+  .addToUi();
+}
+
+function installLibrary(thisObj) {
+  thisObj.promptActiveWorkbookPath = promptActiveWorkbookPath;
+  thisObj.setActiveWorkbookPath = setActiveWorkbookPath;
+  thisObj.DisplayConfigTable = VBAFileMapper.DisplayConfigTable;
+  thisObj.Workbook = Workbook;
+  thisObj.DirectoryManager = DirectoryManager;
+  thisObj.FileIO = FileIO;
+  thisObj.resetConfig = resetConfig;
+  thisObj.uiSetup = uiSetup;
+  thisObj.OpenMode = OpenMode;
+  thisObj.LockMode = LockMode;
+  thisObj.AccessMode = AccessMode;
+}
+
+function resetConfig() {
+  FileMapper.clearAllMappingsInConfig();
+  resetActiveWorkbookPath(); 
+}
+
+/** 
+ * FILE MAPPER CONFIG TABLE CALLBACKS 
+ */
+function getConfigDataToBuildTable() { 
+  FileMapper.getConfigDataToBuildTable(); 
+}
+
+function getAbsoluteDrivePath(id, isFile) {
+  FileMapper.getAbsoluteDrivePath(id, isFile);
+}
+
+function checkIfLocalPathExists(localpath) {
+  FileMapper.checkIfLocalPathExists(localpath);
+}
+
+function addMapping(localPath, drivePath, driveId, isFolder) {
+  FileMapper.addMapping(localPath, drivePath, driveId, isFolder);
+}
+
+function updateMapping(localPath, drivePath, driveId, isFolder) {
+  FileMapper.updateMapping(localPath, drivePath, driveId, isFolder);
+}
+
+function deleteMapping(localPath) { 
+  FileMapper.deleteMapping(localPath); 
+}
+
+/** 
+ * FILE MAPPER USER PROMPT CALLBACKS 
+ */
+function displayFileUploadForm(localPathValue, destinationFolder) {
+  FileMapper.displayFileUploadForm(localPathValue, destinationFolder);
+}
+
+function showPicker(localPathValue) { 
+  FileMapper.showPicker(localPathValue); 
+}
+
+function processPickedFile(id, isFolder, localPathValue) {
+  FileMapper.processPickedFile(id, isFolder, localPathValue);
+}
+
+function processForm(data, mimetype, filename, localPathValue,
+                     destinationFolderId) {
+  FileMapper.processForm(data, mimetype, filename, localPathValue,
+                         destinationFolderId);
+}
+
+function getOAuthToken() { 
+  FileMapper.getOAuthToken(); 
+}
+
 /**
  * Creates the test sidebar with hierarchy of all tests available. User can
  * selectively chose what tests are to be run.

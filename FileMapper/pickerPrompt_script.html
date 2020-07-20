@@ -1,0 +1,206 @@
+<!--
+Copyright 2020 Google LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   https://www.apache.org/licenses/LICENSE-2.0
+   
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<script>
+  var localPathValue = document.getElementById("localpathinput").value;
+  
+  // Regex expressions to validate absolute paths
+  var windowsPathRegExp = /^[\w]\:(\\|(\\[^<>\\/:"\|\?\*]+)+)\\?$/;
+  var unixPathRegExp = /^(\/[^<>\\/:"\|\?\*]+)*\/?$/;
+
+  /**
+   * Function to provide the view for Google File Picker
+   */
+  function getPickerView() {
+    var localPathInput = document.getElementById("localpathinput");
+    var localPath = localPathInput.value;
+    var extension = getExtensionFromLocalPath(localPath);
+    var displayView = createViewUsingExtension(extension);
+
+    return displayView;
+  }
+
+  /**
+   * Function to display the alert message when the Google File Picker
+   * fails to load
+   */
+  function displayPickerFailureAlert() {
+    var message =
+        'Unable to load the file picker. <br> <strong>Please try again after some time.</strong>';
+    showError(message);
+  }
+
+  /**
+   * Function to check if the localPathInput value is marked invalid
+   * before loading the file picker
+   */
+  function localPathInputError() {
+    var localPathInput = document.getElementById("localpathinput");
+    if (localPathInput.style.borderColor === 'red') {
+      showError(
+          "The local path provided is invalid. <br> <strong> Please provide a valid local path and then try again. </strong>");
+      return;
+    }
+    // If there is no error in the local path then we can show the picker
+    loadPicker();
+  }
+
+  /**
+   * A callback function that extracts the chosen document's metadata from the
+   * response object. For details on the response object, see
+   * https://developers.google.com/picker/docs/result
+   *
+   * @param {object} data The response object.
+   */
+  function pickerCallback(data) {
+    var action = data[google.picker.Response.ACTION];
+    if (action == google.picker.Action.PICKED) {
+      var doc = data[google.picker.Response.DOCUMENTS][0];
+      var id = doc[google.picker.Document.ID];
+      var url = doc[google.picker.Document.URL];
+      var mimetype = doc[google.picker.Document.MIME_TYPE];
+      var title = doc[google.picker.Document.NAME];
+
+      showError(
+          "<strong>" + title +
+          "</strong> is selected from Google Drive to map to <strong>" +
+          document.getElementById("localpathinput").value +
+          "</strong> <br> <strong> Mapping is being added to the Config.<strong>");
+
+      var isFolder =
+          (mimetype === "application/vnd.google-apps.folder") ? true : false;
+
+      google.script.run
+          .withSuccessHandler(function() {
+            showError(
+                "Mapping is added successfully to the config.<br><strong>Now, the VBA macro execution will resume.</strong>");
+            setTimeout(function() { google.script.host.close(); }, 1000);
+          })
+          .withFailureHandler(function() {
+            showError(
+                "Failed to add the mapping to the config. <br> <strong>Please try again.</strong>");
+          })
+          .processPickedFile(id, isFolder,
+                             document.getElementById("localpathinput").value);
+    } else if (action == google.picker.Action.CANCEL) {
+      showError(
+          "Picker was closed without selecting a file. <br> <strong>Please try again.</strong>");
+    }
+  }
+
+  /**
+   * Function to return the file picker view based on the file extension
+   *
+   * @param {String} extension The extension of the local path
+   * @return {View} View in Google picker for the MimeType of the file based on
+   *     it's extension
+   */
+  function createViewUsingExtension(extension) {
+    var view = new google.picker.DocsView();
+    view.setMimeTypes(getMimeTypeFromExtension(extension));
+
+    if (extension === "") {
+      // For folder's view, we need to enable some settings
+      view.setIncludeFolders(true)
+          .setSelectFolderEnabled(true);
+    }
+
+    return view;
+  }
+
+  /**
+   * Get the extension from the file path
+   *
+   * @param {String} path The local path
+   * @return {String} extension The extension of the local path
+   */
+  function getExtensionFromLocalPath(path) {
+    var index = path.lastIndexOf(".");
+    var extension = "";
+    if (index != -1) {
+      extension = path.substr(index + 1);
+    }
+    return extension;
+  }
+
+  /**
+   * Helper function to obtain file seperator (slash) based on the type of
+   * localPath file sytem
+   *
+   * @param {string} localPath File or directory localPath
+   * @return {character} File seperator character
+   */
+  function getFileSeperator(localPath) {
+    return (unixPathRegExp.test(localPath)) ? '/' : '\\';
+  }
+
+  /**
+   * Function  to check if the path in the local path input is a valid parent path
+   * or not
+   *
+   * @param {String} path The input string in the local path input
+   */
+  function checkIfValidParentPath(path) {
+    var defaultLocalPath = localPathValue;
+    path = path.toLowerCase();
+
+    // The value in the local path field should be a valid parent path of the
+    // default value
+    if (path === "") {
+      showInvalidLocalPathError('Empty Local Path value not allowed', false);
+      return;
+    }
+
+    var parentPath = defaultLocalPath.toLowerCase();
+    var fileSeperator = getFileSeperator(defaultLocalPath);
+    while (parentPath !== "") {
+      if (path === parentPath) {
+        showInvalidLocalPathError(
+            "Valid Local Path. Map it to a file from Google Drive now.", true);
+        return;
+      }
+
+      var index = parentPath.lastIndexOf(fileSeperator);
+      parentPath = (index !== -1) ? parentPath.substr(0, index) : "";
+    }
+
+    showInvalidLocalPathError(
+        'Invalid Local Path Value. Please provide a valid path.', false);
+  }
+
+  /**
+   * Displays an error message for the local path input
+   *
+   * @param {string} message The error message to display.
+   */
+  function showInvalidLocalPathError(message, valid) {
+    var errorBox = document.getElementById('localPathError');
+    errorBox.innerHTML = message;
+    var color = (valid) ? 'green' : "red";
+    errorBox.style.color = color;
+    document.getElementById("localpathinput").style.borderColor = color;
+  }
+
+  /**
+   * Displays an error message within the #result element.
+   *
+   * @param {string} message The error message to display.
+   */
+  function showError(message) {
+    document.getElementById('resultDiv').style.display = "block";
+    document.getElementById('result').innerHTML = message;
+  }
+</script>

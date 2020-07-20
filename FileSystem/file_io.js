@@ -398,7 +398,7 @@ function setFilePointer(fileNumber, position) {
 
 /**
  * Emulates VBA input statement API. inputList contains a list of input
- * variables. Each variable can be read independently by the inputFileUtil
+ * variables. Each variable can be read independently by the inputFileHelper
  * function
  * @todo Implement/use custom DateTime/Time/Date structures
  * @body Javascript only has a DateTime Type, No Time or Date type.
@@ -416,6 +416,6 @@ function inputFile(fileNumber, inputList) {
   }
 
   for (var i = 0; i < inputList.length; i++) {
-    inputFileUtil(file, inputList[i]);
+    inputFileHelper(file, inputList[i]);
   }
 }

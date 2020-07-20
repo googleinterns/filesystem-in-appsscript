@@ -1,0 +1,89 @@
+<!--
+Copyright 2020 Google LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   https://www.apache.org/licenses/LICENSE-2.0
+   
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<!DOCTYPE html>
+<html>
+<head>
+
+  <!-- styles -->
+  <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons.css">
+  <?!= getHtmlContentFromFile('pickerPrompt_css'); ?>
+  <?!= getHtmlContentFromFile('pickerPrompt_script'); ?>
+  <!-- styles -->
+
+</head>
+<body>
+  <div>
+    <div id="bodyDiv">
+
+      <!-- display announcements -->
+      <div id='resultDiv'>
+        <p id='result'></p>
+      </div>
+
+      <!-- diplay important information -->
+      <div id="informationDiv">
+        <p> 
+          Select a file or folder from Google Drive to map to the below local path. 
+        </p>
+        <p> 
+          You can provide the mapping for any parent folder of the local path too, update the local path accordingly.
+        </p>
+      </div>
+      <br>
+
+      <!-- picker form -->
+      <div id="form">
+        <div>
+          <label>
+            <strong>  
+              Local Path : 
+            </strong>
+          </label>
+          <br>
+          <input 
+              type="text" 
+              id="localpathinput" 
+              value="<?= localPathValue ?>" 
+              oninput="checkIfValidParentPath(this.value)"
+              name="localpathinput"
+          >
+          <p id="localPathError"> 
+            The local path to which the selected Drive File/Folder will be mapped
+          </p>
+        </div>  
+
+        <br><br>
+
+        <div>
+          <button id="selectFileButton" class="action" onclick='localPathInputError()'>
+            Select a file from Google Drive
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- scripts -->
+  <script src="https://apis.google.com/js/api.js?sonload=loadPicker"></script>
+  <?!= getHtmlContentFromFile('environment_variables'); ?>
+  <?!= getHtmlContentFromFile("picker_library"); ?>
+  <?!= getHtmlContentFromFile('extension_to_mimetype'); ?>
+  <?!= getHtmlContentFromFile('pickerPrompt_script'); ?>
+  <!-- scripts -->
+
+</body>
+</html>

@@ -16,7 +16,7 @@
 /**
  * Flag variable to toggle using FileMapper mocker
  */
-var USE_FILEMAPPER_MOCKER = true;
+var USE_FILEMAPPER_MOCKER = false;
 
 /**
  * Mocks the FileMapper module. The mocker is implemented as we need a way to
@@ -128,9 +128,6 @@ function deleteFolder(localPath) {
  * Create file API
  * The API creates intermediate folders if required.
  * Currently, the MimeType is set to PLAIN_TEXT
- * @todo Set FileMapper Mocker MimeType by file extension
- * @body Infer MimeType from file extension. If no extension is provided, assume
- * PLAIN_TEXT
  * @param {string} localPath Local file path of the file
  * @return {string} File Id of the newly created file
  */

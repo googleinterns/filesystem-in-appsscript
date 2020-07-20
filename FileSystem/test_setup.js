@@ -44,11 +44,11 @@ function doGet(e) {
 
 /**
  * Generates test report as PDF
- * @todo Migrate generateTestReport to use runCustomTests
- * @body runCustomTests has better logging
  */
 function generateTestReport() {
   var fileName = 'FileSystem - Report.pdf';
+  FileMapper.clearAllMappingsInConfig();
+  Workbook.setActiveWorkbookPath('c:\\user\\desktop');
   QUnit.load(testFunctions);
   // Run tests and generate html output
   var htmlOutput = QUnit.getHtml();
@@ -63,8 +63,6 @@ function generateTestReport() {
 }
 
 function testFunctions() {
-  FileMapper.clearAllMappingsInConfig();
-  Workbook.setActiveWorkbookPath('c:\\user\\desktop');
   setupTestEnvironment();
   workbook_run_all_tests();
   file_io_run_all_tests();
@@ -75,8 +73,8 @@ function testFunctions() {
 }
 
 function setupTestEnvironment() {
-  var folder1 = 'c:\\User\\Desktop\\folder1';
-  var folder2 = 'c:\\User\\Desktop\\folder2';
+  var folder1 = 'c:\\user\\desktop\\folder1';
+  var folder2 = 'c:\\user\\desktop\\folder2';
   try {
     FileMapper.deleteFolder(folder1);
   } catch (e) {
@@ -87,10 +85,10 @@ function setupTestEnvironment() {
   } catch (e) {
     // Do Nothing
   }
-  var originalFolder1 = 'c:\\User\\Desktop\\original\\folder1';
-  var originalFolder2 = 'c:\\User\\Desktop\\original\\folder2';
-  FileMapper.copyFolder(originalFolder1, 'c:\\User\\Desktop');
-  FileMapper.copyFolder(originalFolder2, 'c:\\User\\Desktop');
+  var originalFolder1 = 'c:\\user\\desktop\\original\\folder1';
+  var originalFolder2 = 'c:\\user\\desktop\\original\\folder2';
+  FileMapper.copyFolder(originalFolder1, 'c:\\user\\desktop');
+  FileMapper.copyFolder(originalFolder2, 'c:\\user\\desktop');
 }
 
 // Callback when module starts
@@ -174,7 +172,6 @@ var currentRunningTestModule = null;
 
 /**
  * Helper function to get fileSystems tests.
- * @todo Migrate tests for FileIO, DirectoryManager, Workbook modules
  * @return {object} File System Tests
  */
 function getFileSystemTests() {

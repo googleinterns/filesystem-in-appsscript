@@ -113,7 +113,7 @@ function setActiveWorkbookPath(path) {
   }
   var id = SpreadsheetApp.getActive().getId();
   var file = DriveApp.getFileById(id);
-  FileMapper.addFileMapping(path, file.getParents().next().getId());
+  FileMapper.addFolderMapping(path, file.getParents().next().getId());
   var fileSystemType = getFileSystemType(path);
   var path = sanitizePath(path, fileSystemType);
   this.activeWorkbookPath = path;

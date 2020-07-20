@@ -15,45 +15,38 @@
  */
 
 /**
- * Creates a custom menu in Google Sheets when the spreadsheet opens.
- */
-function onOpen() {
-  SpreadsheetApp.getUi().createMenu('Picker')
-      .addItem('Start', 'showPicker')
-      .addToUi();
-}
-
-/**
  * Displays an HTML-service dialog in Google Sheets that contains client-side
  * JavaScript code for the Google Picker API.
  */
-function showPicker() {
-  var html = HtmlService.createHtmlOutputFromFile('pickerprompt')
+function showPicker(localPathValue) {
+  // Create HTML dialog and set template parameters
+  var htmlOutput = HtmlService.createTemplateFromFile('pickerPrompt');
+  htmlOutput.localPathValue = localPathValue ? localPathValue : '';
+
+  // Display dialog to the user
+  var html = htmlOutput.evaluate()
       .setWidth(600)
       .setHeight(425)
       .setSandboxMode(HtmlService.SandboxMode.IFRAME);
-  SpreadsheetApp.getUi().showModalDialog(html, 'Select a file');
+  var title = 'Select a file';
+
+  SpreadsheetApp.getUi().showModalDialog(html, title);
 }
 
 /**
- * Gets the user's OAuth 2.0 access token so that it can be passed to Picker.
- * This technique keeps Picker from needing to show its own authorization
- * dialog, but is only possible if the OAuth scope that Picker needs is
- * available in Apps Script. In this case, the function includes an unused call
- * to a DriveApp method to ensure that Apps Script requests access to all files
- * in the user's Drive.
+ * Processes the picked file data and add mapping to the config
  *
- * @return {string} The user's OAuth 2.0 access token.
+ * @param {String} id Drive id of the picked file
+ * @param {Boolean} isFolder To signify whether its a file or folder
+ * @param {String} localPathValue Local path to which picked file will be mapped
+ *     to
  */
-function getOAuthToken() {
-  DriveApp.getRootFolder();
-  return ScriptApp.getOAuthToken();
-}
-
-/**
-* Logs the Picked File URL 
-* Can add any further use of the file url here.
-*/
-function logPickedFile(url){
-  Logger.log(url);
+function processPickedFile(id, isFolder, localPathValue) {
+  var drivepath = SharedLibrary.getAbsoluteDrivePath(id, isFolder);
+  CONFIG.setMappingInConfigData(localPathValue, {
+      id : id, 
+      drivepath : drivepath, 
+      isfolder : isFolder
+  });
+  CONFIG.flushConfigDataToFile();
 }
