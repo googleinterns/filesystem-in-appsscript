@@ -47,8 +47,6 @@ function file_mapper_tests_setup() {
     setup: function() {
       if (currentRunningTestModule != moduleName) {
         currentRunningTestModule = moduleName;
-        FileMapper.clearAllMappingsInConfig();
-        Workbook.setActiveWorkbookPath('c:\\user\\desktop');
         DirectoryManager.setCurrentDirectory('c:\\user\\desktop');
         setupTestEnvironment();
       }

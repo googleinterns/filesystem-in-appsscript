@@ -49,6 +49,8 @@ function doGet(e) {
  */
 function generateTestReport() {
   var fileName = 'FileSystem - Report.pdf';
+  FileMapper.clearAllMappingsInConfig();
+  Workbook.setActiveWorkbookPath('c:\\user\\desktop');
   QUnit.load(testFunctions);
   // Run tests and generate html output
   var htmlOutput = QUnit.getHtml();
@@ -62,13 +64,10 @@ function generateTestReport() {
   DriveApp.createFile(pdf).setName(fileName);
 }
 
-
-
 function testFunctions() {
-  
   setupTestEnvironment();
- workbook_run_all_tests();
- file_io_run_all_tests();
+  workbook_run_all_tests();
+  file_io_run_all_tests();
   file_mapper_run_all_tests();
   directory_manager_run_all_tests();
   vba_file_run_all_tests();
@@ -76,8 +75,6 @@ function testFunctions() {
 }
 
 function setupTestEnvironment() {
-  FileMapper.clearAllMappingsInConfig();
-Workbook.setActiveWorkbookPath('c:\\user\\desktop');
   var folder1 = 'c:\\user\\desktop\\folder1';
   var folder2 = 'c:\\user\\desktop\\folder2';
   try {
