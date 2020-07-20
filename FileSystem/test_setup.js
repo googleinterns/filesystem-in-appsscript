@@ -44,8 +44,6 @@ function doGet(e) {
 
 /**
  * Generates test report as PDF
- * @todo Migrate generateTestReport to use runCustomTests
- * @body runCustomTests has better logging
  */
 function generateTestReport() {
   var fileName = 'FileSystem - Report.pdf';
@@ -174,7 +172,6 @@ var currentRunningTestModule = null;
 
 /**
  * Helper function to get fileSystems tests.
- * @todo Migrate tests for FileIO, DirectoryManager, Workbook modules
  * @return {object} File System Tests
  */
 function getFileSystemTests() {
