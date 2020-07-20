@@ -185,7 +185,6 @@ VbaFolder.prototype.constructor = VbaFolder;
 /**
  * Emulates VBA Folder.Files API
  * Get files in the folder
- * @todo VbaFolder.getFiles - Return VbaCollection of files
  * @return {Array} Array of VbaFile objects
  */
 VbaFolder.prototype.getFiles = function() {
@@ -202,7 +201,6 @@ VbaFolder.prototype.getFiles = function() {
 /**
  * Emulates VBA Folder.SubFolders API
  * Get sub folders in the folder
- * @todo VbaFolder.getSubFolders - Return VbaCollection of folders
  * @return {Array} Array of VbaFolder objects
  */
 VbaFolder.prototype.getSubFolders = function() {
