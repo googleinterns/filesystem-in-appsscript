@@ -17,14 +17,13 @@
 /**
  * Test Utilities
  */
-var TestUtil =
-    {
-      setWindowsTestingEnvironment : setWindowsTestingEnvironment,
-      setUnixTestingEnvironment : setUnixTestingEnvironment,
-      addTestMappingsToConfig : addTestMappingsToConfig,
-      printConfigData : printConfigData,
-      clearAllMappingsInConfig : clearAllMappingsInConfig
-    }
+var TestUtil = {
+  setWindowsTestingEnvironment : setWindowsTestingEnvironment,
+  setUnixTestingEnvironment : setUnixTestingEnvironment,
+  addTestMappingsToConfig : addTestMappingsToConfig,
+  printConfigData : printConfigData,
+  clearAllMappingsInConfig : clearAllMappingsInConfig
+};
 
 /**
  * To set the testing environment
