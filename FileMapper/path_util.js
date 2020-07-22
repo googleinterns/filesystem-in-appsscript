@@ -17,16 +17,15 @@
 /**
  * Path Utilities
  */
-var PathUtil =
-    {
-      checkIfUnixPath : checkIfUnixPath,
-      getFirstSlash : getFirstSlash,
-      getLastSlash : getLastSlash,
-      joinPath : joinPath,
-      splitPath : splitPath,
-      getExtension : getExtension,
-      createNewMovedPath : createNewMovedPath
-    }
+var PathUtil = {
+  checkIfUnixPath : checkIfUnixPath,
+  getFirstSlash : getFirstSlash,
+  getLastSlash : getLastSlash,
+  joinPath : joinPath,
+  splitPath : splitPath,
+  getExtension : getExtension,
+  createNewMovedPath : createNewMovedPath
+};
 
 /**
  * Check if a local path is unix path or not

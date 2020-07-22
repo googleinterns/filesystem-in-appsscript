@@ -17,34 +17,32 @@
 /**
  * Config Utilities
  */
-var ConfigUtil = 
-    {
-      checkIfDrivePathChanged : checkIfDrivePathChanged,
-      checkMappingExists : checkMappingExists,
-      checkIfMimeTypeMatches : checkIfMimeTypeMatches,
-      getMimeTypeFromExtension : getMimeTypeFromExtension
-    }
+var ConfigUtil = {
+  checkIfDrivePathChanged : checkIfDrivePathChanged,
+  checkMappingExists : checkMappingExists,
+  checkIfMimeTypeMatches : checkIfMimeTypeMatches,
+  getMimeTypeFromExtension : getMimeTypeFromExtension
+};
 
 /**
  * File Extensions Types
  */
-var Extensions =
-    {
-      sheets_extensions : [ "xls", "xlsx", "xlsm" ],
-      docs_extensions : [ "doc", "docx", "docm" ],
-      slides_extensions : [ "ppt", "pptx", "pptm" ],
-      csv_extensions : [ "csv", "tsv" ],
-      pdf_extensions : [ "pdf" ],
-      rtf_extensions : [ "rtf" ],
-      css_extensions : [ "css" ],
-      html_extensions : [ "html" ],
-      javascript_extensions : [ "js" ],
-      bmp_extensions : [ "bmp" ],
-      gif_extensions : [ "gif" ],
-      jpeg_extensions : [ "jpg", "jpeg" ],
-      png_extensions : [ "png" ],
-      svg_extensions : [ "svg" ]
-    }
+var Extensions = {
+  sheets_extensions : [ "xls", "xlsx", "xlsm" ],
+  docs_extensions : [ "doc", "docx", "docm" ],
+  slides_extensions : [ "ppt", "pptx", "pptm" ],
+  csv_extensions : [ "csv", "tsv" ],
+  pdf_extensions : [ "pdf" ],
+  rtf_extensions : [ "rtf" ],
+  css_extensions : [ "css" ],
+  html_extensions : [ "html" ],
+  javascript_extensions : [ "js" ],
+  bmp_extensions : [ "bmp" ],
+  gif_extensions : [ "gif" ],
+  jpeg_extensions : [ "jpg", "jpeg" ],
+  png_extensions : [ "png" ],
+  svg_extensions : [ "svg" ]
+};
 
 /**
  * Checks if the Drive Path for a particular mapping has been changed due to

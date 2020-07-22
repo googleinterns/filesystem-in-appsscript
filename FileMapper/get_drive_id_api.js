@@ -21,12 +21,12 @@
  * @return {String} driveMapping The Drive id of the mapped file
  */
 function getFileId(localPath) {
-  getDriveIdUtil = SharedLibrary.blockFunctionDecorator(
+  getDriveIdUtilDecorated = SharedLibrary.blockFunctionDecorator(
       getDriveIdUtil, PromptSettings.sleepTime, PromptSettings.retryCount,
       PromptSettings.retryCallback, PromptSettings.failureCallback,
       [ localPath ]);
 
-  return getDriveIdUtil(localPath, true);
+  return getDriveIdUtilDecorated(localPath, true);
 }
 
 /**
@@ -36,12 +36,12 @@ function getFileId(localPath) {
  * @return {String} driveMapping The Drive id of the mapped folder
  */
 function getFolderId(localPath) {
-  getDriveIdUtil = SharedLibrary.blockFunctionDecorator(
+  getDriveIdUtilDecorated = SharedLibrary.blockFunctionDecorator(
       getDriveIdUtil, PromptSettings.sleepTime, PromptSettings.retryCount,
       PromptSettings.retryCallback, PromptSettings.failureCallback,
       [ localPath ]);
 
-  return getDriveIdUtil(localPath, false);
+  return getDriveIdUtilDecorated(localPath, false);
 }
 
 /**

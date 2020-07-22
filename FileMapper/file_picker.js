@@ -20,7 +20,7 @@
  */
 function showPicker(localPathValue) {
   // Create HTML dialog and set template parameters
-  var htmlOutput = HtmlService.createTemplateFromFile('pickerPrompt');
+  var htmlOutput = HtmlService.createTemplateFromFile('file_picker_prompt');
   htmlOutput.localPathValue = localPathValue ? localPathValue : '';
 
   // Display dialog to the user
