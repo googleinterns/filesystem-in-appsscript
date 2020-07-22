@@ -51,6 +51,7 @@ function installLibrary(thisObj) {
   thisObj.OpenMode = OpenMode;
   thisObj.LockMode = LockMode;
   thisObj.AccessMode = AccessMode;
+  thisObj.FileSystemObject = FileSystem;
 }
 
 function resetConfig() {
@@ -148,3 +149,9 @@ function buildTestMetadata(tests, metadata) {
 function getHtmlContentFromFile(filename) {
   return HtmlService.createHtmlOutputFromFile(filename).getContent();
 }
+
+// Include Errors from FileSystemLibrary
+ActiveWorkbookPathNotFoundException =
+    FileSystemLibrary.ActiveWorkbookPathNotFoundException;
+// Include Helper functions from FileSystemLibrary
+blockFunctionDecorator = FileSystemLibrary.blockFunctionDecorator;

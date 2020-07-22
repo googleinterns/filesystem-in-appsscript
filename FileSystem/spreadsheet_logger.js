@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+var ENABLE_SPREADSHEET_LOGGER = true;
+
 /**
  * Spreadsheet Logger object
  * This object can log messages to the active worksheet. Sheet
@@ -29,10 +31,15 @@ var spreadsheetLogger = {
    * @param {string} message Message to log
    */
   log: function(message, indentation) {
+    indentation = indentation || 0;
+    if (!ENABLE_SPREADSHEET_LOGGER) {
+      var spaces = Array(this.logColumn + indentation + 1).join(' ');
+      Logger.log(spaces + message);
+      return;
+    }
     if (this.sheet == null) {
       this.reset();
     }
-    indentation = indentation || 0;
     this.sheet.getRange(this.logRow++, this.logColumn + indentation)
         .setValue(message);
     if (this.logRow % 10 == 0) {

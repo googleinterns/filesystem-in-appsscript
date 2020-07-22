@@ -85,6 +85,15 @@ var FileSystemType = {
 var windowsPathRegExp = /^[\w]\:(\\|(\\[^<>\\/:"\|\?\*]+)+)\\?$/;
 var unixPathRegExp = /^(\/[^<>\\/:"\|\?\*]+)*\/?$/;
 
+// Regex Expression to test if path is absolute
+var absolutePathRegExp = /^(\/|\w:)/
+
+// Regex Expression to match file separator - / or \
+var fileSeparatorRegExp = /\\|\//;
+
+// Regex Expression to test for wild cards
+var wildCardRegExp = /[\*?]/;
+
 /**
  * Validates if path is a valid absolute Windows/Unix path
  * @param {string} path File or Directory path
@@ -98,15 +107,15 @@ function isValidAbsolutePath(path) {
  * Checks if path is an absolute path. Does not check for validity.
  * Required when path is not sanitized and when path contains wildcards.
  * @param {string} path File or Directory path
- * @return {boolean} true if path is a absolute Windows/Unix path
+ * @return {boolean} true if path is an absolute path
  */
 function isAbsolutePath(path) {
-  return /^\w:\\/.test(path) || /^\//.test(path);
+  return absolutePathRegExp.test(path);
 }
 
 /**
- * Helper function to obtain path type
- * @param {string} localPath File or directory path
+ * Helper function to obtain localPath type
+ * @param {string} localPath File or directory localPath
  * @return {string} File System type enumeration
  */
 function getFileSystemType(localPath) {
@@ -115,7 +124,7 @@ function getFileSystemType(localPath) {
   } else if (unixPathRegExp.test(localPath)) {
     return FileSystemType.UNIX;
   }
-  throw new Error('Unknown FileSystem');
+  throw new Error('Unknown FileSystem: ' + localPath);
 }
 
 /**
@@ -170,8 +179,8 @@ function getAbsoluteLocalPath(currentDirectory, relativePath) {
   var fileSeparator = fileSystemType == FileSystemType.UNIX ? '/' : '\\';
   // First element of windows path split is drive letter ("C:") and
   // First element of unix path split is empty string ("")
-  var pathSplit = currentDirectory.split(fileSeparator);
-  var relativePathSplit = relativePath.split(fileSeparator);
+  var pathSplit = currentDirectory.split(fileSeparatorRegExp);
+  var relativePathSplit = relativePath.split(fileSeparatorRegExp);
 
   for (var i = 0; i < relativePathSplit.length; i++) {
     if (relativePathSplit[i] == '.') {
@@ -188,8 +197,8 @@ function getAbsoluteLocalPath(currentDirectory, relativePath) {
   }
   // Reconstruct absolute file path
   var absolutePath = pathSplit.join(fileSeparator);
-  // If path is root path, i.e. "C:\" or "/" then we need to add a trailing
-  // seperator
+  // If path is root path, i.e. "C:\" or "/" then we need to
+  // add a trailing separator
   if (pathSplit.length == 1) {
     absolutePath += fileSeparator;
   }
@@ -211,44 +220,17 @@ function deleteFileIfExists(localPath) {
 }
 
 /**
- * Decorate function to make it blocking
- * Emulate blocking behavior by manually blocking the execution by using
- * utilities.sleep, If the mapping is not found, the function will try 15 times
- * with 5 seconds interval between attempts. If the mapping is still not found,
- * error will be thrown.
- * @param {function} func Function that needs to be blocking
- * @return {function} Decorated blocking function
+ * Helper function to delete a folder if it exists.
+ * This is intended to be used for cleanup in testing
+ * @param {string} localPath Local file path of the folder to be deleted
  */
-function blockFunctionDecorator(func) {
-  return function() {
-    try {
-      var args = Array.prototype.slice.call(arguments);
-      args.push(true);  // Show prompt once
-      return func.apply(this, args);
-    } catch (err) {
-      if (err instanceof PromptException) {
-        var args = Array.prototype.slice.call(arguments);
-        args.push(false);  // Don't show prompt again
-        // Try 15 times
-        for (var i = 0; i < 15; i++) {
-          try {
-            Utilities.sleep(5 * 1000);
-            return func.apply(this, args);  // Try again
-          } catch (err) {
-            if (!(err instanceof PromptException)) {
-              throw err;
-            }
-          }
-        }
-      }
-      if (err instanceof PromptException) {
-        var timeOutMessage =
-            'Current macro execution has timed out.\nPlease try again.';
-        SpreadsheetApp.getUi().alert('Execution Failed', timeOutMessage);
-      }
-      throw err;
-    }
-  };
+function deleteFolderIfExists(localPath) {
+  localPath = DirectoryManager.getAbsolutePath(localPath);
+  try {
+    FileMapper.deleteFolder(localPath);
+  } catch (e) {
+    // Folder doesn't exist, do nothing
+  }
 };
 
 /**
@@ -259,4 +241,15 @@ function blockFunctionDecorator(func) {
  */
 function getParentFolderPath(localPath) {
   return getAbsoluteLocalPath(localPath, '..');
+};
+
+/**
+ * Helper function to empty a folder if it exists. Create a new empty folder if
+ * it doesn't This is intended to be used for cleanup in testing
+ * @param {string} localPath Local file path of the folder to be deleted
+ */
+function emptyFolder(localPath) {
+  localPath = DirectoryManager.getAbsolutePath(localPath);
+  deleteFolderIfExists(localPath);
+  FileMapper.createFolder(localPath);
 };

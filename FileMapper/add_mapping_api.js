@@ -25,7 +25,7 @@ var ReturnValue = {
     DUPLICATE_MAPPING : 3,
     INCOMPATIBLE_MIMETYPES : 4
   }
-}
+};
 
 /**
  * API to add a new file mapping to the config

@@ -22,7 +22,7 @@ var PromptSettings = {
   retryCount : 10,       // retry 10 times before timing out
   retryCallback : CONFIG.loadConfigData,
   failureCallback : showErrorAlert
-}
+};
 
 /**
  * Error Alert for the user when the execution is terminated

@@ -1,0 +1,21 @@
+{
+  "timeZone": "Asia/Kolkata",
+  "dependencies": {
+    "enabledAdvancedServices": [{
+      "userSymbol": "Drive",
+      "serviceId": "drive",
+      "version": "v2"
+    }],
+    "libraries": [{
+      "userSymbol": "SharedLibrary",
+      "libraryId": "1XVd_hHWgcgEbnbL19tv_-mGOtr4lSybXaA8Cy2iC9syeO5UV9OGiCC2A",
+      "version": "3"
+    }, {
+      "userSymbol": "QUnit",
+      "libraryId": "13agWuzcPH32W4JJvOqOEYqeNHGihS63P2V-a-Vxz-c9WPIzZYBvIhs3m",
+      "version": "4"
+    }]
+  },
+  "exceptionLogging": "STACKDRIVER",
+  "runtimeVersion": "DEPRECATED_ES5"
+}

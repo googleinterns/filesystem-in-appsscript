@@ -17,44 +17,43 @@
 /**
  * Config Setup
  */
-var CONFIG =
-    {
-      filename : 'VBA_FILESYSTEM_CONFIG_FILE.json',
-      // Drive Id of the config file
-      driveId : null,
-      dataLoaded : false,
+var CONFIG = {
+  filename : 'VBA_FILESYSTEM_CONFIG_FILE.json',
+  // Drive Id of the config file
+  driveId : null,
+  dataLoaded : false,
 
-      /**
-       * Object variable for storing the config data locally in the memory
-       * @type {Object}
-       */
-      data : {},
-      // Methods to access the data object
-      getConfigData : getConfigData,
-      getMappingFromConfigData : getMappingFromConfigData,
-      setMappingInConfigData : setMappingInConfigData,
-      deleteMappingInConfigData : deleteMappingInConfigData,
+  /**
+   * Object variable for storing the config data locally in the memory
+   * @type {Object}
+   */
+  data : {},
+  // Methods to access the data object
+  getConfigData : getConfigData,
+  getMappingFromConfigData : getMappingFromConfigData,
+  setMappingInConfigData : setMappingInConfigData,
+  deleteMappingInConfigData : deleteMappingInConfigData,
 
-      /**
-       * Object variable for keeping the mapping from lowercase localPaths to
-       * the ones provided by the user (to handle the case-insensitivity in
-       * local file systems)
-       * @type {Object}
-       */
-      localPathCaseMap : {},
-      // Methods to access the local path case mappings
-      getLocalPathCaseMapping : getLocalPathCaseMapping,
-      updateLocalPathCaseMapping : updateLocalPathCaseMapping,
-      checkIfLocalPathExists : checkIfLocalPathExists,
-      deleteLocalPathCaseMapping : deleteLocalPathCaseMapping,
+  /**
+   * Object variable for keeping the mapping from lowercase localPaths to
+   * the ones provided by the user (to handle the case-insensitivity in
+   * local file systems)
+   * @type {Object}
+   */
+  localPathCaseMap : {},
+  // Methods to access the local path case mappings
+  getLocalPathCaseMapping : getLocalPathCaseMapping,
+  updateLocalPathCaseMapping : updateLocalPathCaseMapping,
+  checkIfLocalPathExists : checkIfLocalPathExists,
+  deleteLocalPathCaseMapping : deleteLocalPathCaseMapping,
 
-      // Utility methods
-      checkIfConfigDataLoaded : checkIfConfigDataLoaded,
-      initConfigFile : initConfigFile,
-      loadConfigData : loadConfigData,
-      createLocalPathMap : createLocalPathMap,
-      flushConfigDataToFile : flushConfigDataToFile
-    }
+  // Utility methods
+  checkIfConfigDataLoaded : checkIfConfigDataLoaded,
+  initConfigFile : initConfigFile,
+  loadConfigData : loadConfigData,
+  createLocalPathMap : createLocalPathMap,
+  flushConfigDataToFile : flushConfigDataToFile
+};
 
 /**
  * Get the entire config data object
