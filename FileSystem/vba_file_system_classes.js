@@ -165,6 +165,48 @@ VbaFile.prototype.getType = function() {
 };
 
 /**
+ * Emulates VBA FileSystemObject.openAsTextStream
+ * Open a text file in read, write or append mode.
+ * @param {string} ioMode IoMode mode enumeration - Reading, writing or append
+ * @return {VbaTextStream} TextStream object representing the opened file
+ */
+VbaFile.prototype.openAsTextStream = function(ioMode) {
+  return new VbaTextStream(this.localPath, ioMode);
+};
+
+/**
+ * Emulates VBA File.DeleteFile API
+ * Deletes the file represented by this object
+ */
+VbaFile.prototype.deleteFile = function() {
+  FileMapper.deleteFile(this.localPath);
+};
+
+/**
+ * Emulates VBA File.Copy API
+ * Copies the file represented by this object to destinationPath. Optionally
+ * overwrite existing file.
+ * @param {string} destinationPath Destination folder
+ * @param {boolean} overwrite Flag indicating to overwrite existing file if
+ *     exists
+ */
+VbaFile.prototype.copy = function(destinationPath, overwrite) {
+  if (overwrite === undefined) {
+    overwrite = true;
+  }
+  return cloneEntity(this.localPath, destinationPath, overwrite, false, true);
+};
+
+/**
+ * Emulates VBA File.Move API
+ * Moves the file represented by this object to destinationPath.
+ * @param {string} destinationPath Destination folder
+ */
+VbaFile.prototype.move = function(destinationPath) {
+  return cloneEntity(this.localPath, destinationPath, false, true, true);
+};
+
+/**
  * Create a new VbaFolder Object
  * @constructor
  * @param {string} localPath Local file path of the folder
@@ -231,4 +273,36 @@ VbaFolder.prototype.getType = function() {
 VbaFolder.prototype.isRootFolder = function() {
   var parentPath = getParentFolderPath(this.localPath);
   return parentPath == this.localPath;
+};
+
+/**
+ * Emulates VBA Folder.Delete API
+ * Deletes the folder represented by this object.
+ */
+VbaFolder.prototype.deleteFolder = function() {
+  FileMapper.deleteFolder(this.localPath);
+};
+
+/**
+ * Emulates VBA Folder.Copy API
+ * Copies the folder represented by this object to destinationPath. Optionally
+ * overwrite existing folder.
+ * @param {string} destinationPath Destination folder
+ * @param {boolean} overwrite Flag indicating to overwrite existing folder if
+ *     exists
+ */
+VbaFolder.prototype.copy = function(destinationPath, overwrite) {
+  if (overwrite === undefined) {
+    overwrite = true;
+  }
+  return cloneEntity(this.localPath, destinationPath, overwrite, false, false);
+};
+
+/**
+ * Emulates VBA Folder.Move API
+ * Moves the folder represented by this object to destinationPath.
+ * @param {string} destinationPath Destination folder
+ */
+VbaFolder.prototype.move = function(destinationPath) {
+  return cloneEntity(this.localPath, destinationPath, false, true, false);
 };

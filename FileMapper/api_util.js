@@ -17,36 +17,35 @@
 /**
  * API Utilities
  */
-var ApiUtil =
-    {
-      // Common API Utilities
-      addNewMappingToConfig : addNewMappingToConfig,
-      checkIfMarkedDeleted : checkIfMarkedDeleted,
-      checkIfValidDriveId : checkIfValidDriveId,
-      findInDrive : findInDrive,
-      getDestinationId : getDestinationId,
+var ApiUtil = {
+  // Common API Utilities
+  addNewMappingToConfig : addNewMappingToConfig,
+  checkIfMarkedDeleted : checkIfMarkedDeleted,
+  checkIfValidDriveId : checkIfValidDriveId,
+  findInDrive : findInDrive,
+  getDestinationId : getDestinationId,
 
-      // Create API Utilities
-      createDeletedDestination : createDeletedDestination,
-      createInDrive : createInDrive,
-      createDestination : createDestination,
+  // Create API Utilities
+  createDeletedDestination : createDeletedDestination,
+  createInDrive : createInDrive,
+  createDestination : createDestination,
 
-      // Pattern Match API Utilities
-      getRegExFromPattern : getRegExFromPattern,
+  // Pattern Match API Utilities
+  getRegExFromPattern : getRegExFromPattern,
 
-      // Move API Utilities
-      moveFileById : moveFileById,
-      moveFolderById : moveFolderById,
+  // Move API Utilities
+  moveFileById : moveFileById,
+  moveFolderById : moveFolderById,
 
-      // Copy API Utilities
-      copyFileById : copyFileById,
-      copyFolderById : copyFolderById,
-      copyFolderInDrive : copyFolderInDrive,
+  // Copy API Utilities
+  copyFileById : copyFileById,
+  copyFolderById : copyFolderById,
+  copyFolderInDrive : copyFolderInDrive,
 
-      // Search Utilities
-      searchFileByName : searchFileByName,
-      searchFolderByName : searchFolderByName
-    }
+  // Search Utilities
+  searchFileByName : searchFileByName,
+  searchFolderByName : searchFolderByName
+};
 
 /**
  * Adds a mapping to the config after computing the drive path

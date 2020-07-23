@@ -293,6 +293,16 @@ VbaFolderCollection = function(parentFolder) {
   this.addEntry = function(index, item, key) {
     this.splice(index, 0, item);
   };
+  /**
+   * Emulates VBA FolderCollection.AddFolder API
+   * Creates a folder and adds it to the current folder collection
+   * @param {string} folderName Name of the folder to create
+   */
+  this.addFolder = function(folderName) {
+    var folderPath = FileSystem.buildPath(this.parentFolder.localPath, folderName);
+    FileMapper.createFolder(folderPath);
+    addToCollection(this, new VbaFolder(folderPath));
+  };
   return this;
 };
 VbaFolderCollection.prototype = new Array();

@@ -20,7 +20,7 @@
  */
 function showPromptToGetMappingFromUser(localPathValue, isFile) {
   // Create HTML dialog and set template parameters
-  var htmlOutput = HtmlService.createTemplateFromFile('showUserPrompt');
+  var htmlOutput = HtmlService.createTemplateFromFile('show_user_prompt');
   htmlOutput.localPathValue = localPathValue ? localPathValue : '';
   htmlOutput.isFile = isFile;
 

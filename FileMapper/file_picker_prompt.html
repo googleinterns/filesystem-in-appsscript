@@ -20,8 +20,7 @@ limitations under the License.
 
   <!-- styles -->
   <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons.css">
-  <?!= getHtmlContentFromFile('pickerPrompt_css'); ?>
-  <?!= getHtmlContentFromFile('pickerPrompt_script'); ?>
+  <?!= getHtmlContentFromFile('file_picker_prompt_css'); ?>
   <!-- styles -->
 
 </head>
@@ -78,11 +77,11 @@ limitations under the License.
   </div>
 
   <!-- scripts -->
-  <script src="https://apis.google.com/js/api.js?sonload=loadPicker"></script>
+  <script src="https://apis.google.com/js/api.js?onload=loadPicker"></script>
   <?!= getHtmlContentFromFile('environment_variables'); ?>
-  <?!= getHtmlContentFromFile("picker_library"); ?>
+  <?!= getHtmlContentFromFile('picker_library'); ?>
   <?!= getHtmlContentFromFile('extension_to_mimetype'); ?>
-  <?!= getHtmlContentFromFile('pickerPrompt_script'); ?>
+  <?!= getHtmlContentFromFile('file_picker_prompt_script'); ?>
   <!-- scripts -->
 
 </body>

@@ -392,3 +392,41 @@ function tryInputVariable(file, variable) {
   }
   return false;
 }
+
+/**
+ * Helper function to read one line of text from the file. The function is
+ * designed to be robust to handle 3 different line endings which are CRLF, CR
+ * and LF. The function should also handle the case if the file pointer reaches
+ * EOF instead of line ending.
+ * @param(object) file File structure
+ * @return {string} Line content read from the file
+ */
+function readLine(file) {
+  // If no data left, throw error
+  var content = file.content;
+  if (file.pointer == content.length) {
+    throw new Error('End of file reached');
+  }
+  var line = '';
+  // Read till \r or \n or end of file
+  while (file.pointer < content.length && content[file.pointer] != '\r' &&
+         content[file.pointer] != '\n') {
+    line += content[file.pointer++];
+  }
+  // End of file reached (EOF case)
+  if (file.pointer == content.length) {
+    return line;
+  }
+  // End of line character \n (LF case)
+  if (content[file.pointer] == '\n') {
+    file.pointer++;
+    return line;
+  }
+  // End of line character \r (CR case)
+  file.pointer++;
+  // End of line character \r\n (CRLF case)
+  if (file.pointer < content.length && content[file.pointer] == '\n') {
+    file.pointer++;
+  }
+  return line;
+}

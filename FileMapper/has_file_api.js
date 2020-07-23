@@ -23,11 +23,11 @@
  *     False if the file has been deleted
  */
 function hasFile(localPath) {
-  hasFileOrFolderUtil = SharedLibrary.blockFunctionDecorator(
+  hasFileOrFolderUtilDecorated = SharedLibrary.blockFunctionDecorator(
       hasFileOrFolderUtil, PromptSettings.sleepTime, PromptSettings.retryCount,
       PromptSettings.retryCallback, PromptSettings.failureCallback, [ localPath ]);
 
-  return hasFileOrFolderUtil(localPath, true);
+  return hasFileOrFolderUtilDecorated(localPath, true);
 }
 
 /**
@@ -39,11 +39,11 @@ function hasFile(localPath) {
  *     False if the folder has been deleted
  */
 function hasFolder(localPath) {
-  hasFileOrFolderUtil = SharedLibrary.blockFunctionDecorator(
+  hasFileOrFolderUtilDecorated = SharedLibrary.blockFunctionDecorator(
       hasFileOrFolderUtil, PromptSettings.sleepTime, PromptSettings.retryCount,
       PromptSettings.retryCallback, PromptSettings.failureCallback, [ localPath ]);
   
-  return hasFileOrFolderUtil(localPath, false);
+  return hasFileOrFolderUtilDecorated(localPath, false);
 }
 
 /**
